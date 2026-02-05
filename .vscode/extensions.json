@@ -1,8 +1,11 @@
 {
-  "recommendations": [
-    "nrwl.angular-console",
-    "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint",
-    "firsttris.vscode-jest-runner"
-  ]
+	"recommendations": [
+		"nrwl.angular-console",
+		"esbenp.prettier-vscode",
+		"dbaeumer.vscode-eslint",
+		"firsttris.vscode-jest-runner",
+		"bradlc.vscode-tailwindcss",
+		"mikestead.dotenv",
+		"yoavbls.pretty-ts-errors"
+	]
 }
