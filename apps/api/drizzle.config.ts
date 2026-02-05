@@ -17,5 +17,5 @@ export default defineConfig({
 	casing: 'snake_case',
 	dbCredentials: { url },
 	verbose: true,
-	strict: true,
+	strict: true
 });
