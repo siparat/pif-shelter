@@ -15,6 +15,12 @@ export default [
       unicorn,
       'check-file': checkFile,
     },
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.base.json', './apps/*/tsconfig.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
     rules: {
       '@nx/enforce-module-boundaries': [
         'error',
@@ -29,7 +35,6 @@ export default [
           ],
         },
       ],
-      // 1.1. Files and Folders: kebab-case
       'unicorn/filename-case': [
         'error',
         {
@@ -42,7 +47,6 @@ export default [
           '**/': 'KEBAB_CASE',
         },
       ],
-      // 1.2, 1.3, 1.5. Naming Conventions
       '@typescript-eslint/naming-convention': [
         'error',
         {
@@ -57,7 +61,10 @@ export default [
           leadingUnderscore: 'allow',
           trailingUnderscore: 'allow',
         },
-        // 1.4. Boolean values (is/has/can)
+        {
+          selector: 'objectLiteralProperty',
+          format: ['camelCase', 'UPPER_CASE'],
+        },
         {
           selector: 'variable',
           types: ['boolean'],
@@ -71,7 +78,6 @@ export default [
           selector: 'typeLike',
           format: ['PascalCase'],
         },
-        // 1.2. Interfaces with I prefix (as per doc: interface IAnimalRepository)
         {
           selector: 'interface',
           format: ['PascalCase'],
@@ -85,7 +91,6 @@ export default [
           format: ['PascalCase'],
         },
       ],
-      // 2.1. Strict Typing
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-type': [
         'error',
@@ -98,10 +103,11 @@ export default [
     },
   },
   {
-    files: ['**/*.spec.ts', '**/*.test.ts', '**/jest.config.ts', '**/webpack.config.js'],
+    files: ['**/*.spec.ts', '**/*.test.ts', '**/jest.config.ts', '**/webpack.config.js', '**/drizzle.config.ts', 'eslint.config.mjs'],
     rules: {
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/naming-convention': 'off',
     },
   },
 ];
