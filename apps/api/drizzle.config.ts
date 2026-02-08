@@ -1,8 +1,10 @@
 import * as dotenv from 'dotenv';
 import { expand } from 'dotenv-expand';
 import { defineConfig } from 'drizzle-kit';
+import { join } from 'path';
 
-const env = dotenv.config({ path: '.env.api' });
+const envPath = join(process.cwd(), 'envs', '.api.env');
+const env = dotenv.config({ path: envPath });
 expand(env);
 
 const url = process.env.DATABASE_URL;

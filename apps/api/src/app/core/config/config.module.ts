@@ -8,7 +8,7 @@ import { envSchema } from './env.schema';
 		CoreConfigModule.forRoot({
 			isGlobal: true,
 			validate: (config) => envSchema.parse(config),
-			envFilePath: ['envs/.api.env', '.env.api', '.env']
+			envFilePath: ['envs/.api.env', '.api.env', '.env']
 		})
 	]
 })
