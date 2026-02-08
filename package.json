@@ -13,7 +13,7 @@
 		"@nestjs/cqrs": "^11.0.3",
 		"@nestjs/platform-express": "^11.0.0",
 		"axios": "^1.6.0",
-		"drizzle-orm": "^0.45.1",
+		"drizzle-orm": "1.0.0-beta.15-859cf75",
 		"nestjs-zod": "^5.1.1",
 		"pg": "^8.18.0",
 		"reflect-metadata": "^0.1.13",

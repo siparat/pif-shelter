@@ -43,3 +43,4 @@ Thumbs.db
 
 /envs/*.env
 !/envs/*.example.env
+/tasks
