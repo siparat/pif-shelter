@@ -4,7 +4,7 @@ import { Pool } from 'pg';
 import { DRIZZLE_PROVIDE_KEY } from './constants/drizzle-providers.constants';
 import { DatabaseService } from './database.service';
 import { IDatabaseModuleAsyncOptions, IDatabaseModuleOptions } from './interfaces/drizzle.interface';
-import * as schema from './schemas';
+import { relations, schema } from './schemas';
 
 @Module({})
 export class DatabaseModule implements OnModuleDestroy {
@@ -12,7 +12,7 @@ export class DatabaseModule implements OnModuleDestroy {
 
 	static forRoot({ url }: IDatabaseModuleOptions): DynamicModule {
 		const pool = new Pool({ connectionString: url });
-		const db = drizzle(pool, { schema, casing: 'snake_case' });
+		const db = drizzle({ schema, relations, client: pool, casing: 'snake_case' });
 
 		this.pool = pool;
 
@@ -44,7 +44,7 @@ export class DatabaseModule implements OnModuleDestroy {
 				const { url } = await options.useFactory(...args);
 				const pool = new Pool({ connectionString: url });
 				this.pool = pool;
-				return drizzle(pool, { schema, casing: 'snake_case' });
+				return drizzle({ schema, relations, client: pool, casing: 'snake_case' });
 			}
 		};
 	}

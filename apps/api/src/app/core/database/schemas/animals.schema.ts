@@ -79,3 +79,14 @@ export const animalsRelations = defineRelations(
 		}
 	})
 );
+
+export const relations = animalsRelations;
+export const schema = {
+	animalCoatEnum,
+	animalGenderEnum,
+	animalSizeEnum,
+	animalSpeciesEnum,
+	animalStatusEnum,
+	animals,
+	animalsToLabels
+};
