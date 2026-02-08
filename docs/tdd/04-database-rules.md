@@ -5,27 +5,37 @@
 ## 1. Общие принципы
 
 ### 1.1. Стек
-* Database: PostgreSQL (Latest stable).
-* ORM: Drizzle ORM.
-* Migration Tool: Drizzle Kit.
 
-### 1.2. Naming Conventions (Соглашения об именовании)
+- Database: PostgreSQL (Latest stable).
+- ORM: Drizzle ORM.
+- Migration Tool: Drizzle Kit.
 
-Мы используем маппинг имен: в базе — snake_case, в коде — camelCase.
+### 1.2. Организация схем (Schema Organization)
 
-* Таблицы: snake_case, множественное число (users, animals, donations).
-* Колонки (DB): snake_case (created_at, is_active).
-* Поля (TS): camelCase (createdAt, isActive).
-* Индексы: table_column_idx (например, animals_status_idx).
-* Foreign Keys: table_column_fk.
+Все схемы таблиц хранятся централизованно в директории модуля базы данных: `apps/api/src/app/core/database/schemas/*.schema.ts`.
 
-Пример определения в Drizzle:
+Каждый файл схемы (`.schema.ts`) обязан:
+
+1. Определять таблицы, индексы и перечисления (enums).
+2. Определять отношения через `defineRelations`.
+3. Экспортировать два объекта:
+    - `schema`: Содержит все таблицы и enums файла. Используется для инициализации Drizzle.
+    - `relations`: Содержит описание связей. Используется для поддержки `db.query.*` (Relational Query API).
+
+Пример файла `animals.schema.ts`:
+
 ```ts
-export const users = pgTable('users', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  firstName: text('first_name').notNull(), 
-});
+export const animals = pgTable('animals', { ... });
+export const animalsRelations = defineRelations({ ... });
+
+export const relations = animalsRelations;
+export const schema = { animals, animalStatusEnum };
 ```
+
+Все схемы собираются в `apps/api/src/app/core/database/schemas/index.ts` для передачи в клиент Drizzle.
+
+### 1.3. Naming Conventions (Соглашения об именовании)
+
 ## 2. Стандартные поля (Audit Fields)
 
 Каждая сущность (кроме таблиц связей many-to-many) обязана иметь следующие поля:
@@ -36,39 +46,46 @@ export const users = pgTable('users', {
 4. deletedAt: timestamp (Nullable) — Для реализации Soft Delete (если применимо).
 
 Пример миксина (helper) для переиспользования:
+
 ```ts
 export const timestamps = {
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().$onUpdate(() => new Date()),
-  deletedAt: timestamp('deleted_at'),
+	createdAt: timestamp('created_at').defaultNow().notNull(),
+	updatedAt: timestamp('updated_at')
+		.defaultNow()
+		.$onUpdate(() => new Date()),
+	deletedAt: timestamp('deleted_at')
 };
 ```
+
 ## 3. Типы данных
 
-* ID -> uuid (Не используем auto-increment integer, это небезопасно и мешает репликации).
-* Strings -> text (В Postgres нет смысла использовать varchar(255), text работает так же быстро).
-* Enums -> pgEnum (Создаем типы enum в базе для статусов: 'DRAFT', 'PUBLISHED').
-* Money -> integer (Храним в копейках!) или decimal(10, 2). Предпочтительнее integer для избежания ошибок округления.
-* JSON -> jsonb (Для хранения слабоструктурированных данных, например, настроек уведомлений).
+- ID -> uuid (Не используем auto-increment integer, это небезопасно и мешает репликации).
+- Strings -> text (В Postgres нет смысла использовать varchar(255), text работает так же быстро).
+- Enums -> pgEnum (Создаем типы enum в базе для статусов: 'DRAFT', 'PUBLISHED').
+- Money -> integer (Храним в копейках!) или decimal(10, 2). Предпочтительнее integer для избежания ошибок округления.
+- JSON -> jsonb (Для хранения слабоструктурированных данных, например, настроек уведомлений).
 
 ## 4. Отношения и Внешние ключи
 
 Все связи должны быть явно определены на уровне БД через .references().
+
 ```ts
 export const animals = pgTable('animals', {
-  // ...
-  curatorId: uuid('curator_id')
-    .references(() => users.id, { onDelete: 'set null' }),
+	// ...
+	curatorId: uuid('curator_id').references(() => users.id, { onDelete: 'set null' })
 });
 ```
+
 Правила удаления (On Delete):
-* 'cascade' — Если удаляется родитель, удаляются и дети (например, удалили Животное -> удалились его Фото).
-* 'set null' — Если удаляется родитель, ссылка становится null (например, удалили Куратора -> животное осталось без куратора).
-* 'restrict' — Запретить удаление родителя, если есть дети (например, нельзя удалить Животное, если у него есть активные Донаты).
+
+- 'cascade' — Если удаляется родитель, удаляются и дети (например, удалили Животное -> удалились его Фото).
+- 'set null' — Если удаляется родитель, ссылка становится null (например, удалили Куратора -> животное осталось без куратора).
+- 'restrict' — Запретить удаление родителя, если есть дети (например, нельзя удалить Животное, если у него есть активные Донаты).
 
 ## 5. Миграции (Drizzle Kit)
 
 Мы используем декларативный подход.
+
 1. Разработчик меняет .schema.ts файл.
 2. Запускает nx drizzle-generate api.
 3. Drizzle создает SQL файл миграции.
@@ -81,6 +98,7 @@ export const animals = pgTable('animals', {
 
 Для локальной разработки и E2E тестов нам нужны данные.
 Скрипт сидинга должен:
+
 1. Очищать базу (truncate) при флаге --reset.
 2. Создавать Админа (admin@pif.xyz / admin).
 3. Создавать набор справочников (категории товаров).

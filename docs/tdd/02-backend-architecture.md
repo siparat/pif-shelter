@@ -45,29 +45,27 @@ apps/api/src/app/animals/
 Вместо инъекции Сервиса, мы инжектим CommandBus и QueryBus.
 
 Пример кода контроллера:
+
 ```ts
 @Controller('animals')
 export class AnimalsController {
-  constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
-  ) {}
+	constructor(
+		private readonly commandBus: CommandBus,
+		private readonly queryBus: QueryBus
+	) {}
 
-  @Post()
-  async create(@Body() dto: CreateAnimalDto) {
-    return this.commandBus.execute(
-      new CreateAnimalCommand(dto.name, dto.age, dto.breed)
-    );
-  }
+	@Post()
+	async create(@Body() dto: CreateAnimalDto) {
+		return this.commandBus.execute(new CreateAnimalCommand(dto.name, dto.age, dto.breed));
+	}
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.queryBus.execute(
-      new GetAnimalByIdQuery(id)
-    );
-  }
+	@Get(':id')
+	async findOne(@Param('id') id: string) {
+		return this.queryBus.execute(new GetAnimalByIdQuery(id));
+	}
 }
 ```
+
 ### 2.2. Commands (Write Side)
 
 Команды меняют состояние системы.
@@ -75,75 +73,72 @@ Command: Простой DTO-класс, несущий данные.
 Handler: Класс с логикой. Выполняет запись в БД через Drizzle.
 
 Пример Command и Handler:
+
 ```ts
 // create-animal.command.ts
 export class CreateAnimalCommand {
-  constructor(
-    public readonly name: string,
-    public readonly age: number,
-    public readonly breed: string,
-  ) {}
+	constructor(
+		public readonly name: string,
+		public readonly age: number,
+		public readonly breed: string
+	) {}
 }
 
 // create-animal.handler.ts
 @CommandHandler(CreateAnimalCommand)
 export class CreateAnimalHandler implements ICommandHandler<CreateAnimalCommand> {
-  constructor(private readonly db: DrizzleService) {}
+	constructor(private readonly db: DrizzleService) {}
 
-  async execute(command: CreateAnimalCommand): Promise<string> {
-    const { name, age, breed } = command;
-    
-    const [newAnimal] = await this.db.insert(animals)
-      .values({ name, age, breed })
-      .returning({ id: animals.id });
+	async execute(command: CreateAnimalCommand): Promise<string> {
+		const { name, age, breed } = command;
 
-    this.eventBus.publish(new AnimalCreatedEvent(newAnimal.id));
+		const [newAnimal] = await this.db.insert(animals).values({ name, age, breed }).returning({ id: animals.id });
 
-    return newAnimal.id;
-  }
+		this.eventBus.publish(new AnimalCreatedEvent(newAnimal.id));
+
+		return newAnimal.id;
+	}
 }
 ```
+
 ### 2.3. Queries (Read Side)
 
 Запросы только читают данные.
 Handler: Может делать сложные JOIN и возвращать данные, подготовленные специально для фронтенда (ViewModel). Валидация здесь минимальна.
 
 Пример Handler для Query:
+
 ```ts
 // get-animal-by-id.handler.ts
 @QueryHandler(GetAnimalByIdQuery)
 export class GetAnimalByIdHandler implements IQueryHandler<GetAnimalByIdQuery> {
-  constructor(private readonly db: DrizzleService) {}
+	constructor(private readonly db: DrizzleService) {}
 
-  async execute(query: GetAnimalByIdQuery): Promise<AnimalDto | null> {
-    const result = await this.db.select()
-      .from(animals)
-      .where(eq(animals.id, query.id))
-      .limit(1);
+	async execute(query: GetAnimalByIdQuery): Promise<AnimalDto | null> {
+		const result = await this.db.select().from(animals).where(eq(animals.id, query.id)).limit(1);
 
-    return result[0] || null;
-  }
+		return result[0] || null;
+	}
 }
 ```
+
 ## 3. Регистрация в Модуле
 
 Так как у нас нет одного большого сервиса, нам нужно регистрировать каждый хендлер в массиве providers явно.
+
 ```ts
 @Module({
-  controllers: [AnimalsController],
-  providers: [
-    CreateAnimalHandler,
-    UpdateStatusHandler,
-    GetAnimalByIdHandler,
-    SearchAnimalsHandler,
-  ],
+	controllers: [AnimalsController],
+	providers: [CreateAnimalHandler, UpdateStatusHandler, GetAnimalByIdHandler, SearchAnimalsHandler]
 })
 export class AnimalsModule {}
 ```
+
 ## 4. База данных и Схемы
 
-Схемы таблиц (Drizzle) храним прямо внутри модуля (colocation), рядом с логикой, если таблица принадлежит только этому модулю (например, animals.schema.ts).
-Если схема используется несколькими модулями (например, users, auth), она может лежать в libs/shared/db (если решим вынести), но предпочтительнее держать владельца схемы в соответствующем модуле.
+Схемы таблиц (Drizzle) хранятся централизованно в `apps/api/src/app/core/database/schemas/`.
+
+Каждый файл схемы экспортирует объекты `schema` и `relations`, которые автоматически подтягиваются в `DatabaseService`. Это обеспечивает доступ к типизированным запросам и реляционному синтаксису (`db.query.*`) во всех модулях приложения.
 
 ## 5. Важные правила
 
