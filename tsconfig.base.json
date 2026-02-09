@@ -17,7 +17,8 @@
 		"paths": {
 			"@pif/contracts": ["libs/contracts/src/index.ts"],
 			"@pif/database": ["libs/database/src/index.ts"],
-			"@pif/config": ["libs/config/src/index.ts"]
+			"@pif/config": ["libs/config/src/index.ts"],
+			"@pif/types": ["libs/types/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp"]
