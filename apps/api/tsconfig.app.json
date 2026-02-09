@@ -9,6 +9,10 @@
 		"target": "es2021",
 		"moduleResolution": "node"
 	},
-	"include": ["src/**/*.ts"],
+	"include": [
+		"src/**/*.ts",
+		"../../libs/database/src/lib/database.module.ts",
+		"../../libs/database/src/lib/database.service.ts"
+	],
 	"exclude": ["jest.config.ts", "jest.config.cts", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }

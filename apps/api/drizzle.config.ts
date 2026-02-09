@@ -13,8 +13,8 @@ if (!url) {
 }
 
 export default defineConfig({
-	schema: './apps/api/src/app/**/*.schema.ts',
-	out: './apps/api/migrations',
+	schema: './libs/database/src/schemas/*.schema.ts',
+	out: './migrations',
 	dialect: 'postgresql',
 	casing: 'snake_case',
 	dbCredentials: { url },

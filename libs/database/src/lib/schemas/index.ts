@@ -7,3 +7,5 @@ export const relations = {
 export const schema = {
 	...animalsSchema
 };
+
+export * from './animals.schema';

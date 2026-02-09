@@ -1,8 +1,8 @@
 import { DynamicModule, Module, OnModuleDestroy, Provider } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import { DRIZZLE_PROVIDE_KEY } from './constants/drizzle-providers.constants';
 import { DatabaseService } from './database.service';
+import { DRIZZLE_PROVIDE_KEY } from './constants/drizzle-providers.constants';
 import { IDatabaseModuleAsyncOptions, IDatabaseModuleOptions } from './interfaces/drizzle.interface';
 import { relations, schema } from './schemas';
 

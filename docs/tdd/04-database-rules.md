@@ -12,29 +12,15 @@
 
 ### 1.2. Организация схем (Schema Organization)
 
-Все схемы таблиц хранятся централизованно в директории модуля базы данных: `apps/api/src/app/core/database/schemas/*.schema.ts`.
+Все схемы таблиц хранятся централизованно в библиотеке базы данных: `libs/database/src/lib/schemas/*.schema.ts`.
 
-Каждый файл схемы (`.schema.ts`) обязан:
+Каждый файл схемы (`.schema.ts`) обязан экспортировать объекты `schema` и `relations`. Все они собираются в `libs/database/src/index.ts`.
 
-1. Определять таблицы, индексы и перечисления (enums).
-2. Определять отношения через `defineRelations`.
-3. Экспортировать два объекта:
-    - `schema`: Содержит все таблицы и enums файла. Используется для инициализации Drizzle.
-    - `relations`: Содержит описание связей. Используется для поддержки `db.query.*` (Relational Query API).
+### 1.3. Миграции
 
-Пример файла `animals.schema.ts`:
+Файлы миграций хранятся в корне проекта в директории `/migrations`. Это позволяет запускать их независимо от процесса сборки приложения.
 
-```ts
-export const animals = pgTable('animals', { ... });
-export const animalsRelations = defineRelations({ ... });
-
-export const relations = animalsRelations;
-export const schema = { animals, animalStatusEnum };
-```
-
-Все схемы собираются в `apps/api/src/app/core/database/schemas/index.ts` для передачи в клиент Drizzle.
-
-### 1.3. Naming Conventions (Соглашения об именовании)
+### 1.4. Naming Conventions (Соглашения об именовании)
 
 ## 2. Стандартные поля (Audit Fields)
 
