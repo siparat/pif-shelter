@@ -69,19 +69,19 @@
 		"db:generate": {
 			"executor": "nx:run-commands",
 			"options": {
-				"command": "pnpm drizzle-kit generate --config=apps/api/drizzle.config.ts"
+				"command": "dotenv -e envs/.api.env -- tsx --tsconfig apps/api/tsconfig.json node_modules/drizzle-kit/bin.cjs generate --config apps/api/drizzle.config.ts"
 			}
 		},
 		"db:migrate": {
 			"executor": "nx:run-commands",
 			"options": {
-				"command": "pnpm drizzle-kit migrate --config=apps/api/drizzle.config.ts"
+				"command": "dotenv -e envs/.api.env -- tsx --tsconfig apps/api/tsconfig.json node_modules/drizzle-kit/bin.cjs migrate --config apps/api/drizzle.config.ts"
 			}
 		},
 		"db:studio": {
 			"executor": "nx:run-commands",
 			"options": {
-				"command": "pnpm drizzle-kit studio --config=apps/api/drizzle.config.ts"
+				"command": "dotenv -e envs/.api.env -- tsx --tsconfig apps/api/tsconfig.json node_modules/drizzle-kit/bin.cjs studio --config apps/api/drizzle.config.ts"
 			}
 		}
 	}

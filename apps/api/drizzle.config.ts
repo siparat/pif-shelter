@@ -1,11 +1,4 @@
-import * as dotenv from 'dotenv';
-import { expand } from 'dotenv-expand';
 import { defineConfig } from 'drizzle-kit';
-import { join } from 'path';
-
-const envPath = join(process.cwd(), 'envs', '.api.env');
-const env = dotenv.config({ path: envPath });
-expand(env);
 
 const url = process.env.DATABASE_URL;
 if (!url) {
@@ -13,7 +6,7 @@ if (!url) {
 }
 
 export default defineConfig({
-	schema: './libs/database/src/schemas/*.schema.ts',
+	schema: './libs/database/src/lib/schemas/*.schema.ts',
 	out: './migrations',
 	dialect: 'postgresql',
 	casing: 'snake_case',

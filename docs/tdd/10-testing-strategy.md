@@ -22,7 +22,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CqrsModule, CommandBus } from '@nestjs/cqrs';
 import { CreateAnimalHandler } from './create-animal.handler';
 import { CreateAnimalCommand } from './create-animal.command';
-import { DatabaseModule } from '../../core/database/database.module';
+import { DatabaseModule } from '@pif/database';
 
 describe('CreateAnimalHandler', () => {
 	let commandBus: CommandBus;
@@ -43,7 +43,15 @@ describe('CreateAnimalHandler', () => {
 	});
 
 	it('должен успешно создать животное', async () => {
-		const command = new CreateAnimalCommand('Рекс', 'DOG', 'MALE');
+		const command = new CreateAnimalCommand({
+			name: 'Рекс',
+			species: 'DOG',
+			gender: 'MALE',
+			birthDate: new Date(),
+			size: 'MEDIUM',
+			coat: 'SHORT',
+			color: 'Brown'
+		});
 
 		// Вызываем через шину, как это делает контроллер
 		const result = await commandBus.execute(command);

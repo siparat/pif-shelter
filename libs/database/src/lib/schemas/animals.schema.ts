@@ -1,21 +1,15 @@
+import { AnimalCoatEnum, AnimalGenderEnum, AnimalSizeEnum, AnimalSpeciesEnum, AnimalStatusEnum } from '@pif/shared';
 import { defineRelations } from 'drizzle-orm';
 import { boolean, date, jsonb, pgEnum, pgTable, primaryKey, text, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from './timestamps';
 
-export const animalSpeciesEnum = pgEnum('animal_species', ['DOG', 'CAT']);
-export const animalGenderEnum = pgEnum('animal_gender', ['MALE', 'FEMALE']);
-export const animalSizeEnum = pgEnum('animal_size', ['SMALL', 'MEDIUM', 'LARGE']);
-export const animalStatusEnum = pgEnum('animal_status', [
-	'DRAFT',
-	'PUBLISHED',
-	'ON_TREATMENT',
-	'ON_PROBATION',
-	'ADOPTED',
-	'RAINBOW'
-]);
-export const animalCoatEnum = pgEnum('animal_coat', ['SHORT', 'MEDIUM', 'LONG', 'WIRE', 'CURLY', 'HAIRLESS']);
+export const animalSpeciesEnum = pgEnum('animal_species', AnimalSpeciesEnum);
+export const animalGenderEnum = pgEnum('animal_gender', AnimalGenderEnum);
+export const animalSizeEnum = pgEnum('animal_size', AnimalSizeEnum);
+export const animalStatusEnum = pgEnum('animal_status', AnimalStatusEnum);
+export const animalCoatEnum = pgEnum('animal_coat', AnimalCoatEnum);
 
-export const labels = pgTable('labels', {
+export const animalLabels = pgTable('animal_labels', {
 	id: uuid('id').primaryKey().defaultRandom(),
 	name: text('name').notNull().unique(),
 	color: text('color').notNull(),
@@ -41,40 +35,40 @@ export const animals = pgTable('animals', {
 	avatarUrl: text('avatar_url'),
 	galleryUrls: jsonb('gallery_urls').$type<string[]>().default([]),
 
-	status: animalStatusEnum('status').default('DRAFT').notNull(),
+	status: animalStatusEnum('status').default(AnimalStatusEnum.DRAFT).notNull(),
 	...timestamps
 });
 
-export const animalsToLabels = pgTable(
-	'animals_to_labels',
+export const animalsToAnimalLabels = pgTable(
+	'animals_to_animal_labels',
 	{
 		animalId: uuid('animal_id')
 			.notNull()
 			.references(() => animals.id, { onDelete: 'cascade' }),
 		labelId: uuid('label_id')
 			.notNull()
-			.references(() => labels.id, { onDelete: 'cascade' })
+			.references(() => animalLabels.id, { onDelete: 'cascade' })
 	},
 	(t) => [primaryKey({ columns: [t.animalId, t.labelId] })]
 );
 
 export const animalsRelations = defineRelations(
 	{
-		labels,
+		animalLabels,
 		animals,
-		animalsToLabels
+		animalsToAnimalLabels
 	},
 	(r) => ({
 		animals: {
-			labels: r.many.labels({
-				from: r.animals.id.through(r.animalsToLabels.animalId),
-				to: r.labels.id.through(r.animalsToLabels.labelId)
+			labels: r.many.animalLabels({
+				from: r.animals.id.through(r.animalsToAnimalLabels.animalId),
+				to: r.animalLabels.id.through(r.animalsToAnimalLabels.labelId)
 			})
 		},
 		labels: {
 			animals: r.many.animals({
-				from: r.labels.id.through(r.animalsToLabels.labelId),
-				to: r.animals.id.through(r.animalsToLabels.animalId)
+				from: r.animalLabels.id.through(r.animalsToAnimalLabels.labelId),
+				to: r.animals.id.through(r.animalsToAnimalLabels.animalId)
 			})
 		}
 	})
@@ -88,5 +82,5 @@ export const schema = {
 	animalSpeciesEnum,
 	animalStatusEnum,
 	animals,
-	animalsToLabels
+	animalsToAnimalLabels
 };

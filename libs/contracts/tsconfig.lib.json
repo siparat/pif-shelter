@@ -13,5 +13,5 @@
 		"forceConsistentCasingInFileNames": true,
 		"noFallthroughCasesInSwitch": true
 	},
-	"include": ["src/**/*.ts", "../types/src/common/response.interface.ts"]
+	"include": ["src/**/*.ts"]
 }

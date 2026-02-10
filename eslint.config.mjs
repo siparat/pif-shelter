@@ -88,8 +88,14 @@ export default [
 					trailingUnderscore: 'allow'
 				},
 				{
+					selector: 'variable',
+					modifiers: ['const', 'global'],
+					format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
+					leadingUnderscore: 'forbid'
+				},
+				{
 					selector: 'objectLiteralProperty',
-					format: ['camelCase', 'UPPER_CASE']
+					format: ['camelCase', 'UPPER_CASE', 'snake_case']
 				},
 				{
 					selector: 'variable',
@@ -111,6 +117,10 @@ export default [
 						regex: '^I[A-Z]',
 						match: true
 					}
+				},
+				{
+					selector: 'enumMember',
+					format: ['UPPER_CASE']
 				},
 				{
 					selector: 'enum',
