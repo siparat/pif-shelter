@@ -12,6 +12,7 @@
 		"@nestjs/core": "^11.0.0",
 		"@nestjs/cqrs": "^11.0.3",
 		"@nestjs/platform-express": "^11.0.0",
+		"@nestjs/swagger": "^11.2.6",
 		"axios": "^1.6.0",
 		"drizzle-orm": "1.0.0-beta.15-859cf75",
 		"nestjs-zod": "^5.1.1",

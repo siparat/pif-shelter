@@ -1,5 +1,5 @@
-import { CreateAnimalDto } from '@pif/contracts';
+import { CreateAnimalRequestDto } from '@pif/contracts';
 
 export class CreateAnimalCommand {
-	constructor(public readonly dto: CreateAnimalDto) {}
+	constructor(public readonly dto: CreateAnimalRequestDto) {}
 }

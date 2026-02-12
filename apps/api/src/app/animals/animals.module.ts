@@ -3,7 +3,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { AnimalsController } from './animals.controller';
 import { CreateAnimalHandler } from './commands/create-animal/create-animal.handler';
 import { AnimalsRepository } from './repositories/animals.repository';
-import { IAnimalsRepository } from './repositories/animals.repository.interface';
+import { DrizzleAnimalsRepository } from './repositories/drizzle-animals.repository';
 
 @Module({
 	imports: [CqrsModule],
@@ -11,8 +11,8 @@ import { IAnimalsRepository } from './repositories/animals.repository.interface'
 	providers: [
 		CreateAnimalHandler,
 		{
-			provide: IAnimalsRepository,
-			useClass: AnimalsRepository
+			provide: AnimalsRepository,
+			useClass: DrizzleAnimalsRepository
 		}
 	]
 })

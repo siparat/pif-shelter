@@ -1,1 +1,1 @@
-export { CreateAnimalDto, createAnimalSchema } from './create-animal.command';
+export * from './create-animal.command';
