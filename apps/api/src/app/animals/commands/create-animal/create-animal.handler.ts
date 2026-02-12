@@ -1,13 +1,12 @@
-import { Inject } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { AnimalCreatedEvent } from '../../events/animal-created.event';
-import { ANIMALS_REPOSITORY, IAnimalsRepository } from '../../repositories/animals.repository.interface';
+import { IAnimalsRepository } from '../../repositories/animals.repository.interface';
 import { CreateAnimalCommand } from './create-animal.command';
 
 @CommandHandler(CreateAnimalCommand)
 export class CreateAnimalHandler implements ICommandHandler<CreateAnimalCommand> {
 	constructor(
-		@Inject(ANIMALS_REPOSITORY) private readonly repository: IAnimalsRepository,
+		private readonly repository: IAnimalsRepository,
 		private readonly eventBus: EventBus
 	) {}
 
