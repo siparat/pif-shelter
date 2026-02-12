@@ -15,51 +15,77 @@
 
 Если хендлер содержит много условий, мы мокаем (mock) зависимости (например, репозиторий) и проверяем только логику метода `execute`.
 
-## 2. Шаблон теста для Command Handler
+## 2. Шаблон теста для Command Handler (Unit Test)
+
+Для моков мы используем библиотеку `@golevelup/ts-jest`.
+Она позволяет создавать типизированные моки без boilerplate-кода.
 
 ```typescript
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CqrsModule, CommandBus } from '@nestjs/cqrs';
+import { EventBus } from '@nestjs/cqrs';
 import { CreateAnimalHandler } from './create-animal.handler';
 import { CreateAnimalCommand } from './create-animal.command';
-import { DatabaseModule } from '@pif/database';
+import { IAnimalsRepository } from '../../repositories/animals.repository.interface';
 
 describe('CreateAnimalHandler', () => {
-	let commandBus: CommandBus;
-	let module: TestingModule;
+	let handler: CreateAnimalHandler;
+	let repository: DeepMocked<IAnimalsRepository>;
+	let eventBus: DeepMocked<EventBus>;
 
-	beforeAll(async () => {
-		module = await Test.createTestingModule({
-			imports: [CqrsModule, DatabaseModule],
-			providers: [CreateAnimalHandler]
+	beforeEach(async () => {
+		const module: TestingModule = await Test.createTestingModule({
+			providers: [
+				CreateAnimalHandler,
+				{
+					provide: IAnimalsRepository,
+					useValue: createMock<IAnimalsRepository>()
+				},
+				{
+					provide: EventBus,
+					useValue: createMock<EventBus>()
+				}
+			]
 		}).compile();
 
-		await module.init();
-		commandBus = module.get<CommandBus>(CommandBus);
-	});
-
-	afterAll(async () => {
-		await module.close();
+		handler = module.get<CreateAnimalHandler>(CreateAnimalHandler);
+		repository = module.get(IAnimalsRepository);
+		eventBus = module.get(EventBus);
 	});
 
 	it('должен успешно создать животное', async () => {
 		const command = new CreateAnimalCommand({
-			name: 'Рекс',
-			species: 'DOG',
-			gender: 'MALE',
-			birthDate: new Date(),
-			size: 'MEDIUM',
-			coat: 'SHORT',
-			color: 'Brown'
-		});
+			name: 'Рекс'
+			// ... остальные поля
+		} as any);
 
-		// Вызываем через шину, как это делает контроллер
-		const result = await commandBus.execute(command);
+		const expectedId = 'uuid-123';
+		repository.create.mockResolvedValue(expectedId);
 
-		expect(result).toBeDefined();
-		expect(typeof result).toBe('string'); // Ожидаем UUID
+		const result = await handler.execute(command);
+
+		expect(repository.create).toHaveBeenCalledWith(command.dto);
+		expect(eventBus.publish).toHaveBeenCalled();
+		expect(result).toBe(expectedId);
 	});
 });
+```
+
+## 3. Интеграционные и E2E тесты с Testcontainers
+
+Для тестов, требующих реальную базу данных (например, сложные SQL-запросы в репозиториях или полные E2E сценарии), мы используем `Testcontainers`.
+Это позволяет запускать чистый экземпляр PostgreSQL в Docker для каждого прогона тестов.
+
+Пример настройки:
+Мы используем `@testcontainers/postgresql` для поднятия контейнера и накатываем миграции Drizzle перед тестами.
+
+```typescript
+// Пример setup (будет вынесен в shared test utils)
+import { PostgreSqlContainer } from '@testcontainers/postgresql';
+
+const container = await new PostgreSqlContainer().start();
+const connectionString = container.getConnectionUri();
+// ... инициализация Drizzle с connectionString
 ```
 
 ## 3. Запуск тестов
