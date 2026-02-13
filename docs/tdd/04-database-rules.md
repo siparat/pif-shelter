@@ -73,10 +73,10 @@ export const animals = pgTable('animals', {
 Мы используем декларативный подход.
 
 1. Разработчик меняет .schema.ts файл.
-2. Запускает nx drizzle-generate api.
+2. Запускает `nx db:generate api`.
 3. Drizzle создает SQL файл миграции.
 4. Разработчик проверяет SQL файл.
-5. Миграции применяются при деплое (в CI/CD пайплайне) командой drizzle-kit migrate.
+5. Миграции применяются при деплое (в CI/CD пайплайне) командой `nx db:migrate api`.
 
 ВАЖНО: Никогда не правьте SQL файлы миграций вручную, если это не data-migration.
 

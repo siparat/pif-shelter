@@ -1,5 +1,5 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
-import { IApiSuccessResponse, IPaginatedResult } from '@pif/types';
+import { IApiSuccessResponse, IPaginatedResult } from '@pif/shared';
 import { map, Observable } from 'rxjs';
 
 @Injectable()

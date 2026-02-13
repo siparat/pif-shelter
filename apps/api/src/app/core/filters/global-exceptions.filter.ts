@@ -1,5 +1,5 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { IApiErrorResponse } from '@pif/types';
+import { IApiErrorResponse } from '@pif/shared';
 import { Response } from 'express';
 
 @Catch()

@@ -15,7 +15,7 @@ export interface IApiErrorResponse {
 	error: {
 		code: string;
 		message: string;
-		details?: unknown[];
+		details?: { path: string; message: string }[];
 	};
 }
 
