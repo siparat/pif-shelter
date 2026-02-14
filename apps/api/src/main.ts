@@ -1,6 +1,8 @@
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ApiErrorResponseDto } from '@pif/contracts';
+import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AppModule } from './app/app.module';
@@ -14,7 +16,10 @@ async function bootstrap(): Promise<void> {
 	app.enableShutdownHooks();
 	app.useLogger(app.get(Logger));
 
+	app.use(helmet());
+
 	app.enableCors({
+		origin: app.get(ConfigService).getOrThrow<string>('ALLOWED_ORIGINS').split(','),
 		credentials: true
 	});
 
