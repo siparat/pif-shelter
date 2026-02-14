@@ -1,10 +1,11 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { IApiErrorResponse } from '@pif/shared';
 import { Response } from 'express';
+import { Logger } from 'nestjs-pino';
 
 @Catch()
 export class GlobalExceptionsFilter implements ExceptionFilter {
-	private readonly logger = new Logger(GlobalExceptionsFilter.name);
+	constructor(private readonly logger: Logger) {}
 
 	catch(exception: unknown, host: ArgumentsHost): void {
 		const ctx = host.switchToHttp();
