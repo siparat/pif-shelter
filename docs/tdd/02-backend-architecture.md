@@ -33,8 +33,7 @@ apps/api/src/app/animals/
 │   └── animal-adopted.event.ts
 │
 ├── animals.controller.ts       # Входная точка (HTTP)
-├── animals.module.ts           # Сборка модуля (Providers)
-└── animals.schema.ts           # Drizzle схема таблицы (SQL)
+└── animals.module.ts           # Сборка модуля (Providers)
 ```
 
 ## 2. Реализация Компонентов
@@ -136,7 +135,7 @@ export class AnimalsModule {}
 
 ## 4. База данных и Схемы
 
-Схемы таблиц (Drizzle) хранятся централизованно в `apps/api/src/app/core/database/schemas/`.
+Схемы таблиц (Drizzle) хранятся централизованно в библиотеке `libs/database/src/lib/schemas/` (см. документ 04. Database Rules).
 
 Каждый файл схемы экспортирует объекты `schema` и `relations`, которые автоматически подтягиваются в `DatabaseService`. Это обеспечивает доступ к типизированным запросам и реляционному синтаксису (`db.query.*`) во всех модулях приложения.
 
