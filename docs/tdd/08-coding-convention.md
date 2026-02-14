@@ -20,6 +20,7 @@
 - Классы: class AnimalService {}
 - Компоненты React: function AnimalCard() {}
 - Интерфейсы: interface IAnimalRepository {}
+- Контракты для DI (репозитории и т.п.): используем **abstract class** вместо interface — это упрощает импорт и привязку в NestJS (useClass), без необходимости в отдельном токене для интерфейса.
 
 ### 1.3. Переменные и Функции
 
