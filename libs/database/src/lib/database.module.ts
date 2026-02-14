@@ -1,4 +1,4 @@
-import { DynamicModule, Module, OnModuleDestroy, Provider } from '@nestjs/common';
+import { DynamicModule, Module, OnModuleDestroy, Inject } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { DatabaseService } from './database.service';
@@ -6,50 +6,56 @@ import { DRIZZLE_PROVIDE_KEY } from './constants/drizzle-providers.constants';
 import { IDatabaseModuleAsyncOptions, IDatabaseModuleOptions } from './interfaces/drizzle.interface';
 import { relations, schema } from './schemas';
 
+const POOL_PROVIDER_KEY = 'DATABASE_POOL';
+
 @Module({})
 export class DatabaseModule implements OnModuleDestroy {
-	private static pool?: Pool;
+	constructor(@Inject(POOL_PROVIDER_KEY) private readonly pool: Pool) {}
 
 	static forRoot({ url }: IDatabaseModuleOptions): DynamicModule {
 		const pool = new Pool({ connectionString: url });
 		const db = drizzle({ schema, relations, client: pool, casing: 'snake_case' });
 
-		this.pool = pool;
-
 		return {
 			global: true,
 			module: DatabaseModule,
-			providers: [DatabaseService, { provide: DRIZZLE_PROVIDE_KEY, useValue: db }],
+			providers: [
+				DatabaseService,
+				{ provide: POOL_PROVIDER_KEY, useValue: pool },
+				{ provide: DRIZZLE_PROVIDE_KEY, useValue: db }
+			],
 			exports: [DatabaseService, DRIZZLE_PROVIDE_KEY]
 		};
 	}
 
 	static forRootAsync(options: IDatabaseModuleAsyncOptions): DynamicModule {
-		const asyncProvider = DatabaseModule.createAsyncOptionsProvider(options);
-
 		return {
 			global: true,
 			module: DatabaseModule,
 			imports: options.imports,
-			providers: [DatabaseService, asyncProvider],
+			providers: [
+				DatabaseService,
+				{
+					provide: POOL_PROVIDER_KEY,
+					inject: options.inject,
+					useFactory: async (...args: unknown[]) => {
+						const { url } = await options.useFactory(...args);
+						return new Pool({ connectionString: url });
+					}
+				},
+				{
+					provide: DRIZZLE_PROVIDE_KEY,
+					inject: [POOL_PROVIDER_KEY],
+					useFactory: (pool: Pool) => {
+						return drizzle({ schema, relations, client: pool, casing: 'snake_case' });
+					}
+				}
+			],
 			exports: [DatabaseService, DRIZZLE_PROVIDE_KEY]
 		};
 	}
 
-	private static createAsyncOptionsProvider(options: IDatabaseModuleAsyncOptions): Provider {
-		return {
-			provide: DRIZZLE_PROVIDE_KEY,
-			inject: options.inject,
-			useFactory: async (...args: unknown[]): Promise<ReturnType<typeof drizzle>> => {
-				const { url } = await options.useFactory(...args);
-				const pool = new Pool({ connectionString: url });
-				this.pool = pool;
-				return drizzle({ schema, relations, client: pool, casing: 'snake_case' });
-			}
-		};
-	}
-
 	async onModuleDestroy(): Promise<void> {
-		await DatabaseModule.pool?.end();
+		await this.pool.end();
 	}
 }

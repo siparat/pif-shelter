@@ -11,6 +11,7 @@ const PORT = 3000;
 async function bootstrap(): Promise<void> {
 	const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
+	app.enableShutdownHooks();
 	app.useLogger(app.get(Logger));
 
 	app.enableCors({
