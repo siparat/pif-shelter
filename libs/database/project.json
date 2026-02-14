@@ -5,5 +5,27 @@
 	"projectType": "library",
 	"tags": [],
 	"// targets": "to see all targets run: nx show project database --web",
-	"targets": {}
+	"targets": {
+		"generate": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "dotenv -e envs/.api.env -- tsx --tsconfig libs/database/tsconfig.json node_modules/drizzle-kit/bin.cjs generate --config libs/database/drizzle.config.ts",
+				"cwd": "."
+			}
+		},
+		"migrate": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "dotenv -e envs/.api.env -- tsx --tsconfig libs/database/tsconfig.json node_modules/drizzle-kit/bin.cjs migrate --config libs/database/drizzle.config.ts",
+				"cwd": "."
+			}
+		},
+		"studio": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "dotenv -e envs/.api.env -- tsx --tsconfig libs/database/tsconfig.json node_modules/drizzle-kit/bin.cjs studio --config libs/database/drizzle.config.ts",
+				"cwd": "."
+			}
+		}
+	}
 }
