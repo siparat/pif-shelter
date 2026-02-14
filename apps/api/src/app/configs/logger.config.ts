@@ -34,7 +34,9 @@ export const getLoggerConfig = (): LoggerModuleAsyncParams => ({
 					],
 					censor: '***'
 				},
-				autoLogging: true
+				autoLogging: {
+					ignore: (req: Request) => req.url === '/health'
+				}
 			}
 		};
 	}

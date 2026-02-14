@@ -12,6 +12,13 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
 		const response = ctx.getResponse<Response>();
 
 		const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+
+		// Error Health Check (503)
+		if (status === HttpStatus.SERVICE_UNAVAILABLE && exception instanceof HttpException) {
+			response.status(status).json(exception.getResponse());
+			return;
+		}
+
 		const message = exception instanceof HttpException ? exception.message : 'Внутренняя ошибка сервера';
 		const code = exception instanceof HttpException ? exception.name : 'INTERNAL_SERVER_ERROR';
 

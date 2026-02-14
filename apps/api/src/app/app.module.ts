@@ -6,6 +6,7 @@ import { DatabaseModule } from '@pif/database';
 import { ClsModule } from 'nestjs-cls';
 import { LoggerModule } from 'nestjs-pino';
 import { AnimalsModule } from './animals/animals.module';
+import { HealthModule } from './core/health/health.module';
 import { getDatabaseConfig } from './configs/database.config';
 import { getLoggerConfig } from './configs/logger.config';
 import { getClsConfig } from './configs/cls.config';
@@ -19,7 +20,8 @@ import { ZodValidationExceptionFilter } from './core/filters/zod-exception.filte
 		CqrsModule.forRoot(),
 		ConfigModule,
 		DatabaseModule.forRootAsync(getDatabaseConfig()),
-		AnimalsModule
+		AnimalsModule,
+		HealthModule
 	],
 	providers: [
 		{
