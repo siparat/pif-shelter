@@ -54,9 +54,9 @@
 		"code": "UserAlreadyExists",
 		"message": "Пользователь с таким email уже существует",
 		"details": [
-			// Опционально: ошибки полей формы (zod)
+			// Опционально: ошибки полей формы (zod) — path задаёт путь к полю
 			{
-				"field": "email",
+				"path": "email",
 				"message": "Invalid email format"
 			}
 		]
