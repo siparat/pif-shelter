@@ -18,7 +18,8 @@
 			"@pif/contracts": ["libs/contracts/src/index.ts"],
 			"@pif/database": ["libs/database/src/index.ts"],
 			"@pif/config": ["libs/config/src/index.ts"],
-			"@pif/shared": ["libs/shared/src/index.ts"]
+			"@pif/shared": ["libs/shared/src/index.ts"],
+			"@pif/auth": ["libs/auth/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp"]
