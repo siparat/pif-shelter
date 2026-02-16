@@ -12,7 +12,7 @@ import { GlobalDeserializerInterceptor } from './app/core/interceptors/global-de
 const PORT = 3000;
 
 async function bootstrap(): Promise<void> {
-	const app = await NestFactory.create(AppModule, { bufferLogs: true });
+	const app = await NestFactory.create(AppModule, { bufferLogs: true, bodyParser: false });
 
 	app.enableShutdownHooks();
 	app.useLogger(app.get(Logger));

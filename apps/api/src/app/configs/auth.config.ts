@@ -43,6 +43,7 @@ export const createAuth = (config: ConfigService, db: NodePgDatabase<typeof sche
 export type AppAuth = ReturnType<typeof createAuth>;
 
 export const getAuthConfig = (): Parameters<typeof AuthModule.forRootAsync>[0] => ({
+	disableGlobalAuthGuard: true,
 	isGlobal: true,
 	imports: [ConfigModule],
 	inject: [ConfigService, DRIZZLE_PROVIDE_KEY],
