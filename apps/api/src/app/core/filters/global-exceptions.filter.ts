@@ -19,7 +19,10 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
 			return;
 		}
 
-		const message = exception instanceof HttpException ? exception.message : 'Внутренняя ошибка сервера';
+		const message =
+			exception instanceof HttpException || exception instanceof Error
+				? exception.message
+				: 'Внутренняя ошибка сервера';
 		const code = exception instanceof HttpException ? exception.name : 'INTERNAL_SERVER_ERROR';
 
 		if (status === HttpStatus.INTERNAL_SERVER_ERROR) {

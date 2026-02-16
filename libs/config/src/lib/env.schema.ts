@@ -7,7 +7,12 @@ export const envSchema = z.object({
 	ALLOWED_ORIGINS: z.string().default('http://localhost:5173,http://localhost:3001'),
 	ADMIN_EMAIL: z.email(),
 	ADMIN_PASSWORD: z.string().min(8),
-	BASE_URL: z.url()
+	BASE_URL: z.url(),
+	SMTP_PASSWORD: z.string(),
+	SMTP_HOST: z.string(),
+	SMTP_PORT: z.coerce.number(),
+	SMTP_EMAIL: z.email(),
+	SMTP_NAME: z.string()
 });
 
 export type Env = z.infer<typeof envSchema>;
