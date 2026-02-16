@@ -15,6 +15,9 @@ import { GlobalExceptionsFilter } from './core/filters/global-exceptions.filter'
 import { ZodValidationExceptionFilter } from './core/filters/zod-exception.filter';
 import { HealthModule } from './core/health/health.module';
 import { ThrottlerExceptionFilter } from './core/filters/throttler-exception.filter';
+import { AuthModule } from '@thallesp/nestjs-better-auth';
+import { getAuthConfig } from './configs/auth.config';
+import { SeedModule } from './core/seed/seed.module';
 
 @Module({
 	imports: [
@@ -24,8 +27,10 @@ import { ThrottlerExceptionFilter } from './core/filters/throttler-exception.fil
 		CqrsModule.forRoot(),
 		ConfigModule,
 		DatabaseModule.forRootAsync(getDatabaseConfig()),
+		AuthModule.forRootAsync(getAuthConfig()),
 		AnimalsModule,
-		HealthModule
+		HealthModule,
+		SeedModule
 	],
 	providers: [
 		{

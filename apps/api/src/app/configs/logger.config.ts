@@ -1,13 +1,13 @@
 import { ConfigService } from '@nestjs/config';
 import { ConfigModule } from '@pif/config';
 import { Request } from 'express';
-import { LoggerModuleAsyncParams } from 'nestjs-pino';
+import { LoggerModuleAsyncParams, Params } from 'nestjs-pino';
 import { randomUUID } from 'node:crypto';
 
 export const getLoggerConfig = (): LoggerModuleAsyncParams => ({
 	imports: [ConfigModule],
 	inject: [ConfigService],
-	useFactory: (config: ConfigService) => {
+	useFactory: (config: ConfigService): Params => {
 		const isProduction = config.get('NODE_ENV') === 'production';
 		return {
 			pinoHttp: {

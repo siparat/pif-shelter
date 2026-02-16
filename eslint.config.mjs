@@ -48,9 +48,11 @@ export default [
 			'@typescript-eslint/explicit-function-return-type': [
 				'error',
 				{
+					// for extracting dynamic auth object type
+					allowedNames: ['createAuth'],
 					allowExpressions: true,
 					allowTypedFunctionExpressions: true,
-					allowHigherOrderFunctions: true
+					allowHigherOrderFunctions: true,
 				}
 			],
 			...prettierConfig.rules
