@@ -48,8 +48,8 @@ export default [
 			'@typescript-eslint/explicit-function-return-type': [
 				'error',
 				{
-					// for extracting dynamic auth object type
-					allowedNames: ['createAuth'],
+					// for extracting dynamic object type
+					allowedNames: ['createAuth', 'createApiSuccessResponseSchema', 'createApiPaginatedResponseSchema'],
 					allowExpressions: true,
 					allowTypedFunctionExpressions: true,
 					allowHigherOrderFunctions: true

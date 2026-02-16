@@ -2,22 +2,9 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Body, Controller, Post, UsePipes } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateAnimalRequestDto, CreateAnimalResponseDto } from '@pif/contracts';
-import { InviteEmail } from '@pif/email-templates';
-import { render } from '@react-email/render';
-import { createZodDto, ZodValidationPipe } from 'nestjs-zod';
-import z from 'zod';
+import { CreateAnimalRequestDto, CreateAnimalResponseDto, ReturnDto } from '@pif/contracts';
+import { ZodValidationPipe } from 'nestjs-zod';
 import { CreateAnimalCommand } from './commands/create-animal/create-animal.command';
-
-export class Dto extends createZodDto(
-	z.object({
-		email: z.email(),
-		name: z.string(),
-		link: z.url(),
-		role: z.string(),
-		subject: z.string()
-	})
-) {}
 
 @ApiTags('Animals | Питомцы')
 @Controller('animals')
@@ -37,23 +24,8 @@ export class AnimalsController {
 	})
 	@UsePipes(ZodValidationPipe)
 	@Post()
-	async create(@Body() dto: CreateAnimalRequestDto): Promise<CreateAnimalResponseDto['data']> {
+	async create(@Body() dto: CreateAnimalRequestDto): Promise<ReturnDto<typeof CreateAnimalResponseDto>> {
 		const id = await this.commandBus.execute(new CreateAnimalCommand(dto));
 		return { id };
-	}
-
-	@Post('send-email')
-	async sendMail(@Body() body: Dto): Promise<true> {
-		return this.mailerService.sendMail({
-			to: body.email,
-			subject: body.subject,
-			html: await render(
-				InviteEmail({
-					name: body.name,
-					inviteLink: body.link,
-					roleName: body.role
-				})
-			)
-		});
 	}
 }

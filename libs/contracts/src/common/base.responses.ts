@@ -1,13 +1,13 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
-export const createApiSuccessResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T): z.ZodObject =>
+export const createApiSuccessResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
 	z.object({
 		success: z.boolean().default(true).describe('Статус успешности запроса'),
 		data: dataSchema
 	});
 
-export const createApiPaginatedResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T): z.ZodObject =>
+export const createApiPaginatedResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
 	z.object({
 		success: z.boolean().default(true).describe('Статус успешности запроса'),
 		data: z.array(dataSchema),
