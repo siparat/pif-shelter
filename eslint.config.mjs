@@ -10,7 +10,7 @@ export default [
 	...nx.configs['flat/javascript'],
 	prettierRecommended,
 	{
-		ignores: ['**/dist', '**/out-tsc', '**/migrations']
+		ignores: ['**/dist', '**/out-tsc', '**/migrations', '**/vite.config.*.timestamp*']
 	},
 	{
 		files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
@@ -52,7 +52,7 @@ export default [
 					allowedNames: ['createAuth'],
 					allowExpressions: true,
 					allowTypedFunctionExpressions: true,
-					allowHigherOrderFunctions: true,
+					allowHigherOrderFunctions: true
 				}
 			],
 			...prettierConfig.rules
@@ -126,6 +126,18 @@ export default [
 				},
 				{
 					selector: 'enum',
+					format: ['PascalCase']
+				}
+			]
+		}
+	},
+	{
+		files: ['**/*.tsx', '**/*.jsx'],
+		rules: {
+			'@typescript-eslint/naming-convention': [
+				'error',
+				{
+					selector: 'interface',
 					format: ['PascalCase']
 				}
 			]

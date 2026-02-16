@@ -3,8 +3,21 @@ import { Body, Controller, Post, UsePipes } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateAnimalRequestDto, CreateAnimalResponseDto } from '@pif/contracts';
-import { ZodValidationPipe } from 'nestjs-zod';
+import { InviteEmail } from '@pif/email-templates';
+import { render } from '@react-email/render';
+import { createZodDto, ZodValidationPipe } from 'nestjs-zod';
+import z from 'zod';
 import { CreateAnimalCommand } from './commands/create-animal/create-animal.command';
+
+export class Dto extends createZodDto(
+	z.object({
+		email: z.email(),
+		name: z.string(),
+		link: z.url(),
+		role: z.string(),
+		subject: z.string()
+	})
+) {}
 
 @ApiTags('Animals | Питомцы')
 @Controller('animals')
@@ -30,11 +43,17 @@ export class AnimalsController {
 	}
 
 	@Post('send-email')
-	async sendMail(): Promise<true> {
+	async sendMail(@Body() body: Dto): Promise<true> {
 		return this.mailerService.sendMail({
-			to: 'akimoasdasdasdv1712@yandex.ru',
-			subject: 'Invite to team',
-			html: `<h1>Welcome</h1>`
+			to: body.email,
+			subject: body.subject,
+			html: await render(
+				InviteEmail({
+					name: body.name,
+					inviteLink: body.link,
+					roleName: body.role
+				})
+			)
 		});
 	}
 }
