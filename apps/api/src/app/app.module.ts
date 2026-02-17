@@ -8,6 +8,7 @@ import { DatabaseModule } from '@pif/database';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { ClsModule } from 'nestjs-cls';
 import { LoggerModule } from 'nestjs-pino';
+import { AdminUsersModule } from './admin/users/users.module';
 import { AnimalsModule } from './animals/animals.module';
 import { getAuthConfig } from './configs/auth.config';
 import { getClsConfig } from './configs/cls.config';
@@ -33,6 +34,7 @@ import { SeedModule } from './core/seed/seed.module';
 		MailerModule.forRootAsync(getMailerConfig()),
 		ConfigModule,
 		AnimalsModule,
+		AdminUsersModule,
 		HealthModule,
 		SeedModule
 	],

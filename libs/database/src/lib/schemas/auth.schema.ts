@@ -1,6 +1,6 @@
 import { UserRole } from '@pif/shared';
 import { defineRelations } from 'drizzle-orm';
-import { boolean, index, pgEnum, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, index, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from './timestamps';
 
 export const roleEnum = pgEnum('role', UserRole);
@@ -67,12 +67,23 @@ export const verifications = pgTable(
 	(table) => [index('verifications_identifier_idx').on(table.identifier)]
 );
 
+export const invites = pgTable('invites', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	expiresAt: timestamp('expires_at').notNull(),
+	personName: text('person_name').notNull(),
+	roleName: text('role_name').notNull(),
+	used: boolean('used').notNull().default(false),
+	userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+	...timestamps
+});
+
 export const authRelations = defineRelations(
 	{
 		users,
 		accounts,
 		sessions,
-		verifications
+		verifications,
+		invites
 	},
 	(r) => ({
 		users: {
@@ -90,6 +101,12 @@ export const authRelations = defineRelations(
 				from: r.accounts.userId,
 				to: r.users.id
 			})
+		},
+		invites: {
+			user: r.one.users({
+				from: r.invites.userId,
+				to: r.users.id
+			})
 		}
 	})
 );
@@ -102,5 +119,5 @@ export const schema = {
 	sessions,
 	accounts,
 	verifications,
-	authRelations
+	invites
 };
