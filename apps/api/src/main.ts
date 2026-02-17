@@ -8,11 +8,12 @@ import { Logger } from 'nestjs-pino';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AppModule } from './app/app.module';
 import { GlobalDeserializerInterceptor } from './app/core/interceptors/global-deserializer.interceptor';
+import { AUTH_PREFIX } from '@pif/shared';
 
 const PORT = 3000;
 
 async function bootstrap(): Promise<void> {
-	const app = await NestFactory.create(AppModule, { bufferLogs: true, bodyParser: false });
+	const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
 	app.enableShutdownHooks();
 	app.useLogger(app.get(Logger));
@@ -29,7 +30,7 @@ async function bootstrap(): Promise<void> {
 		extraModels: [ApiErrorResponseDto]
 	});
 
-	const authDocument = await app.get(AuthService).api.generateOpenAPISchema({ path: '/auth' });
+	const authDocument = await app.get(AuthService).api.generateOpenAPISchema({ path: AUTH_PREFIX });
 
 	SwaggerModule.setup('openapi', app, document);
 	SwaggerModule.setup('openapi/auth', app, authDocument as OpenAPIObject);

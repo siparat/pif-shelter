@@ -1,9 +1,8 @@
 import { MailerService } from '@nestjs-modules/mailer';
-import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateAnimalRequestDto, CreateAnimalResponseDto, ReturnDto } from '@pif/contracts';
-import { ZodValidationPipe } from 'nestjs-zod';
 import { CreateAnimalCommand } from './commands/create-animal/create-animal.command';
 
 @ApiTags('Animals | Питомцы')
@@ -22,7 +21,6 @@ export class AnimalsController {
 		description: 'Питомец успешно создан',
 		type: CreateAnimalResponseDto
 	})
-	@UsePipes(ZodValidationPipe)
 	@Post()
 	async create(@Body() dto: CreateAnimalRequestDto): Promise<ReturnDto<typeof CreateAnimalResponseDto>> {
 		const id = await this.commandBus.execute(new CreateAnimalCommand(dto));

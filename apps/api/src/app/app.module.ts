@@ -15,6 +15,7 @@ import { getDatabaseConfig } from './configs/database.config';
 import { getLoggerConfig } from './configs/logger.config';
 import { getMailerConfig } from './configs/mailer.config';
 import { getThrottlerConfig } from './configs/throttler.config';
+import { BetterAuthExceptionsFilter } from './core/filters/better-auth-exceptions.filter';
 import { GlobalExceptionsFilter } from './core/filters/global-exceptions.filter';
 import { ThrottlerExceptionFilter } from './core/filters/throttler-exception.filter';
 import { ZodValidationExceptionFilter } from './core/filters/zod-exception.filter';
@@ -51,6 +52,10 @@ import { SeedModule } from './core/seed/seed.module';
 		{
 			provide: APP_FILTER,
 			useClass: ThrottlerExceptionFilter
+		},
+		{
+			provide: APP_FILTER,
+			useClass: BetterAuthExceptionsFilter
 		}
 	]
 })
