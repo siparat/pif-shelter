@@ -12,7 +12,9 @@ export const envSchema = z.object({
 	SMTP_HOST: z.string(),
 	SMTP_PORT: z.coerce.number(),
 	SMTP_EMAIL: z.email(),
-	SMTP_NAME: z.string()
+	SMTP_NAME: z.string(),
+	HEALTH_DISK_THRESHOLD_PERCENT: z.coerce.number(),
+	HEALTH_MEMORY_THRESHOLD_BYTES: z.coerce.number()
 });
 
 export type Env = z.infer<typeof envSchema>;

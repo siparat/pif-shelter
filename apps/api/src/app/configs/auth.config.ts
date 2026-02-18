@@ -57,6 +57,7 @@ export const createAuth = (config: ConfigService, db: NodePgDatabase<typeof sche
 	});
 
 export type AppAuth = ReturnType<typeof createAuth>;
+export type Session = AppAuth['$Infer']['Session'] & { user: { role: UserRole } };
 
 export const getAuthConfig = (): Parameters<typeof AuthModule.forRootAsync>[0] => ({
 	disableGlobalAuthGuard: true,

@@ -1,7 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserRole } from '@pif/shared';
-import { UserSession } from '@thallesp/nestjs-better-auth';
+import { Session } from '../../configs/auth.config';
 import { Roles } from '../decorators/roles.decorator';
 import { RoleForbiddenException } from '../exceptions/role-forbidden.exception';
 
@@ -11,17 +10,19 @@ export class RoleGuard implements CanActivate {
 
 	canActivate(context: ExecutionContext): boolean {
 		const res = context.switchToHttp().getRequest();
-		const session: UserSession | undefined = res.session;
+		const session: Session | undefined = res.session;
 		const userRole = session?.user?.role;
-		if (!userRole || typeof userRole !== 'string') {
+
+		if (!userRole) {
 			throw new RoleForbiddenException();
 		}
+
 		const roles = this.reflector.get(Roles, context.getHandler());
 		if (!roles || roles.length === 0) {
 			return true;
 		}
-		//TODO: UserRole to session
-		if (!roles.includes(userRole as UserRole)) {
+
+		if (!roles.includes(userRole)) {
 			throw new RoleForbiddenException();
 		}
 
