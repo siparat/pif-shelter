@@ -67,23 +67,29 @@ export const verifications = pgTable(
 	(table) => [index('verifications_identifier_idx').on(table.identifier)]
 );
 
-export const invites = pgTable('invites', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	expiresAt: timestamp('expires_at').notNull(),
-	personName: text('person_name').notNull(),
-	roleName: text('role_name').notNull(),
-	used: boolean('used').notNull().default(false),
-	userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
-	...timestamps
-});
+export const invitations = pgTable(
+	'invitations',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		expiresAt: timestamp('expires_at').notNull(),
+		personName: text('person_name').notNull(),
+		roleName: text('role_name').notNull(),
+		token: uuid('token').notNull().defaultRandom(),
+		email: text('email').notNull(),
+		used: boolean('used').notNull().default(false),
+		userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+		...timestamps
+	},
+	(table) => [index('invitations_email_idx').on(table.email)]
+);
 
-export const authRelations = defineRelations(
+export const usersRelations = defineRelations(
 	{
 		users,
 		accounts,
 		sessions,
 		verifications,
-		invites
+		invitations
 	},
 	(r) => ({
 		users: {
@@ -102,16 +108,16 @@ export const authRelations = defineRelations(
 				to: r.users.id
 			})
 		},
-		invites: {
+		invitations: {
 			user: r.one.users({
-				from: r.invites.userId,
+				from: r.invitations.userId,
 				to: r.users.id
 			})
 		}
 	})
 );
 
-export const relations = authRelations;
+export const relations = usersRelations;
 
 export const schema = {
 	roleEnum,
@@ -119,5 +125,5 @@ export const schema = {
 	sessions,
 	accounts,
 	verifications,
-	invites
+	invitations
 };

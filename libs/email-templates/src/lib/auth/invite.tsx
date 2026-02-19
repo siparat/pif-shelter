@@ -13,14 +13,15 @@ import {
 	Text
 } from '@react-email/components';
 import { JSX } from 'react';
+import { IEmailTemplateDefinition } from '../types';
 
-export interface InviteEmailProps {
-	name?: string;
-	inviteLink?: string;
-	roleName?: string;
+interface InviteEmailProps {
+	name: string;
+	inviteLink: string;
+	roleName: string;
 }
 
-export const InviteEmail = ({ name, inviteLink, roleName }: InviteEmailProps): JSX.Element => {
+const InviteEmail = ({ name, inviteLink, roleName }: InviteEmailProps): JSX.Element => {
 	const previewText = `Эта ссылка — твой персональный пропуск. Свободная регистрация в системе закрыта, чтобы защитить данные хвостиков. Пожалуйста, не передавай это письмо третьим лицам.`;
 
 	return (
@@ -93,3 +94,8 @@ export const InviteEmail = ({ name, inviteLink, roleName }: InviteEmailProps): J
 		</Html>
 	);
 };
+
+export const inviteEmail = {
+	subject: 'Приглашение в команду проекта "ПИФ"',
+	component: InviteEmail
+} satisfies IEmailTemplateDefinition<InviteEmailProps>;

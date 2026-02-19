@@ -1,15 +1,15 @@
 import { relations as animalsRelations, schema as animalsSchema } from './animals.schema';
-import { relations as authRelations, schema as authSchema } from './auth.schema';
+import { relations as usersRelations, schema as usersSchema } from './users.schema';
 
 export const relations = {
 	...animalsRelations,
-	...authRelations
+	...usersRelations
 };
 
 export const schema = {
 	...animalsSchema,
-	...authSchema
+	...usersSchema
 };
 
 export * from './animals.schema';
-export * from './auth.schema';
+export * from './users.schema';
