@@ -8,6 +8,7 @@ export const envSchema = z.object({
 	ADMIN_EMAIL: z.email(),
 	ADMIN_PASSWORD: z.string().min(8),
 	BASE_URL: z.url(),
+	APP_BASE_URL: z.url(),
 	SMTP_PASSWORD: z.string(),
 	SMTP_HOST: z.string(),
 	SMTP_PORT: z.coerce.number(),

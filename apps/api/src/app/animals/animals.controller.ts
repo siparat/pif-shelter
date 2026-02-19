@@ -1,4 +1,3 @@
-import { MailerService } from '@nestjs-modules/mailer';
 import { Body, Controller, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -8,10 +7,7 @@ import { CreateAnimalCommand } from './commands/create-animal/create-animal.comm
 @ApiTags('Animals | Питомцы')
 @Controller('animals')
 export class AnimalsController {
-	constructor(
-		private readonly commandBus: CommandBus,
-		private readonly mailerService: MailerService
-	) {}
+	constructor(private readonly commandBus: CommandBus) {}
 
 	@ApiOperation({
 		summary: 'Создание нового питомца',
