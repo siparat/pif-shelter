@@ -50,6 +50,10 @@ export const createAuth = (config: ConfigService, db: NodePgDatabase<typeof sche
 					type: 'boolean',
 					required: true,
 					defaultValue: false
+				},
+				telegram: {
+					type: 'string',
+					required: true
 				}
 			}
 		},

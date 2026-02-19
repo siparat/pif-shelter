@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import z from 'zod';
 
 export const envSchema = z.object({
 	DATABASE_URL: z.url(),
@@ -7,6 +7,7 @@ export const envSchema = z.object({
 	ALLOWED_ORIGINS: z.string().default('http://localhost:5173,http://localhost:3001'),
 	ADMIN_EMAIL: z.email(),
 	ADMIN_PASSWORD: z.string().min(8),
+	ADMIN_TELEGRAM: z.string().startsWith('@'),
 	BASE_URL: z.url(),
 	APP_BASE_URL: z.url(),
 	SMTP_PASSWORD: z.string(),

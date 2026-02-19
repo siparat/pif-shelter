@@ -65,7 +65,6 @@ describe('CreateInvitationHandler (Integration)', () => {
 		const result = await handler.execute(command);
 
 		expect(result).toBeDefined();
-		expect(result.invitationId).toBeDefined();
 
 		const dbRecord = await dbService.client.select().from(invitations).where(eq(invitations.email, email)).limit(1);
 

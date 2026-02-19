@@ -30,11 +30,11 @@ export class CreateInvitationHandler implements ICommandHandler<CreateInvitation
 
 			this.eventBus.publish(new InvitationCreatedEvent(invitation));
 
-			this.logger.log({ email: dto.email, invitationId: invitation.id }, 'Приглашение успешно создано');
+			this.logger.log('Приглашение успешно создано', { email: dto.email, invitationId: invitation.id });
 
 			return { invitationId: invitation.id };
 		} catch (error) {
-			this.logger.error({ error, email: dto.email }, 'Ошибка базы данных при создании приглашения');
+			this.logger.error('Ошибка базы данных при создании приглашения', { error, email: dto.email });
 			throw error;
 		}
 	}

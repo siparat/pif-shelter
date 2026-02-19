@@ -46,13 +46,17 @@ export const user = pgTable('user', {
 
 ### 3.2. Invitation Flow (Приглашение)
 
-Регистрация закрыта. Используется плагин `invitation` от better-auth.
+Регистрация закрыта. Используется плагин `invitation` от better-auth и кастомная логика.
 
 1.  **Admin** вызывает API: `POST /admin/users/invite` { email, role, position }.
-2.  **API** генерирует токен приглашения.
-3.  **MailService** рендерит `InviteEmail` (React) и отправляет ссылку: `https://domain.com/accept-invite?token=xyz`.
-4.  **User** переходит по ссылке, вводит: Имя, Аватар, Telegram, Пароль.
-5.  **Better-Auth** создает пользователя и сессию.
+2.  **API** (CreateInvitationHandler) генерирует токен, сохраняет в БД.
+3.  **MailService** (Event Handler) отправляет ссылку: `https://domain.com/accept-invite?token=xyz`.
+4.  **User** переходит по ссылке, вводит данные.
+5.  **API** (AcceptInvitationHandler):
+    - Валидирует токен и условия через **`AcceptInvitationPolicy`** (срок, статус, уникальность).
+    - Создает пользователя в `better-auth`.
+    - Помечает приглашение использованным.
+    - _Важно:_ Операции выполняются последовательно без общей БД транзакции (т.к. Auth провайдер может быть внешним). В случае ошибки после создания пользователя применяется **компенсирующее действие** (удаление созданного аккаунта).
 
 ### 3.3. Authentication (Login)
 

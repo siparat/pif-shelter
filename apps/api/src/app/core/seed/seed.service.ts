@@ -22,6 +22,7 @@ export class SeedService implements OnApplicationBootstrap {
 	private async seedAdmin(): Promise<void> {
 		const email = this.configService.getOrThrow<string>('ADMIN_EMAIL');
 		const password = this.configService.getOrThrow<string>('ADMIN_PASSWORD');
+		const telegram = this.configService.getOrThrow<string>('ADMIN_TELEGRAM');
 
 		try {
 			const existingAdmin = await this.database.client.query.users.findFirst({
@@ -38,6 +39,7 @@ export class SeedService implements OnApplicationBootstrap {
 				body: {
 					email,
 					password,
+					telegram,
 					name: 'Administrator',
 					role: UserRole.ADMIN,
 					position: 'System'

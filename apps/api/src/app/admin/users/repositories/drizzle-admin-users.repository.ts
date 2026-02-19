@@ -8,6 +8,23 @@ import { AdminUsersRepository } from './admin-users.repository';
 export class DrizzleAdminUsersRepository implements AdminUsersRepository {
 	constructor(private db: DatabaseService) {}
 
+	async markInvitationAsUsed(id: string, userId: string): Promise<Invitation> {
+		const [invitation] = await this.db.client
+			.update(invitations)
+			.set({ used: true, userId })
+			.where(eq(invitations.id, id))
+			.returning();
+		return invitation;
+	}
+
+	async findInvitationByToken(token: string): Promise<Invitation | undefined> {
+		const [invitation] = await this.db.client
+			.select()
+			.from(invitations)
+			.where(and(isNull(invitations.deletedAt), eq(invitations.token, token)));
+		return invitation;
+	}
+
 	async findActiveInvitation(email: string): Promise<Invitation | undefined> {
 		const [invitation] = await this.db.client
 			.select()

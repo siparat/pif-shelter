@@ -15,7 +15,8 @@ export const users = pgTable('users', {
 
 	role: roleEnum('role').default(UserRole.VOLUNTEER).notNull(),
 	position: text('position').notNull(),
-	banned: boolean('banned').default(false).notNull()
+	banned: boolean('banned').default(false).notNull(),
+	telegram: text('telegram').notNull().unique()
 });
 
 export const sessions = pgTable(

@@ -1,12 +1,19 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import { CreateInvitationRequestDto, CreateInvitationResponseDto, ReturnDto } from '@pif/contracts';
+import {
+	AcceptInvitationRequestDto,
+	AcceptInvitationResponseDto,
+	CreateInvitationRequestDto,
+	CreateInvitationResponseDto,
+	ReturnDto
+} from '@pif/contracts';
 import { UserRole } from '@pif/shared';
 import { AuthGuard } from '@thallesp/nestjs-better-auth';
 import { Roles } from '../../core/decorators/roles.decorator';
 import { RoleGuard } from '../../core/guards/role.guard';
+import { AcceptInvitationCommand } from './commands/accept-invitation/accept-invitation.command';
 import { CreateInvitationCommand } from './commands/create-invitation/create-invitation.command';
 
 @ApiTags('Admin Users | Пользователи в админ-панели')
@@ -22,5 +29,16 @@ export class AdminUsersController {
 	@Post('invite')
 	async invite(@Body() dto: CreateInvitationRequestDto): Promise<ReturnDto<typeof CreateInvitationResponseDto>> {
 		return this.commandBus.execute(new CreateInvitationCommand(dto));
+	}
+
+	@ApiOperation({ summary: 'Принять приглашение в команду' })
+	@ApiOkResponse({ description: 'Аккаунт зарегистрирован', type: AcceptInvitationResponseDto })
+	@HttpCode(HttpStatus.OK)
+	@Throttle({ default: { limit: 5, ttl: 60000 } })
+	@Post('accept-invitation')
+	async acceptInvitation(
+		@Body() dto: AcceptInvitationRequestDto
+	): Promise<ReturnDto<typeof AcceptInvitationResponseDto>> {
+		return this.commandBus.execute(new AcceptInvitationCommand(dto));
 	}
 }
