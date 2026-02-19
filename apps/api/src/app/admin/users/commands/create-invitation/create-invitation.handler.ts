@@ -30,7 +30,7 @@ export class CreateInvitationHandler implements ICommandHandler<CreateInvitation
 
 			this.eventBus.publish(new InvitationCreatedEvent(invitation));
 
-			this.logger.info({ email: dto.email, invitationId: invitation.id }, 'Приглашение успешно создано');
+			this.logger.log({ email: dto.email, invitationId: invitation.id }, 'Приглашение успешно создано');
 
 			return { invitationId: invitation.id };
 		} catch (error) {
