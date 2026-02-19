@@ -1,0 +1,1 @@
+ALTER TABLE "invites" RENAME TO "invitations";
