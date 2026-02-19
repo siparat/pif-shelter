@@ -15,7 +15,7 @@ import {
 import { JSX } from 'react';
 import { IEmailTemplateDefinition } from '../types';
 
-interface InviteEmailProps {
+export interface InviteEmailProps {
 	name: string;
 	inviteLink: string;
 	roleName: string;
