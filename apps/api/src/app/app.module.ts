@@ -5,11 +5,13 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule } from '@pif/config';
 import { DatabaseModule } from '@pif/database';
+import { StorageModule } from '@pif/storage';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { ClsModule } from 'nestjs-cls';
 import { LoggerModule } from 'nestjs-pino';
 import { AdminUsersModule } from './admin/users/users.module';
 import { AnimalsModule } from './animals/animals.module';
+import { MediaModule } from './media/media.module';
 import { getAuthConfig } from './configs/auth.config';
 import { getClsConfig } from './configs/cls.config';
 import { getDatabaseConfig } from './configs/database.config';
@@ -20,8 +22,10 @@ import { BetterAuthExceptionsFilter } from './core/filters/better-auth-exception
 import { GlobalExceptionsFilter } from './core/filters/global-exceptions.filter';
 import { ThrottlerExceptionFilter } from './core/filters/throttler-exception.filter';
 import { ZodValidationExceptionFilter } from './core/filters/zod-exception.filter';
+import { CoreModule } from './core/core.module';
 import { HealthModule } from './core/health/health.module';
 import { SeedModule } from './core/seed/seed.module';
+import { getStorageConfig } from './configs/storage.config';
 
 @Module({
 	imports: [
@@ -32,9 +36,12 @@ import { SeedModule } from './core/seed/seed.module';
 		DatabaseModule.forRootAsync(getDatabaseConfig()),
 		AuthModule.forRootAsync(getAuthConfig()),
 		MailerModule.forRootAsync(getMailerConfig()),
+		StorageModule.forRootAsync(getStorageConfig()),
 		ConfigModule,
+		CoreModule,
 		AnimalsModule,
 		AdminUsersModule,
+		MediaModule,
 		HealthModule,
 		SeedModule
 	],

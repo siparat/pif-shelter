@@ -16,7 +16,12 @@ export const envSchema = z.object({
 	SMTP_EMAIL: z.email(),
 	SMTP_NAME: z.string(),
 	HEALTH_DISK_THRESHOLD_PERCENT: z.coerce.number(),
-	HEALTH_MEMORY_THRESHOLD_BYTES: z.coerce.number()
+	HEALTH_MEMORY_THRESHOLD_BYTES: z.coerce.number(),
+	S3_REGION: z.string(),
+	S3_ENDPOINT: z.url(),
+	S3_ACCESS_TOKEN: z.string(),
+	S3_ACCESS_SECRET_TOKEN: z.string(),
+	S3_BUCKET: z.string()
 });
 
 export type Env = z.infer<typeof envSchema>;

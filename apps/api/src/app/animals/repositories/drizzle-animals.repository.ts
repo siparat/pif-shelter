@@ -8,7 +8,10 @@ export class DrizzleAnimalsRepository implements AnimalsRepository {
 	constructor(private readonly db: DatabaseService) {}
 
 	async create(data: CreateAnimalRequestDto): Promise<string> {
-		const [result] = await this.db.client.insert(animals).values(data).returning({ id: animals.id });
+		const [result] = await this.db.client
+			.insert(animals)
+			.values({ avatarUrl: data.avatarKey, ...data })
+			.returning({ id: animals.id });
 
 		return result.id;
 	}

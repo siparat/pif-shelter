@@ -7,10 +7,14 @@ import { InvitationHasExpiredException } from '../../exceptions/invitation-has-e
 import { InvitationNotFoundException } from '../../exceptions/invitation-not-found.exception';
 import { TelegramAlreadyUsedException } from '../../exceptions/telegram-already-used.exception';
 import { UserAlreadyExistsException } from '../../exceptions/user-already-exists.exception';
+import { FileStoragePolicy } from '../../../../core/policies/file-storage.policy';
 
 @Injectable()
 export class AcceptInvitationPolicy {
-	constructor(private readonly usersService: UsersService) {}
+	constructor(
+		private readonly usersService: UsersService,
+		private readonly fileStoragePolicy: FileStoragePolicy
+	) {}
 
 	async assertAccept(invitation: Invitation | undefined, dto: AcceptInvitationRequestDto): Promise<Invitation> {
 		if (!invitation) {
@@ -34,6 +38,8 @@ export class AcceptInvitationPolicy {
 		if (userByTelegram) {
 			throw new TelegramAlreadyUsedException(dto.telegram);
 		}
+
+		await this.fileStoragePolicy.assertExists(dto.avatarKey);
 
 		return invitation;
 	}

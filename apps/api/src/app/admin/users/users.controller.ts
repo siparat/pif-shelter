@@ -10,7 +10,7 @@ import {
 	ReturnDto
 } from '@pif/contracts';
 import { UserRole } from '@pif/shared';
-import { AuthGuard } from '@thallesp/nestjs-better-auth';
+import { AllowAnonymous, AuthGuard } from '@thallesp/nestjs-better-auth';
 import { Roles } from '../../core/decorators/roles.decorator';
 import { RoleGuard } from '../../core/guards/role.guard';
 import { AcceptInvitationCommand } from './commands/accept-invitation/accept-invitation.command';
@@ -33,6 +33,7 @@ export class AdminUsersController {
 
 	@ApiOperation({ summary: 'Принять приглашение в команду' })
 	@ApiOkResponse({ description: 'Аккаунт зарегистрирован', type: AcceptInvitationResponseDto })
+	@AllowAnonymous()
 	@HttpCode(HttpStatus.OK)
 	@Throttle({ default: { limit: 5, ttl: 60000 } })
 	@Post('accept-invitation')
