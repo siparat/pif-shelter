@@ -45,3 +45,6 @@ Thumbs.db
 /envs/*.env
 !/envs/*.example.env
 /tasks
+vite.config.*.timestamp*
+
+GEMINI.md

@@ -1,6 +1,6 @@
 import { AnimalCoatEnum, AnimalGenderEnum, AnimalSizeEnum, AnimalSpeciesEnum, AnimalStatusEnum } from '@pif/shared';
 import { defineRelations } from 'drizzle-orm';
-import { boolean, date, jsonb, pgEnum, pgTable, primaryKey, text, uuid } from 'drizzle-orm/pg-core';
+import { boolean, date, index, jsonb, pgEnum, pgTable, primaryKey, text, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from './timestamps';
 
 export const animalSpeciesEnum = pgEnum('animal_species', AnimalSpeciesEnum);
@@ -16,28 +16,32 @@ export const animalLabels = pgTable('animal_labels', {
 	...timestamps
 });
 
-export const animals = pgTable('animals', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	name: text('name').notNull(),
-	species: animalSpeciesEnum('species').notNull(),
-	gender: animalGenderEnum('gender').notNull(),
-	birthDate: date('birth_date').notNull(),
-	size: animalSizeEnum('size').notNull(),
-	coat: animalCoatEnum('coat').notNull(),
-	color: text('color').notNull(),
-	tags: jsonb('tags').$type<string[]>().default([]),
-	description: text('description'),
+export const animals = pgTable(
+	'animals',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		name: text('name').notNull(),
+		species: animalSpeciesEnum('species').notNull(),
+		gender: animalGenderEnum('gender').notNull(),
+		birthDate: date('birth_date').notNull(),
+		size: animalSizeEnum('size').notNull(),
+		coat: animalCoatEnum('coat').notNull(),
+		color: text('color').notNull(),
+		tags: jsonb('tags').$type<string[]>().default([]),
+		description: text('description'),
 
-	isSterilized: boolean('is_sterilized').default(false).notNull(),
-	isVaccinated: boolean('is_vaccinated').default(false).notNull(),
-	isParasiteTreated: boolean('is_parasite_treated').default(false).notNull(),
+		isSterilized: boolean('is_sterilized').default(false).notNull(),
+		isVaccinated: boolean('is_vaccinated').default(false).notNull(),
+		isParasiteTreated: boolean('is_parasite_treated').default(false).notNull(),
 
-	avatarUrl: text('avatar_url'),
-	galleryUrls: jsonb('gallery_urls').$type<string[]>().default([]),
+		avatarUrl: text('avatar_url'),
+		galleryUrls: jsonb('gallery_urls').$type<string[]>().default([]),
 
-	status: animalStatusEnum('status').default(AnimalStatusEnum.DRAFT).notNull(),
-	...timestamps
-});
+		status: animalStatusEnum('status').default(AnimalStatusEnum.DRAFT).notNull(),
+		...timestamps
+	},
+	(table) => [index('animals_name_idx').on(table.name), index('animals_description_idx').on(table.description)]
+);
 
 export const animalsToAnimalLabels = pgTable(
 	'animals_to_animal_labels',

@@ -4,3 +4,4 @@ export * from './lib/database.service';
 export * from './lib/interfaces/drizzle.interface';
 export * from './lib/schemas';
 export * from './lib/entities';
+export * from './lib/health/database.health';

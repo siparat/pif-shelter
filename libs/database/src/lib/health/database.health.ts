@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { HealthIndicatorResult, HealthIndicatorService } from '@nestjs/terminus';
-import { DatabaseService } from '@pif/database';
 import { sql } from 'drizzle-orm';
+import { DatabaseService } from '../database.service';
 
 @Injectable()
 export class DatabaseHealthIndicator {
@@ -16,7 +16,7 @@ export class DatabaseHealthIndicator {
 			await this.db.client.execute(sql`SELECT 1`);
 			return indicator.up();
 		} catch (error) {
-			return indicator.down({ message: error.message });
+			return indicator.down({ message: error instanceof Error ? error.message : 'Unknown error' });
 		}
 	}
 }

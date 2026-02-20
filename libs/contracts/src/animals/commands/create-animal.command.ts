@@ -33,7 +33,12 @@ export const createAnimalRequestSchema = z.object({
 		.boolean('Вылечен от паразитов?')
 		.default(false)
 		.optional()
-		.describe('Флаг: обработано ли от паразитов')
+		.describe('Флаг: обработано ли от паразитов'),
+	avatarKey: z
+		.string('Аватар должен быть обязательно')
+		.trim()
+		.min(1, 'Укажите аватар')
+		.describe('Ключ главного фото в хранилище')
 });
 
 export class CreateAnimalRequestDto extends createZodDto(createAnimalRequestSchema) {}

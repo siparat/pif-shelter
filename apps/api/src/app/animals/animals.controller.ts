@@ -1,8 +1,7 @@
-import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateAnimalRequestDto, CreateAnimalResponseDto } from '@pif/contracts';
-import { ZodValidationPipe } from 'nestjs-zod';
+import { CreateAnimalRequestDto, CreateAnimalResponseDto, ReturnDto } from '@pif/contracts';
 import { CreateAnimalCommand } from './commands/create-animal/create-animal.command';
 
 @ApiTags('Animals | Питомцы')
@@ -10,7 +9,6 @@ import { CreateAnimalCommand } from './commands/create-animal/create-animal.comm
 export class AnimalsController {
 	constructor(private readonly commandBus: CommandBus) {}
 
-	@Post()
 	@ApiOperation({
 		summary: 'Создание нового питомца',
 		description: 'Добавляет нового питомца в базу данных. Доступно администраторам и старшим волонтерам.'
@@ -19,8 +17,8 @@ export class AnimalsController {
 		description: 'Питомец успешно создан',
 		type: CreateAnimalResponseDto
 	})
-	@UsePipes(ZodValidationPipe)
-	async create(@Body() dto: CreateAnimalRequestDto): Promise<CreateAnimalResponseDto['data']> {
+	@Post()
+	async create(@Body() dto: CreateAnimalRequestDto): Promise<ReturnDto<typeof CreateAnimalResponseDto>> {
 		const id = await this.commandBus.execute(new CreateAnimalCommand(dto));
 		return { id };
 	}

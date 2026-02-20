@@ -8,11 +8,13 @@ import { AnimalCreatedEvent } from '../../events/animal-created.event';
 import { AnimalsRepository } from '../../repositories/animals.repository';
 import { CreateAnimalCommand } from './create-animal.command';
 import { CreateAnimalHandler } from './create-animal.handler';
+import { FileStoragePolicy } from '../../../core/policies/file-storage.policy';
 
 describe('CreateAnimalHandler', () => {
 	let handler: CreateAnimalHandler;
 	let repository: DeepMocked<AnimalsRepository>;
 	let eventBus: DeepMocked<EventBus>;
+	let fileStoragePolicy: DeepMocked<FileStoragePolicy>;
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -25,6 +27,10 @@ describe('CreateAnimalHandler', () => {
 				{
 					provide: EventBus,
 					useValue: createMock<EventBus>()
+				},
+				{
+					provide: FileStoragePolicy,
+					useValue: createMock<FileStoragePolicy>()
 				}
 			]
 		}).compile();
@@ -32,6 +38,7 @@ describe('CreateAnimalHandler', () => {
 		handler = module.get<CreateAnimalHandler>(CreateAnimalHandler);
 		repository = module.get(AnimalsRepository);
 		eventBus = module.get(EventBus);
+		fileStoragePolicy = module.get(FileStoragePolicy);
 	});
 
 	it('should create an animal successfully', async () => {
@@ -43,16 +50,19 @@ describe('CreateAnimalHandler', () => {
 			size: faker.helpers.enumValue(AnimalSizeEnum),
 			coat: faker.helpers.enumValue(AnimalCoatEnum),
 			color: faker.color.human(),
-			description: faker.lorem.sentence()
+			description: faker.lorem.sentence(),
+			avatarKey: 'animals/avatar.webp'
 		};
 
 		const command = new CreateAnimalCommand(dto);
 		const expectedId = faker.string.uuid();
 
 		repository.create.mockResolvedValue(expectedId);
+		fileStoragePolicy.assertExists.mockResolvedValue(undefined);
 
 		const result = await handler.execute(command);
 
+		expect(fileStoragePolicy.assertExists).toHaveBeenCalledWith(dto.avatarKey);
 		expect(repository.create).toHaveBeenCalledWith(dto);
 		expect(eventBus.publish).toHaveBeenCalledWith(new AnimalCreatedEvent(expectedId, dto.species));
 		expect(result).toBe(expectedId);

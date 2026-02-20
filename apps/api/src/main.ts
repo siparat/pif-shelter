@@ -1,12 +1,14 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { ApiErrorResponseDto } from '@pif/contracts';
+import { AuthService } from '@thallesp/nestjs-better-auth';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AppModule } from './app/app.module';
 import { GlobalDeserializerInterceptor } from './app/core/interceptors/global-deserializer.interceptor';
+import { AUTH_PREFIX } from '@pif/shared';
 
 const PORT = 3000;
 
@@ -27,7 +29,11 @@ async function bootstrap(): Promise<void> {
 	const document = SwaggerModule.createDocument(app, config, {
 		extraModels: [ApiErrorResponseDto]
 	});
+
+	const authDocument = await app.get(AuthService).api.generateOpenAPISchema({ path: AUTH_PREFIX });
+
 	SwaggerModule.setup('openapi', app, document);
+	SwaggerModule.setup('openapi/auth', app, authDocument as OpenAPIObject);
 
 	app.useGlobalPipes(new ZodValidationPipe());
 	app.useGlobalInterceptors(new GlobalDeserializerInterceptor());
