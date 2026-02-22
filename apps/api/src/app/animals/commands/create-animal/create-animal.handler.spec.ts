@@ -4,6 +4,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateAnimalRequestDto } from '@pif/contracts';
 import { AnimalCoatEnum, AnimalGenderEnum, AnimalSizeEnum, AnimalSpeciesEnum } from '@pif/shared';
+import { Logger } from 'nestjs-pino';
 import { AnimalCreatedEvent } from '../../events/animal-created.event';
 import { AnimalsRepository } from '../../repositories/animals.repository';
 import { CreateAnimalCommand } from './create-animal.command';
@@ -31,6 +32,10 @@ describe('CreateAnimalHandler', () => {
 				{
 					provide: FileStoragePolicy,
 					useValue: createMock<FileStoragePolicy>()
+				},
+				{
+					provide: Logger,
+					useValue: createMock<Logger>()
 				}
 			]
 		}).compile();

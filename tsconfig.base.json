@@ -14,6 +14,7 @@
 		"lib": ["es2020", "dom"],
 		"skipLibCheck": true,
 		"skipDefaultLibCheck": true,
+		"esModuleInterop": true,
 		"baseUrl": ".",
 		"paths": {
 			"@pif/contracts": ["libs/contracts/src/index.ts"],

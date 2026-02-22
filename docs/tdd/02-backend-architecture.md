@@ -75,27 +75,36 @@ Handler: Класс с логикой. Выполняет запись в БД �
 
 ```ts
 // create-animal.command.ts
-export class CreateAnimalCommand {
+import { Command } from '@nestjs/cqrs';
+
+// Команда - это простой DTO-класс, который может наследоваться от базового класса Command<T>,
+// где T - тип возвращаемого значения для хендлера.
+export class CreateAnimalCommand extends Command<{ id: string }> {
 	constructor(
 		public readonly name: string,
 		public readonly age: number,
 		public readonly breed: string
-	) {}
+	) {
+		super();
+	}
 }
 
 // create-animal.handler.ts
 @CommandHandler(CreateAnimalCommand)
 export class CreateAnimalHandler implements ICommandHandler<CreateAnimalCommand> {
-	constructor(private readonly db: DrizzleService) {}
+	constructor(
+		private readonly db: DrizzleService,
+		private readonly eventBus: EventBus
+	) {}
 
-	async execute(command: CreateAnimalCommand): Promise<string> {
+	async execute(command: CreateAnimalCommand): Promise<{ id: string }> {
 		const { name, age, breed } = command;
 
 		const [newAnimal] = await this.db.insert(animals).values({ name, age, breed }).returning({ id: animals.id });
 
 		this.eventBus.publish(new AnimalCreatedEvent(newAnimal.id));
 
-		return newAnimal.id;
+		return { id: newAnimal.id };
 	}
 }
 ```
