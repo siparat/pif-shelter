@@ -29,9 +29,20 @@ services:
             interval: 5s
             timeout: 5s
             retries: 5
+    redis:
+        image: redis:8-alpine
+        container_name: redis
+        networks:
+            - main
+        ports:
+            - 6379:6379
+        command: ['redis-server', '--requirepass', '${REDIS_PASSWORD}', '--appendonly', 'yes']
+        volumes:
+            - redis_data:/data
 
 volumes:
     postgres_data:
+    redis_data:
 
 networks:
     main:
