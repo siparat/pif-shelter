@@ -93,7 +93,7 @@ export class CreateAnimalCommand extends Command<{ id: string }> {
 @CommandHandler(CreateAnimalCommand)
 export class CreateAnimalHandler implements ICommandHandler<CreateAnimalCommand> {
 	constructor(
-		private readonly db: DrizzleService,
+		private readonly db: DatabaseService,
 		private readonly eventBus: EventBus
 	) {}
 
@@ -120,7 +120,7 @@ Handler: Может делать сложные JOIN и возвращать д�
 // get-animal-by-id.handler.ts
 @QueryHandler(GetAnimalByIdQuery)
 export class GetAnimalByIdHandler implements IQueryHandler<GetAnimalByIdQuery> {
-	constructor(private readonly db: DrizzleService) {}
+	constructor(private readonly db: DatabaseService) {}
 
 	async execute(query: GetAnimalByIdQuery): Promise<AnimalDto | null> {
 		const result = await this.db.select().from(animals).where(eq(animals.id, query.id)).limit(1);
