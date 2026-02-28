@@ -86,5 +86,6 @@ export const schema = {
 	animalSpeciesEnum,
 	animalStatusEnum,
 	animals,
+	animalLabels,
 	animalsToAnimalLabels
 };

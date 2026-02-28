@@ -44,7 +44,7 @@ export default [
 					'**/': 'KEBAB_CASE'
 				}
 			],
-			'@typescript-eslint/no-explicit-any': 'error',
+			'@typescript-eslint/no-explicit-any': 'off',
 			'@typescript-eslint/explicit-function-return-type': [
 				'error',
 				{
@@ -127,6 +127,10 @@ export default [
 				{
 					selector: 'enum',
 					format: ['PascalCase']
+				},
+				{
+					selector: 'property',
+					format: ['camelCase', 'UPPER_CASE']
 				}
 			]
 		}

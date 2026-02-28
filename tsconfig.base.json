@@ -14,11 +14,13 @@
 		"lib": ["es2020", "dom"],
 		"skipLibCheck": true,
 		"skipDefaultLibCheck": true,
+		"esModuleInterop": true,
 		"baseUrl": ".",
 		"paths": {
 			"@pif/contracts": ["libs/contracts/src/index.ts"],
 			"@pif/database": ["libs/database/src/index.ts"],
 			"@pif/config": ["libs/config/src/index.ts"],
+			"@pif/cache": ["libs/cache/src/index.ts"],
 			"@pif/shared": ["libs/shared/src/index.ts"],
 			"@pif/email-templates": ["libs/email-templates/src/index.ts"],
 			"@pif/storage": ["libs/storage/src/index.ts"]

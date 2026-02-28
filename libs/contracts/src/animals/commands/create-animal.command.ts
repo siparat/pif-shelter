@@ -27,13 +27,9 @@ export const createAnimalRequestSchema = z.object({
 		.max(5000, { error: (e) => ({ message: `Превышен лимит по символам ${e.maximum}` }) })
 		.optional()
 		.describe('История жизни питомца (текст с форматированием \\n)'),
-	isSterilized: z.boolean('Стерилизован?').default(false).optional().describe('Флаг: стерилизовано ли животное'),
-	isVaccinated: z.boolean('Вакцинирован?').default(false).optional().describe('Флаг: сделаны ли прививки'),
-	isParasiteTreated: z
-		.boolean('Вылечен от паразитов?')
-		.default(false)
-		.optional()
-		.describe('Флаг: обработано ли от паразитов'),
+	isSterilized: z.boolean('Стерилизован?').optional().describe('Флаг: стерилизовано ли животное'),
+	isVaccinated: z.boolean('Вакцинирован?').optional().describe('Флаг: сделаны ли прививки'),
+	isParasiteTreated: z.boolean('Вылечен от паразитов?').optional().describe('Флаг: обработано ли от паразитов'),
 	avatarKey: z
 		.string('Аватар должен быть обязательно')
 		.trim()
