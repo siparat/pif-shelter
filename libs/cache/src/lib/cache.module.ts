@@ -26,7 +26,7 @@ export class CacheModule {
 					}
 				}
 			],
-			exports: [CacheService]
+			exports: [CacheService, CACHE_REDIS_CLIENT]
 		};
 	}
 
@@ -52,7 +52,7 @@ export class CacheModule {
 					}
 				}
 			],
-			exports: [CacheService]
+			exports: [CacheService, CACHE_REDIS_CLIENT]
 		};
 	}
 }

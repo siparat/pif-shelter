@@ -1,4 +1,5 @@
 export * from './lib/common';
+export * from './lib/constants/animal.projections';
 export * from './lib/constants/drizzle-providers.constants';
 export * from './lib/database.module';
 export * from './lib/database.service';
