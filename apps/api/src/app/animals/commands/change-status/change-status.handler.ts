@@ -2,7 +2,7 @@ import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { AnimalStatusEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
 import { FileStoragePolicy } from '../../../core/policies/file-storage.policy';
-import { AnimalStatusChangedEvent } from '../../events/animal-status-changed.event';
+import { AnimalStatusChangedEvent } from '../../events/animal-status-changed/animal-status-changed.event';
 import { AnimalNotFoundException } from '../../exceptions/animal-not-found.exception';
 import { AnimalsRepository } from '../../repositories/animals.repository';
 import { ChangeAnimalStatusCommand } from './change-status.command';

@@ -1,7 +1,7 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { Logger } from 'nestjs-pino';
 import { FileStoragePolicy } from '../../../core/policies/file-storage.policy';
-import { AnimalCreatedEvent } from '../../events/animal-created.event';
+import { AnimalCreatedEvent } from '../../events/animal-created/animal-created.event';
 import { AnimalsRepository } from '../../repositories/animals.repository';
 import { CreateAnimalCommand } from './create-animal.command';
 

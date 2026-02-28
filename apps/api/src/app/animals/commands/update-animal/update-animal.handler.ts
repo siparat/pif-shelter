@@ -1,6 +1,6 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { Logger } from 'nestjs-pino';
-import { AnimalUpdatedEvent } from '../../events/animal-updated.event';
+import { AnimalUpdatedEvent } from '../../events/animal-updated/animal-updated.event';
 import { AnimalsRepository } from '../../repositories/animals.repository';
 import { UpdateAnimalCommand } from './update-animal.command';
 

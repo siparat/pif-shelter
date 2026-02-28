@@ -2,6 +2,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
 import { AnimalLabel, DatabaseService, animalLabelColumns } from '@pif/database';
 import { ListAnimalLabelsQuery } from './list-animal-labels.query';
+import { AnimalCacheKeys } from '@pif/shared';
 
 @QueryHandler(ListAnimalLabelsQuery)
 export class ListAnimalLabelsHandler implements IQueryHandler<ListAnimalLabelsQuery> {
@@ -11,8 +12,7 @@ export class ListAnimalLabelsHandler implements IQueryHandler<ListAnimalLabelsQu
 	) {}
 
 	async execute(): Promise<AnimalLabel[]> {
-		const cacheKey = 'animals:labels:list';
-		const cached = await this.cache.get<AnimalLabel[]>(cacheKey).catch(() => null);
+		const cached = await this.cache.get<AnimalLabel[]>(AnimalCacheKeys.LABELS_LIST).catch(() => null);
 		if (cached) {
 			return cached;
 		}
@@ -22,7 +22,7 @@ export class ListAnimalLabelsHandler implements IQueryHandler<ListAnimalLabelsQu
 			orderBy: { name: 'asc' }
 		});
 
-		await this.cache.set(cacheKey, labels).catch(() => undefined);
+		await this.cache.set(AnimalCacheKeys.LABELS_LIST, labels).catch(() => undefined);
 
 		return labels;
 	}

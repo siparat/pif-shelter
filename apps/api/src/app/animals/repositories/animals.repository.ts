@@ -7,4 +7,6 @@ export abstract class AnimalsRepository {
 	abstract findById(id: string): Promise<typeof animals.$inferSelect | undefined>;
 	abstract create(data: CreateAnimalRequestDto): Promise<string>;
 	abstract update(id: string, data: UpdateAnimalRequestDto): Promise<string>;
+	abstract assignLabel(animalId: string, labelId: string): Promise<void>;
+	abstract unassignLabel(animalId: string, labelId: string): Promise<void>;
 }

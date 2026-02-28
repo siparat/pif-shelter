@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
 	AnimalDto,
+	AssignAnimalLabelRequestDto,
+	AssignAnimalLabelResponseDto,
 	ChangeAnimalStatusRequestDto,
 	ChangeAnimalStatusResponseDto,
 	CreateAnimalRequestDto,
@@ -15,9 +17,15 @@ import {
 	UpdateAnimalRequestDto,
 	UpdateAnimalResponseDto
 } from '@pif/contracts';
+import { UserRole } from '@pif/shared';
+import { AuthGuard } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { Roles } from '../core/decorators/roles.decorator';
+import { RoleGuard } from '../core/guards/role.guard';
+import { AssignAnimalLabelCommand } from './commands/assign-animal-label/assign-animal-label.command';
 import { ChangeAnimalStatusCommand } from './commands/change-status/change-status.command';
 import { CreateAnimalCommand } from './commands/create-animal/create-animal.command';
+import { UnassignAnimalLabelCommand } from './commands/unassign-animal-label/unassign-animal-label.command';
 import { UpdateAnimalCommand } from './commands/update-animal/update-animal.command';
 import { GetAnimalByIdQuery } from './queries/get-animal-by-id/get-animal-by-id.query';
 import { ListAnimalsQuery } from './queries/list-animals/list-animals.query';
@@ -35,6 +43,8 @@ export class AnimalsController {
 		description: 'Добавляет нового питомца в базу данных. Доступно администраторам и старшим волонтерам.'
 	})
 	@ApiCreatedResponse({ description: 'Питомец успешно создан', type: CreateAnimalResponseDto })
+	@UseGuards(AuthGuard, RoleGuard)
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
 	@Post()
 	async create(@Body() dto: CreateAnimalRequestDto): Promise<ReturnDto<typeof CreateAnimalResponseDto>> {
 		const id = await this.commandBus.execute(new CreateAnimalCommand(dto));
@@ -57,6 +67,8 @@ export class AnimalsController {
 
 	@ApiOperation({ summary: 'Обновление данных питомца', description: 'Обновляет данные питомца по ID.' })
 	@ApiOkResponse({ description: 'Питомец успешно обновлен', type: UpdateAnimalResponseDto })
+	@UseGuards(AuthGuard, RoleGuard)
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
 	@Patch(':id')
 	async update(
 		@Param('id', ParseUUIDPipe) id: string,
@@ -68,11 +80,38 @@ export class AnimalsController {
 
 	@ApiOperation({ summary: 'Обновить статус животного', description: 'Обновляет статус питомца по ID.' })
 	@ApiOkResponse({ description: 'Статус питомца успешно обновлен', type: ChangeAnimalStatusResponseDto })
+	@UseGuards(AuthGuard, RoleGuard)
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
 	@Patch(':id/status')
 	async changeStatus(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Body() { status }: ChangeAnimalStatusRequestDto
 	): Promise<ReturnDto<typeof ChangeAnimalStatusResponseDto>> {
 		return this.commandBus.execute(new ChangeAnimalStatusCommand(id, status));
+	}
+
+	@ApiOperation({ summary: 'Привязать ярлык к животному', description: 'Добавляет связь между животным и ярлыком.' })
+	@ApiCreatedResponse({ description: 'Ярлык успешно привязан', type: AssignAnimalLabelResponseDto })
+	@UseGuards(AuthGuard, RoleGuard)
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@Post(':id/label')
+	async assignLabel(
+		@Param('id', ParseUUIDPipe) id: string,
+		@Body() { labelId }: AssignAnimalLabelRequestDto
+	): Promise<ReturnDto<typeof AssignAnimalLabelResponseDto>> {
+		await this.commandBus.execute(new AssignAnimalLabelCommand(id, labelId));
+		return { animalId: id, labelId };
+	}
+
+	@ApiOperation({ summary: 'Отвязать ярлык от животного', description: 'Удаляет связь между животным и ярлыком.' })
+	@ApiOkResponse({ description: 'Ярлык успешно отвязан' })
+	@UseGuards(AuthGuard, RoleGuard)
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@Delete(':id/label/:labelId')
+	async unassignLabel(
+		@Param('id', ParseUUIDPipe) id: string,
+		@Param('labelId', ParseUUIDPipe) labelId: string
+	): Promise<void> {
+		await this.commandBus.execute(new UnassignAnimalLabelCommand(id, labelId));
 	}
 }

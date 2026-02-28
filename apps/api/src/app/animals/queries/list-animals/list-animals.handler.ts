@@ -5,6 +5,7 @@ import { animals, DatabaseService, getSortOrder, animalListColumns } from '@pif/
 import { and, count } from 'drizzle-orm';
 import { ListAnimalsBuilder } from './list-animals.builder';
 import { ListAnimalsQuery } from './list-animals.query';
+import { AnimalCacheKeys } from '@pif/shared';
 
 @QueryHandler(ListAnimalsQuery)
 export class ListAnimalsHandler implements IQueryHandler<ListAnimalsQuery> {
@@ -14,7 +15,7 @@ export class ListAnimalsHandler implements IQueryHandler<ListAnimalsQuery> {
 	) {}
 
 	async execute({ dto }: ListAnimalsQuery): Promise<ListAnimalsResult> {
-		const queryHash = this.cache.buildQueryKey('animals:list', dto);
+		const queryHash = this.cache.buildQueryKey(AnimalCacheKeys.LIST, dto);
 		const cached = await this.cache.get<ListAnimalsResult>(queryHash).catch(() => null);
 		if (cached) {
 			return cached;

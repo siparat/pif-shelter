@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAnimalRequestDto, UpdateAnimalRequestDto } from '@pif/contracts';
-import { animals, DatabaseService } from '@pif/database';
+import { animals, animalsToAnimalLabels, DatabaseService } from '@pif/database';
 import { AnimalStatusEnum } from '@pif/shared';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { AnimalNotFoundException } from '../exceptions/animal-not-found.exception';
 import { AnimalMapper } from '../mappers/animal.mapper';
 import { AnimalsRepository } from './animals.repository';
@@ -44,5 +44,15 @@ export class DrizzleAnimalsRepository implements AnimalsRepository {
 		}
 
 		return updated.id;
+	}
+
+	async assignLabel(animalId: string, labelId: string): Promise<void> {
+		await this.db.client.insert(animalsToAnimalLabels).values({ animalId, labelId }).onConflictDoNothing();
+	}
+
+	async unassignLabel(animalId: string, labelId: string): Promise<void> {
+		await this.db.client
+			.delete(animalsToAnimalLabels)
+			.where(and(eq(animalsToAnimalLabels.animalId, animalId), eq(animalsToAnimalLabels.labelId, labelId)));
 	}
 }
