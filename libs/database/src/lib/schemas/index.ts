@@ -30,7 +30,7 @@ export const relations = defineRelations(
 				from: r.animals.id.through(r.animalsToAnimalLabels.animalId),
 				to: r.animalLabels.id.through(r.animalsToAnimalLabels.labelId)
 			}),
-			guardian: r.one.guardianships({
+			guardianship: r.one.guardianships({
 				from: r.animals.id,
 				to: r.guardianships.animalId
 			})

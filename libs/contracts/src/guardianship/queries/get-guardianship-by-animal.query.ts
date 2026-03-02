@@ -1,5 +1,4 @@
-import { guardianshipSchema } from '@pif/database';
-import { GuardianshipStatusEnum } from '@pif/shared';
+import { guardianshipViewSchema } from '@pif/database';
 import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
@@ -10,14 +9,8 @@ export const getGuardianshipByAnimalRequestSchema = z.object({
 
 export class GetGuardianshipByAnimalRequestDto extends createZodDto(getGuardianshipByAnimalRequestSchema) {}
 
-export const guardianshipViewSchema = guardianshipSchema
-	.extend({
-		status: z.enum(GuardianshipStatusEnum)
-	})
-	.describe('Данные об опекунстве для карточки животного');
-
 export const getGuardianshipByAnimalResponseSchema = createApiSuccessResponseSchema(
-	guardianshipViewSchema.nullable().describe('Текущая запись опекунства или null, если опекунства нет')
+	guardianshipViewSchema.describe('Текущая запись опекунства')
 );
 
 export class GetGuardianshipByAnimalResponseDto extends createZodDto(getGuardianshipByAnimalResponseSchema) {}

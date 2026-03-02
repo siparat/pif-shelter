@@ -28,6 +28,7 @@ import { ZodValidationExceptionFilter } from './core/filters/zod-exception.filte
 import { HealthModule } from './core/health/health.module';
 import { SeedModule } from './core/seed/seed.module';
 import { MediaModule } from './media/media.module';
+import { GuardianshipModule } from './guardianship/guardianship.module';
 
 @Module({
 	imports: [
@@ -43,6 +44,7 @@ import { MediaModule } from './media/media.module';
 		ConfigModule,
 		CoreModule,
 		AnimalsModule,
+		GuardianshipModule,
 		AdminUsersModule,
 		MediaModule,
 		HealthModule,

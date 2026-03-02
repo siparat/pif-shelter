@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Session } from '../../configs/auth.config';
+import { ISession } from '../../configs/auth.config';
 import { Roles } from '../decorators/roles.decorator';
 import { RoleForbiddenException } from '../exceptions/role-forbidden.exception';
 
@@ -10,7 +10,7 @@ export class RoleGuard implements CanActivate {
 
 	canActivate(context: ExecutionContext): boolean {
 		const res = context.switchToHttp().getRequest();
-		const session: Session | undefined = res.session;
+		const session: ISession | undefined = res.session;
 		const userRole = session?.user?.role;
 
 		if (!userRole) {

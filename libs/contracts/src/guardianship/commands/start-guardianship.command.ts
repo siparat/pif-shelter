@@ -12,11 +12,7 @@ export const startGuardianshipRequestSchema = z.object({
 		.max(255, 'Имя не может быть длиннее 255 символов')
 		.describe('Имя опекуна'),
 	email: z.email('Укажите корректный email для чеков и уведомлений').describe('Email опекуна'),
-	telegramUsername: telegramNicknameSchema.describe('Telegram-ник опекуна для связи через бота'),
-	monthlyAmount: z
-		.number('Укажите сумму ежемесячного взноса')
-		.positive('Сумма должна быть больше нуля')
-		.describe('Сумма ежемесячного взноса в рублях')
+	telegramUsername: telegramNicknameSchema.describe('Telegram-ник опекуна для связи через бота')
 });
 
 export class StartGuardianshipRequestDto extends createZodDto(startGuardianshipRequestSchema) {}
