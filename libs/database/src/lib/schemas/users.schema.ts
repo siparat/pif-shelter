@@ -1,5 +1,4 @@
 import { UserRole } from '@pif/shared';
-import { defineRelations } from 'drizzle-orm';
 import { boolean, index, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from './timestamps';
 
@@ -83,48 +82,3 @@ export const invitations = pgTable(
 	},
 	(table) => [index('invitations_email_idx').on(table.email)]
 );
-
-export const usersRelations = defineRelations(
-	{
-		users,
-		accounts,
-		sessions,
-		verifications,
-		invitations
-	},
-	(r) => ({
-		users: {
-			sessions: r.many.sessions(),
-			accounts: r.many.accounts()
-		},
-		sessions: {
-			user: r.one.users({
-				from: r.sessions.userId,
-				to: r.users.id
-			})
-		},
-		accounts: {
-			user: r.one.users({
-				from: r.accounts.userId,
-				to: r.users.id
-			})
-		},
-		invitations: {
-			user: r.one.users({
-				from: r.invitations.userId,
-				to: r.users.id
-			})
-		}
-	})
-);
-
-export const relations = usersRelations;
-
-export const schema = {
-	roleEnum,
-	users,
-	sessions,
-	accounts,
-	verifications,
-	invitations
-};

@@ -1,5 +1,4 @@
 import { AnimalCoatEnum, AnimalGenderEnum, AnimalSizeEnum, AnimalSpeciesEnum, AnimalStatusEnum } from '@pif/shared';
-import { defineRelations } from 'drizzle-orm';
 import { boolean, date, index, jsonb, pgEnum, pgTable, primaryKey, text, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from './timestamps';
 
@@ -55,37 +54,3 @@ export const animalsToAnimalLabels = pgTable(
 	},
 	(t) => [primaryKey({ columns: [t.animalId, t.labelId] })]
 );
-
-export const animalsRelations = defineRelations(
-	{
-		animalLabels,
-		animals,
-		animalsToAnimalLabels
-	},
-	(r) => ({
-		animals: {
-			labels: r.many.animalLabels({
-				from: r.animals.id.through(r.animalsToAnimalLabels.animalId),
-				to: r.animalLabels.id.through(r.animalsToAnimalLabels.labelId)
-			})
-		},
-		labels: {
-			animals: r.many.animals({
-				from: r.animalLabels.id.through(r.animalsToAnimalLabels.labelId),
-				to: r.animals.id.through(r.animalsToAnimalLabels.animalId)
-			})
-		}
-	})
-);
-
-export const relations = animalsRelations;
-export const schema = {
-	animalCoatEnum,
-	animalGenderEnum,
-	animalSizeEnum,
-	animalSpeciesEnum,
-	animalStatusEnum,
-	animals,
-	animalLabels,
-	animalsToAnimalLabels
-};
