@@ -17,6 +17,14 @@ export const startGuardianshipRequestSchema = z.object({
 
 export class StartGuardianshipRequestDto extends createZodDto(startGuardianshipRequestSchema) {}
 
+export const startGuardianshipAuthenticatedRequestSchema = z.object({
+	animalId: z.uuid().describe('Уникальный идентификатор животного, для которого оформляется опека')
+});
+
+export class StartGuardianshipAuthenticatedRequestDto extends createZodDto(
+	startGuardianshipAuthenticatedRequestSchema
+) {}
+
 export const startGuardianshipResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		guardianshipId: z.uuid().describe('Уникальный идентификатор созданной записи опекунства'),

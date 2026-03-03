@@ -17,18 +17,21 @@ export class StartGuardianshipHandler implements ICommandHandler<StartGuardiansh
 		private readonly logger: Logger
 	) {}
 
-	async execute({ dto, userId }: StartGuardianshipCommand): Promise<{ guardianshipId: string; paymentUrl: string }> {
-		const animal = await this.policy.assertCanStart(dto.animalId);
+	async execute({
+		animalId,
+		userId
+	}: StartGuardianshipCommand): Promise<{ guardianshipId: string; paymentUrl: string }> {
+		const animal = await this.policy.assertCanStart(animalId);
 		const amount = Number(animal.costOfGuardianship);
 
 		const subscriptionId = randomUUID();
-		const guardianship = await this.repository.createPending(userId, dto.animalId, subscriptionId, amount);
+		const guardianship = await this.repository.createPending(userId, animalId, subscriptionId);
 		const { url } = await this.paymentService.generatePaymentLink('subscription', subscriptionId, amount);
 
 		this.eventBus.publish(new GuardianshipCreatedEvent(guardianship.animalId));
 		this.logger.log('Опекунство создано, ожидает оплаты', {
 			guardianshipId: guardianship.id,
-			animalId: dto.animalId,
+			animalId,
 			userId
 		});
 

@@ -30,13 +30,8 @@ export class DrizzleGuardianshipRepository implements GuardianshipRepository {
 		});
 	}
 
-	async createPending(
-		userId: string,
-		animalId: string,
-		subscriptionId: string,
-		monthlyAmount: number
-	): Promise<Guardianship> {
-		const values = GuardianshipMapper.fromCreateDTO(userId, animalId, subscriptionId, monthlyAmount);
+	async createPending(userId: string, animalId: string, subscriptionId: string): Promise<Guardianship> {
+		const values = GuardianshipMapper.fromCreateDTO(userId, animalId, subscriptionId);
 		const [guardianship] = await this.db.client.insert(guardianships).values(values).returning();
 		return guardianship;
 	}

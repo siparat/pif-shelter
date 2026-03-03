@@ -8,6 +8,7 @@ import {
 	CancelGuardianshipResponseDto,
 	GetGuardianshipByAnimalResponseDto,
 	ReturnDto,
+	StartGuardianshipAuthenticatedRequestDto,
 	StartGuardianshipRequestDto,
 	StartGuardianshipResponseDto
 } from '@pif/contracts';
@@ -18,6 +19,7 @@ import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
 import { CancelGuardianshipByTokenCommand } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.command';
 import { CancelGuardianshipCommand } from './commands/cancel-guardianship/cancel-guardianship.command';
+import { StartGuardianshipAsGuestCommand } from './commands/start-guardianship-as-guest/start-guardianship-as-guest.command';
 import { StartGuardianshipCommand } from './commands/start-guardianship/start-guardianship.command';
 import { GuardianshipNotFoundException } from './exceptions/guardianship-not-found.exception';
 import { GetGuardianshipByAnimalQuery } from './queries/get-guardianship-by-animal/get-guardianship-by-animal.query';
@@ -31,19 +33,31 @@ export class GuardianshipController {
 	) {}
 
 	@ApiOperation({
-		summary: 'Оформить опекунство',
-		description: 'Создаёт pending-запись опекунства и возвращает ссылку на платёжную страницу.'
+		summary: 'Оформить опекунство (без авторизации)',
+		description:
+			'Заполните форму: если email или telegram уже зарегистрированы, вернётся 409 — войдите в аккаунт и используйте POST /guardianships/authenticated. Если пользователь новый — создаётся аккаунт и опекунство, возвращается ссылка на оплату.'
+	})
+	@ApiCreatedResponse({ description: 'Опекунство создано, требуется оплата', type: StartGuardianshipResponseDto })
+	@Post()
+	async start(@Body() dto: StartGuardianshipRequestDto): Promise<ReturnDto<typeof StartGuardianshipResponseDto>> {
+		return this.commandBus.execute(new StartGuardianshipAsGuestCommand(dto));
+	}
+
+	@ApiOperation({
+		summary: 'Оформить опекунство (авторизованный пользователь)',
+		description:
+			'Для пользователя, уже вошедшего в аккаунт. Достаточно передать animalId; имя, email и Telegram берутся из профиля (редактируются в личном кабинете).'
 	})
 	@ApiCreatedResponse({ description: 'Опекунство создано, требуется оплата', type: StartGuardianshipResponseDto })
 	@UseGuards(AuthGuard)
-	@Post()
-	async start(
+	@Post('authenticated')
+	async startAuthenticated(
 		@Session() session: ISession,
-		@Body() dto: StartGuardianshipRequestDto
+		@Body() dto: StartGuardianshipAuthenticatedRequestDto
 	): Promise<ReturnDto<typeof StartGuardianshipResponseDto>> {
-		const userId = session.user.id;
-		const { guardianshipId, paymentUrl } = await this.commandBus.execute(new StartGuardianshipCommand(userId, dto));
-
+		const { guardianshipId, paymentUrl } = await this.commandBus.execute(
+			new StartGuardianshipCommand(session.user.id, dto.animalId)
+		);
 		return { guardianshipId, paymentUrl };
 	}
 

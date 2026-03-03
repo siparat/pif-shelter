@@ -22,12 +22,6 @@ describe('StartGuardianshipHandler', () => {
 
 	const userId = faker.string.uuid();
 	const animalId = faker.string.uuid();
-	const dto = {
-		animalId,
-		name: faker.person.firstName(),
-		email: faker.internet.email(),
-		telegramUsername: '@user'
-	};
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -51,7 +45,7 @@ describe('StartGuardianshipHandler', () => {
 	it('throws AnimalNotFoundException when policy throws', async () => {
 		policy.assertCanStart.mockRejectedValue(new AnimalNotFoundException(animalId));
 
-		await expect(handler.execute(new StartGuardianshipCommand(userId, dto))).rejects.toThrow(
+		await expect(handler.execute(new StartGuardianshipCommand(userId, animalId))).rejects.toThrow(
 			AnimalNotFoundException
 		);
 		expect(repository.createPending).not.toHaveBeenCalled();
@@ -60,7 +54,7 @@ describe('StartGuardianshipHandler', () => {
 	it('throws AnimalCostOfGuardianshipNotSetException when policy throws', async () => {
 		policy.assertCanStart.mockRejectedValue(new AnimalCostOfGuardianshipNotSetException(animalId));
 
-		await expect(handler.execute(new StartGuardianshipCommand(userId, dto))).rejects.toThrow(
+		await expect(handler.execute(new StartGuardianshipCommand(userId, animalId))).rejects.toThrow(
 			AnimalCostOfGuardianshipNotSetException
 		);
 		expect(repository.createPending).not.toHaveBeenCalled();
@@ -69,7 +63,7 @@ describe('StartGuardianshipHandler', () => {
 	it('throws AnimalAlreadyHasGuardianException when policy throws', async () => {
 		policy.assertCanStart.mockRejectedValue(new AnimalAlreadyHasGuardianException());
 
-		await expect(handler.execute(new StartGuardianshipCommand(userId, dto))).rejects.toThrow(
+		await expect(handler.execute(new StartGuardianshipCommand(userId, animalId))).rejects.toThrow(
 			AnimalAlreadyHasGuardianException
 		);
 		expect(repository.createPending).not.toHaveBeenCalled();
@@ -82,7 +76,7 @@ describe('StartGuardianshipHandler', () => {
 		repository.createPending.mockResolvedValue(created as never);
 		paymentService.generatePaymentLink.mockResolvedValue({ url: 'https://pay.example/1', amount });
 
-		const result = await handler.execute(new StartGuardianshipCommand(userId, dto));
+		const result = await handler.execute(new StartGuardianshipCommand(userId, animalId));
 
 		expect(policy.assertCanStart).toHaveBeenCalledWith(animalId);
 		expect(repository.createPending).toHaveBeenCalledWith(userId, animalId, expect.any(String), amount);
