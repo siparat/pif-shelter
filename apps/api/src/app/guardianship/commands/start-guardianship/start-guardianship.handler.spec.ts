@@ -79,7 +79,7 @@ describe('StartGuardianshipHandler', () => {
 		const result = await handler.execute(new StartGuardianshipCommand(userId, animalId));
 
 		expect(policy.assertCanStart).toHaveBeenCalledWith(animalId);
-		expect(repository.createPending).toHaveBeenCalledWith(userId, animalId, expect.any(String), amount);
+		expect(repository.createPending).toHaveBeenCalledWith(userId, animalId, expect.any(String));
 		expect(paymentService.generatePaymentLink).toHaveBeenCalledWith('subscription', expect.any(String), amount);
 		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipCreatedEvent(animalId));
 		expect(result).toEqual({ guardianshipId: created.id, paymentUrl: 'https://pay.example/1' });

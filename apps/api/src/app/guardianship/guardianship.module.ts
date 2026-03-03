@@ -9,6 +9,7 @@ import { CancelGuardianshipByTokenHandler } from './commands/cancel-guardianship
 import { StartGuardianshipAsGuestHandler } from './commands/start-guardianship-as-guest/start-guardianship-as-guest.handler';
 import { StartGuardianshipHandler } from './commands/start-guardianship/start-guardianship.handler';
 import { StartGuardianshipPolicy } from './commands/start-guardianship/start-guardianship.policy';
+import { ProcessPaymentWebhookHandler } from './commands/process-payment-webhook/process-payment-webhook.handler';
 import { GuardianshipCreatedHandler } from './events/guardianship-created/guardianship-created.handler';
 import { GuardianshipCancelledHandler } from './events/guardianship-cancelled/guardianship-cancelled.handler';
 import { SendGuardianshipCancelLinkEmailHandler } from './events/guardianship-activated/send-guardianship-cancel-link-email.handler';
@@ -27,6 +28,7 @@ import { GuardianRegisteredHandler } from './events/guardian-registered/guardian
 		StartGuardianshipPolicy,
 		CancelGuardianshipHandler,
 		CancelGuardianshipByTokenHandler,
+		ProcessPaymentWebhookHandler,
 		CancelGuardianshipPolicy,
 		GetGuardianshipByAnimalHandler,
 		GuardianshipCreatedHandler,

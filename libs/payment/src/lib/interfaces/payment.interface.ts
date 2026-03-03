@@ -1,3 +1,7 @@
+export enum PaymentWebhookEvent {
+	PAYMENT_SUCCEEDED = 'payment.succeeded'
+}
+
 export interface IGeneratedPayment {
 	url: string;
 	amount: number;

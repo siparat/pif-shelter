@@ -15,6 +15,12 @@ export class DrizzleGuardianshipRepository implements GuardianshipRepository {
 		});
 	}
 
+	findBySubscriptionId(subscriptionId: string): Promise<typeof guardianships.$inferSelect | undefined> {
+		return this.db.client.query.guardianships.findFirst({
+			where: { subscriptionId }
+		});
+	}
+
 	findByCancellationToken(token: string): Promise<typeof guardianships.$inferSelect | undefined> {
 		return this.db.client.query.guardianships.findFirst({
 			where: { cancellationToken: token }

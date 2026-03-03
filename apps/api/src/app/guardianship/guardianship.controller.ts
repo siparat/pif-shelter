@@ -7,6 +7,7 @@ import {
 	CancelGuardianshipRequestDto,
 	CancelGuardianshipResponseDto,
 	GetGuardianshipByAnimalResponseDto,
+	PaymentWebhookRequestDto,
 	ReturnDto,
 	StartGuardianshipAuthenticatedRequestDto,
 	StartGuardianshipRequestDto,
@@ -19,6 +20,7 @@ import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
 import { CancelGuardianshipByTokenCommand } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.command';
 import { CancelGuardianshipCommand } from './commands/cancel-guardianship/cancel-guardianship.command';
+import { ProcessPaymentWebhookCommand } from './commands/process-payment-webhook/process-payment-webhook.command';
 import { StartGuardianshipAsGuestCommand } from './commands/start-guardianship-as-guest/start-guardianship-as-guest.command';
 import { StartGuardianshipCommand } from './commands/start-guardianship/start-guardianship.command';
 import { GuardianshipNotFoundException } from './exceptions/guardianship-not-found.exception';
@@ -84,6 +86,19 @@ export class GuardianshipController {
 		@Body() dto: CancelGuardianshipByTokenRequestDto
 	): Promise<ReturnDto<typeof CancelGuardianshipByTokenResponseDto>> {
 		return this.commandBus.execute(new CancelGuardianshipByTokenCommand(dto.token));
+	}
+
+	@ApiOperation({
+		summary: 'Мок вебхука платёжного провайдера',
+		description:
+			'Имитирует вызов от платёжного сервиса при успешной оплате. Тело: { subscriptionId, event: "payment.succeeded" }. Меняет статус опекунства на ACTIVE и публикует GuardianshipActivatedEvent. Идемпотентно при повторном вызове.'
+	})
+	@ApiOkResponse({ description: 'Вебхук обработан' })
+	@Post('webhooks/payment')
+	async paymentWebhook(
+		@Body() dto: PaymentWebhookRequestDto
+	): Promise<{ guardianshipId: string; activated: boolean }> {
+		return this.commandBus.execute(new ProcessPaymentWebhookCommand(dto.subscriptionId, dto.event));
 	}
 
 	@ApiOperation({
