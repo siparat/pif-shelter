@@ -15,6 +15,12 @@ export class DrizzleGuardianshipRepository implements GuardianshipRepository {
 		});
 	}
 
+	findByCancellationToken(token: string): Promise<typeof guardianships.$inferSelect | undefined> {
+		return this.db.client.query.guardianships.findFirst({
+			where: { cancellationToken: token }
+		});
+	}
+
 	findActiveOrPendingByAnimalId(id: string): Promise<typeof guardianships.$inferSelect | undefined> {
 		return this.db.client.query.guardianships.findFirst({
 			where: {
@@ -45,7 +51,7 @@ export class DrizzleGuardianshipRepository implements GuardianshipRepository {
 	async cancel(id: string, cancelledAt: Date): Promise<void> {
 		await this.db.client
 			.update(guardianships)
-			.set({ status: GuardianshipStatusEnum.CANCELLED, cancelledAt })
+			.set({ status: GuardianshipStatusEnum.CANCELLED, cancelledAt, cancellationToken: null })
 			.where(eq(guardianships.id, id));
 	}
 }

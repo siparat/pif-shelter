@@ -2,6 +2,8 @@ import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from '@n
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
+	CancelGuardianshipByTokenRequestDto,
+	CancelGuardianshipByTokenResponseDto,
 	CancelGuardianshipRequestDto,
 	CancelGuardianshipResponseDto,
 	GetGuardianshipByAnimalResponseDto,
@@ -14,6 +16,7 @@ import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
+import { CancelGuardianshipByTokenCommand } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.command';
 import { CancelGuardianshipCommand } from './commands/cancel-guardianship/cancel-guardianship.command';
 import { StartGuardianshipCommand } from './commands/start-guardianship/start-guardianship.command';
 import { GuardianshipNotFoundException } from './exceptions/guardianship-not-found.exception';
@@ -55,6 +58,18 @@ export class GuardianshipController {
 	async cancel(@Body() dto: CancelGuardianshipRequestDto): Promise<ReturnDto<typeof CancelGuardianshipResponseDto>> {
 		const { guardianshipId } = await this.commandBus.execute(new CancelGuardianshipCommand(dto.guardianshipId));
 		return { guardianshipId };
+	}
+
+	@ApiOperation({
+		summary: 'Отменить опекунство по токену из письма',
+		description: 'Публичный endpoint. Отменяет опекунство по токену из ссылки в письме. Не требует авторизации.'
+	})
+	@ApiOkResponse({ description: 'Опекунство отменено', type: CancelGuardianshipByTokenResponseDto })
+	@Post('cancel-by-token')
+	async cancelByToken(
+		@Body() dto: CancelGuardianshipByTokenRequestDto
+	): Promise<ReturnDto<typeof CancelGuardianshipByTokenResponseDto>> {
+		return this.commandBus.execute(new CancelGuardianshipByTokenCommand(dto.token));
 	}
 
 	@ApiOperation({

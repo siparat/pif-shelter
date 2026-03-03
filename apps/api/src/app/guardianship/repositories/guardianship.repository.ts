@@ -2,6 +2,7 @@ import { Guardianship, guardianships } from '@pif/database';
 
 export abstract class GuardianshipRepository {
 	abstract findById(id: string): Promise<typeof guardianships.$inferSelect | undefined>;
+	abstract findByCancellationToken(token: string): Promise<typeof guardianships.$inferSelect | undefined>;
 	abstract findActiveOrPendingByAnimalId(id: string): Promise<typeof guardianships.$inferSelect | undefined>;
 	abstract createPending(
 		userId: string,

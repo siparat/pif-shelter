@@ -4,10 +4,12 @@ import { PaymentModule } from '@pif/payment';
 import { AnimalsModule } from '../animals/animals.module';
 import { CancelGuardianshipHandler } from './commands/cancel-guardianship/cancel-guardianship.handler';
 import { CancelGuardianshipPolicy } from './commands/cancel-guardianship/cancel-guardianship.policy';
+import { CancelGuardianshipByTokenHandler } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.handler';
 import { StartGuardianshipHandler } from './commands/start-guardianship/start-guardianship.handler';
 import { StartGuardianshipPolicy } from './commands/start-guardianship/start-guardianship.policy';
 import { GuardianshipCreatedHandler } from './events/guardianship-created/guardianship-created.handler';
 import { GuardianshipCancelledHandler } from './events/guardianship-cancelled/guardianship-cancelled.handler';
+import { SendGuardianshipCancelLinkEmailHandler } from './events/guardianship-activated/send-guardianship-cancel-link-email.handler';
 import { GuardianshipController } from './guardianship.controller';
 import { GetGuardianshipByAnimalHandler } from './queries/get-guardianship-by-animal/get-guardianship-by-animal.handler';
 import { DrizzleGuardianshipRepository } from './repositories/drizzle-guardianship.repository';
@@ -20,10 +22,12 @@ import { GuardianshipRepository } from './repositories/guardianship.repository';
 		StartGuardianshipHandler,
 		StartGuardianshipPolicy,
 		CancelGuardianshipHandler,
+		CancelGuardianshipByTokenHandler,
 		CancelGuardianshipPolicy,
 		GetGuardianshipByAnimalHandler,
 		GuardianshipCreatedHandler,
 		GuardianshipCancelledHandler,
+		SendGuardianshipCancelLinkEmailHandler,
 		{
 			provide: GuardianshipRepository,
 			useClass: DrizzleGuardianshipRepository
