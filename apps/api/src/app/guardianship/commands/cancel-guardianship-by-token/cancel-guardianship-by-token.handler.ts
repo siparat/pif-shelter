@@ -5,8 +5,8 @@ import { GuardianshipCancelledEvent } from '../../events/guardianship-cancelled/
 import { GuardianshipNotFoundByTokenException } from '../../exceptions/guardianship-not-found-by-token.exception';
 import { PaymentServiceUnavailableException } from '../../exceptions/payment-service-unavailable.exception';
 import { GuardianshipRepository } from '../../repositories/guardianship.repository';
-import { CancelGuardianshipByTokenCommand } from './cancel-guardianship-by-token.command';
 import { CancelGuardianshipPolicy } from '../cancel-guardianship/cancel-guardianship.policy';
+import { CancelGuardianshipByTokenCommand } from './cancel-guardianship-by-token.command';
 
 @CommandHandler(CancelGuardianshipByTokenCommand)
 export class CancelGuardianshipByTokenHandler implements ICommandHandler<CancelGuardianshipByTokenCommand> {
@@ -34,7 +34,9 @@ export class CancelGuardianshipByTokenHandler implements ICommandHandler<CancelG
 			throw new PaymentServiceUnavailableException();
 		}
 		await this.repository.cancel(guardianship.id, new Date());
-		this.eventBus.publish(new GuardianshipCancelledEvent(guardianship.animalId));
+		this.eventBus.publish(
+			new GuardianshipCancelledEvent(guardianship, 'Пользователь отменил опекунство по ссылке из email')
+		);
 		this.logger.log('Опекунство отменено по токену', {
 			guardianshipId: guardianship.id,
 			animalId: guardianship.animalId

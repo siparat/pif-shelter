@@ -20,6 +20,7 @@ import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
 import { CancelGuardianshipByTokenCommand } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.command';
 import { CancelGuardianshipCommand } from './commands/cancel-guardianship/cancel-guardianship.command';
+import type { ProcessPaymentWebhookResult } from './commands/process-payment-webhook/process-payment-webhook.command';
 import { ProcessPaymentWebhookCommand } from './commands/process-payment-webhook/process-payment-webhook.command';
 import { StartGuardianshipAsGuestCommand } from './commands/start-guardianship-as-guest/start-guardianship-as-guest.command';
 import { StartGuardianshipCommand } from './commands/start-guardianship/start-guardianship.command';
@@ -71,9 +72,10 @@ export class GuardianshipController {
 	@UseGuards(AuthGuard, RoleGuard)
 	@Roles([UserRole.ADMIN])
 	@Post('cancel')
-	async cancel(@Body() dto: CancelGuardianshipRequestDto): Promise<ReturnDto<typeof CancelGuardianshipResponseDto>> {
-		const { guardianshipId } = await this.commandBus.execute(new CancelGuardianshipCommand(dto.guardianshipId));
-		return { guardianshipId };
+	async cancel(
+		@Body() { guardianshipId, reason }: CancelGuardianshipRequestDto
+	): Promise<ReturnDto<typeof CancelGuardianshipResponseDto>> {
+		return this.commandBus.execute(new CancelGuardianshipCommand(guardianshipId, reason));
 	}
 
 	@ApiOperation({
@@ -91,13 +93,11 @@ export class GuardianshipController {
 	@ApiOperation({
 		summary: 'Мок вебхука платёжного провайдера',
 		description:
-			'Имитирует вызов от платёжного сервиса при успешной оплате. Тело: { subscriptionId, event: "payment.succeeded" }. Меняет статус опекунства на ACTIVE и публикует GuardianshipActivatedEvent. Идемпотентно при повторном вызове.'
+			'Имитирует вызов от платёжного сервиса. Тело: { subscriptionId, event }. События: subscription.succeeded — оплата прошла, опекунство → ACTIVE; subscription.failed — первый платёж не прошёл, при PENDING_PAYMENT → CANCELLED; subscription.canceled — отмена подписки вручную в сервисе → CANCELLED. Идемпотентно при повторных вызовах.'
 	})
 	@ApiOkResponse({ description: 'Вебхук обработан' })
 	@Post('webhooks/payment')
-	async paymentWebhook(
-		@Body() dto: PaymentWebhookRequestDto
-	): Promise<{ guardianshipId: string; activated: boolean }> {
+	async paymentWebhook(@Body() dto: PaymentWebhookRequestDto): Promise<ProcessPaymentWebhookResult> {
 		return this.commandBus.execute(new ProcessPaymentWebhookCommand(dto.subscriptionId, dto.event));
 	}
 

@@ -1,5 +1,7 @@
 export enum PaymentWebhookEvent {
-	PAYMENT_SUCCEEDED = 'payment.succeeded'
+	SUBSCRIPTION_SUCCEEDED = 'subscription.succeeded',
+	SUBSCRIPTION_FAILED = 'subscription.failed',
+	SUBSCRIPTION_CANCELED = 'subscription.canceled'
 }
 
 export interface IGeneratedPayment {

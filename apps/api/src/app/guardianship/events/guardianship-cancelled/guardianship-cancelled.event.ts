@@ -1,3 +1,8 @@
+import { guardianships } from '@pif/database';
+
 export class GuardianshipCancelledEvent {
-	constructor(public readonly animalId: string) {}
+	constructor(
+		public readonly guardianship: typeof guardianships.$inferSelect,
+		public readonly reason: string
+	) {}
 }

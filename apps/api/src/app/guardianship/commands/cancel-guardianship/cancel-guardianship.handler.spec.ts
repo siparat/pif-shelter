@@ -22,6 +22,7 @@ describe('CancelGuardianshipHandler', () => {
 
 	const guardianshipId = faker.string.uuid();
 	const animalId = faker.string.uuid();
+	const reason = 'Отмена по запросу администратора';
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -45,7 +46,7 @@ describe('CancelGuardianshipHandler', () => {
 	it('throws GuardianshipNotFoundException when policy throws', async () => {
 		policy.assertCanCancel.mockRejectedValue(new GuardianshipNotFoundException());
 
-		await expect(handler.execute(new CancelGuardianshipCommand(guardianshipId))).rejects.toThrow(
+		await expect(handler.execute(new CancelGuardianshipCommand(guardianshipId, reason))).rejects.toThrow(
 			GuardianshipNotFoundException
 		);
 		expect(repository.cancel).not.toHaveBeenCalled();
@@ -61,7 +62,7 @@ describe('CancelGuardianshipHandler', () => {
 			isAlreadyTerminal: true
 		});
 
-		const result = await handler.execute(new CancelGuardianshipCommand(guardianshipId));
+		const result = await handler.execute(new CancelGuardianshipCommand(guardianshipId, reason));
 
 		expect(result).toEqual({ guardianshipId });
 		expect(paymentService.cancelSubscription).not.toHaveBeenCalled();
@@ -81,30 +82,31 @@ describe('CancelGuardianshipHandler', () => {
 		});
 		paymentService.cancelSubscription.mockResolvedValue(false);
 
-		await expect(handler.execute(new CancelGuardianshipCommand(guardianshipId))).rejects.toThrow(
+		await expect(handler.execute(new CancelGuardianshipCommand(guardianshipId, reason))).rejects.toThrow(
 			PaymentServiceUnavailableException
 		);
 		expect(repository.cancel).not.toHaveBeenCalled();
 	});
 
 	it('cancels and publishes GuardianshipCancelledEvent when not isAlreadyTerminal', async () => {
+		const guardianship = {
+			id: guardianshipId,
+			animalId,
+			status: GuardianshipStatusEnum.ACTIVE,
+			subscriptionId: 'sub-1'
+		} as never;
 		policy.assertCanCancel.mockResolvedValue({
-			guardianship: {
-				id: guardianshipId,
-				animalId,
-				status: GuardianshipStatusEnum.ACTIVE,
-				subscriptionId: 'sub-1'
-			} as never,
+			guardianship,
 			isAlreadyTerminal: false
 		});
 		paymentService.cancelSubscription.mockResolvedValue(true);
 
-		const result = await handler.execute(new CancelGuardianshipCommand(guardianshipId));
+		const result = await handler.execute(new CancelGuardianshipCommand(guardianshipId, reason));
 
 		expect(policy.assertCanCancel).toHaveBeenCalledWith(guardianshipId);
 		expect(paymentService.cancelSubscription).toHaveBeenCalledWith('sub-1');
 		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date));
-		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipCancelledEvent(animalId));
+		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipCancelledEvent(guardianship, reason));
 		expect(result).toEqual({ guardianshipId });
 	});
 });

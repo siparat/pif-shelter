@@ -11,8 +11,8 @@ export class GuardianshipCancelledHandler implements IEventHandler<GuardianshipC
 		private readonly logger: Logger
 	) {}
 
-	async handle({ animalId }: GuardianshipCancelledEvent): Promise<void> {
-		await this.cache.del(GuardianshipCacheKeys.byAnimal(animalId)).catch(() => undefined);
-		this.logger.log('Кэш опекунства по животному сброшен после отмены', { animalId });
+	async handle({ guardianship }: GuardianshipCancelledEvent): Promise<void> {
+		await this.cache.del(GuardianshipCacheKeys.byAnimal(guardianship.animalId)).catch(() => undefined);
+		this.logger.log('Кэш опекунства по животному сброшен после отмены', { guardianship });
 	}
 }
