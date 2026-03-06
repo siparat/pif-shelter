@@ -1,11 +1,20 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { GUARDIANSHIP_QUEUE_JOBS, GUARDIANSHIP_QUEUE_NAME, GuardianshipStatusEnum } from '@pif/shared';
-import { Job } from 'bullmq';
-import { Logger } from 'nestjs-pino';
 import { EventBus } from '@nestjs/cqrs';
+import {
+	GUARDIAN_PENDING_PAYMENT_EXPIRE_MS,
+	GUARDIANSHIP_QUEUE_JOBS,
+	GUARDIANSHIP_QUEUE_NAME,
+	GuardianshipStatusEnum
+} from '@pif/shared';
+import { Job } from 'bullmq';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import { Logger } from 'nestjs-pino';
 import { GuardianshipCancelledEvent } from './events/guardianship-cancelled/guardianship-cancelled.event';
 import { RemoveFromReservationJob } from './jobs/remove-from-reservation.job';
 import { GuardianshipRepository } from './repositories/guardianship.repository';
+
+dayjs.extend(duration);
 
 @Processor(GUARDIANSHIP_QUEUE_NAME)
 export class GuardianshipProcessor extends WorkerHost {
@@ -41,7 +50,10 @@ export class GuardianshipProcessor extends WorkerHost {
 			return;
 		}
 		await this.repository.cancel(guardianship.id, new Date());
-		this.eventBus.publish(new GuardianshipCancelledEvent(guardianship, 'Оплата не поступила в течение 10 минут'));
+		const minutes = Math.floor(dayjs.duration(GUARDIAN_PENDING_PAYMENT_EXPIRE_MS).asMinutes());
+		this.eventBus.publish(
+			new GuardianshipCancelledEvent(guardianship, `Оплата не поступила в течение ${minutes} минут`)
+		);
 		this.logger.log('Опекунство отменено из бронирования', { guardianshipId, jobId });
 	}
 }

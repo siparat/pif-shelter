@@ -71,17 +71,18 @@ describe('StartGuardianshipHandler', () => {
 
 	it('creates guardianship with amount from policy and publishes GuardianshipCreatedEvent', async () => {
 		const amount = 3200;
+		const paymentUrl = 'https://pay.example/1';
 		policy.assertCanStart.mockResolvedValue({ id: animalId, costOfGuardianship: amount } as never);
 		const created = { id: faker.string.uuid(), animalId, subscriptionId: faker.string.uuid() };
 		repository.createPending.mockResolvedValue(created as never);
-		paymentService.generatePaymentLink.mockResolvedValue({ url: 'https://pay.example/1', amount });
+		paymentService.generatePaymentLink.mockResolvedValue({ url: paymentUrl, amount });
 
 		const result = await handler.execute(new StartGuardianshipCommand(userId, animalId));
 
 		expect(policy.assertCanStart).toHaveBeenCalledWith(animalId);
 		expect(repository.createPending).toHaveBeenCalledWith(userId, animalId, expect.any(String));
 		expect(paymentService.generatePaymentLink).toHaveBeenCalledWith('subscription', expect.any(String), amount);
-		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipCreatedEvent(animalId));
-		expect(result).toEqual({ guardianshipId: created.id, paymentUrl: 'https://pay.example/1' });
+		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipCreatedEvent(animalId, created.id));
+		expect(result).toEqual({ guardianshipId: created.id, paymentUrl });
 	});
 });
