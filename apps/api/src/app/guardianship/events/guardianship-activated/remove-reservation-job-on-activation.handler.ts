@@ -15,7 +15,10 @@ export class RemoveReservationJobOnActivationHandler implements IEventHandler<Gu
 	async handle({ guardianship }: GuardianshipActivatedEvent): Promise<void> {
 		const jobId = `${GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION}:${guardianship.id}`;
 		try {
-			await this.queue.remove(jobId);
+			const job = await this.queue.getJob(jobId);
+			if (job != null) {
+				await job.remove();
+			}
 		} catch {
 			this.logger.debug('Задача бронирования уже удалена или не найдена', {
 				guardianshipId: guardianship.id,

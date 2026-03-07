@@ -99,6 +99,6 @@ describe('StartGuardianshipHandler', () => {
 		expect(repository.createPending).toHaveBeenCalledWith(userId, animalId, expect.any(String));
 		expect(paymentService.generatePaymentLink).toHaveBeenCalledWith('subscription', expect.any(String), amount);
 		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipCreatedEvent(created as never));
-		expect(result).toEqual({ guardianshipId: created.id, paymentUrl });
+		expect(result).toEqual({ guardianshipId: created.id, paymentUrl, cancellationToken: '' });
 	});
 });

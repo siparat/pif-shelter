@@ -25,13 +25,17 @@ describe('RemoveReservationJobOnActivationHandler', () => {
 		cancellationToken: null as string | null
 	};
 
+	const mockJob = { remove: jest.fn().mockResolvedValue(undefined) };
+
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
 				RemoveReservationJobOnActivationHandler,
 				{
 					provide: getQueueToken(GUARDIANSHIP_QUEUE_NAME),
-					useValue: createMock<Queue>({ remove: jest.fn().mockResolvedValue(undefined) })
+					useValue: createMock<Queue>({
+						getJob: jest.fn().mockResolvedValue(mockJob)
+					})
 				},
 				{ provide: Logger, useValue: createMock<Logger>() }
 			]
@@ -40,17 +44,19 @@ describe('RemoveReservationJobOnActivationHandler', () => {
 		handler = module.get<RemoveReservationJobOnActivationHandler>(RemoveReservationJobOnActivationHandler);
 		queue = module.get(getQueueToken(GUARDIANSHIP_QUEUE_NAME));
 		logger = module.get(Logger);
+		jest.mocked(mockJob.remove).mockClear();
 	});
 
 	it('removes job by jobId when handle is called', async () => {
 		await handler.handle(new GuardianshipActivatedEvent(mockGuardianship as never));
 
 		const expectedJobId = `${GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION}:${guardianshipId}`;
-		expect(queue.remove).toHaveBeenCalledWith(expectedJobId);
+		expect(queue.getJob).toHaveBeenCalledWith(expectedJobId);
+		expect(mockJob.remove).toHaveBeenCalled();
 	});
 
 	it('logs debug when remove throws (job not found, idempotent)', async () => {
-		(queue.remove as jest.Mock).mockRejectedValueOnce(new Error('Job not found'));
+		jest.mocked(mockJob.remove).mockRejectedValueOnce(new Error('Job not found'));
 
 		await handler.handle(new GuardianshipActivatedEvent(mockGuardianship as never));
 
@@ -58,5 +64,13 @@ describe('RemoveReservationJobOnActivationHandler', () => {
 			guardianshipId,
 			jobId: `${GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION}:${guardianshipId}`
 		});
+	});
+
+	it('does not call remove when job is not found (getJob returns null)', async () => {
+		(queue.getJob as jest.Mock).mockResolvedValueOnce(null);
+
+		await handler.handle(new GuardianshipActivatedEvent(mockGuardianship as never));
+
+		expect(mockJob.remove).not.toHaveBeenCalled();
 	});
 });
