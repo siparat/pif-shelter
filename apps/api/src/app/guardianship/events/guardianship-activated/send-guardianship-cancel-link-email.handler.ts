@@ -56,7 +56,7 @@ export class SendGuardianshipCancelLinkEmailHandler implements IEventHandler<Gua
 			this.logger.error('Ошибка при отправке письма со ссылкой отмены опекунства', {
 				err: error instanceof Error ? error.message : error,
 				guardianshipId: guardianship.id,
-				email: result.guardian.email
+				email: result?.guardian?.email ?? 'unknown'
 			});
 		}
 	}
