@@ -16,6 +16,15 @@ export class PaymentService {
 		};
 	}
 
+	async changeCostSubscription(subscriptionId: string, amount: number): Promise<{ amount: number }> {
+		this.logger.log(`Стоимость подписки ${subscriptionId} изменена на ${amount}`);
+		return { amount };
+	}
+
+	async refundSubscription(subscriptionId: string): Promise<void> {
+		this.logger.log(`Средства за подписку ${subscriptionId} возвращены`);
+	}
+
 	async cancelSubscription(subscriptionId: string): Promise<boolean> {
 		this.logger.log(`Подписка ${subscriptionId} отменена`);
 		return true;

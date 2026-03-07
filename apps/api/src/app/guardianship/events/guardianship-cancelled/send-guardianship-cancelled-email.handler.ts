@@ -16,6 +16,12 @@ export class SendGuardianshipCancelledEmailHandler implements IEventHandler<Guar
 	) {}
 
 	async handle(event: GuardianshipCancelledEvent): Promise<void> {
+		if (!event.reason) {
+			this.logger.debug('Пропуск отправки письма об отмене опекунства: нет причины', {
+				guardianUserId: event.guardianship.guardianUserId
+			});
+			return;
+		}
 		if (event.guardianship.status !== GuardianshipStatusEnum.ACTIVE) {
 			this.logger.debug('Пропуск отправки письма со ссылкой отмены: подписка не была ранее активна', {
 				guardianUserId: event.guardianship.guardianUserId

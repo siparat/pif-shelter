@@ -15,6 +15,10 @@ export class DrizzleAnimalsRepository implements AnimalsRepository {
 		return this.db.client.query.animals.findFirst({ where: { id } });
 	}
 
+	async setNewCostOfGuardianship(id: string, costOfGuardianship: number | null): Promise<void> {
+		await this.db.client.update(animals).set({ costOfGuardianship }).where(eq(animals.id, id));
+	}
+
 	async changeStatus(id: string, status: AnimalStatusEnum): Promise<void> {
 		await this.db.client.update(animals).set({ status }).where(eq(animals.id, id));
 	}
