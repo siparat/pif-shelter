@@ -28,7 +28,8 @@ export class StartGuardianshipAuthenticatedRequestDto extends createZodDto(
 export const startGuardianshipResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		guardianshipId: z.uuid().describe('Уникальный идентификатор созданной записи опекунства'),
-		paymentUrl: z.url().describe('Ссылка на платёжную страницу провайдера для оплаты первого месяца опекунства')
+		paymentUrl: z.url().describe('Ссылка на платёжную страницу провайдера для оплаты первого месяца опекунства'),
+		cancellationToken: z.string().describe('Токен отмены опекунства')
 	})
 );
 

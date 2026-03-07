@@ -20,7 +20,9 @@ export class StartGuardianshipAsGuestHandler implements ICommandHandler<StartGua
 		private readonly logger: Logger
 	) {}
 
-	async execute(command: StartGuardianshipAsGuestCommand): Promise<{ guardianshipId: string; paymentUrl: string }> {
+	async execute(
+		command: StartGuardianshipAsGuestCommand
+	): Promise<{ guardianshipId: string; paymentUrl: string; cancellationToken: string }> {
 		const { dto } = command;
 
 		const [existingByEmail, existingByTelegram] = await Promise.all([
@@ -51,7 +53,7 @@ export class StartGuardianshipAsGuestHandler implements ICommandHandler<StartGua
 
 			createdUser = result.response.user;
 
-			const { guardianshipId, paymentUrl } = await this.commandBus.execute(
+			const { guardianshipId, paymentUrl, cancellationToken } = await this.commandBus.execute(
 				new StartGuardianshipCommand(createdUser.id, dto.animalId)
 			);
 
@@ -63,7 +65,7 @@ export class StartGuardianshipAsGuestHandler implements ICommandHandler<StartGua
 
 			this.eventBus.publish(new GuardianRegisteredEvent(createdUser, password));
 
-			return { guardianshipId, paymentUrl };
+			return { guardianshipId, paymentUrl, cancellationToken };
 		} catch (error) {
 			if (createdUser) {
 				this.logger.warn('Откат создания пользователя из-за ошибки оформления опекунства', {

@@ -73,10 +73,10 @@ export class GuardianshipController {
 		@Session() session: ISession,
 		@Body() dto: StartGuardianshipAuthenticatedRequestDto
 	): Promise<ReturnDto<typeof StartGuardianshipResponseDto>> {
-		const { guardianshipId, paymentUrl } = await this.commandBus.execute(
+		const { guardianshipId, paymentUrl, cancellationToken } = await this.commandBus.execute(
 			new StartGuardianshipCommand(session.user.id, dto.animalId)
 		);
-		return { guardianshipId, paymentUrl };
+		return { guardianshipId, paymentUrl, cancellationToken };
 	}
 
 	@ApiOperation({

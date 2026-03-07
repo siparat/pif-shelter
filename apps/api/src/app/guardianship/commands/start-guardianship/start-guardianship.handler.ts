@@ -20,7 +20,7 @@ export class StartGuardianshipHandler implements ICommandHandler<StartGuardiansh
 	async execute({
 		animalId,
 		userId
-	}: StartGuardianshipCommand): Promise<{ guardianshipId: string; paymentUrl: string }> {
+	}: StartGuardianshipCommand): Promise<{ guardianshipId: string; paymentUrl: string; cancellationToken: string }> {
 		const animal = await this.policy.assertCanStart(animalId);
 		const amount = Number(animal.costOfGuardianship);
 
@@ -37,7 +37,8 @@ export class StartGuardianshipHandler implements ICommandHandler<StartGuardiansh
 
 		return {
 			guardianshipId: guardianship.id,
-			paymentUrl: url
+			paymentUrl: url,
+			cancellationToken: guardianship.cancellationToken ?? ''
 		};
 	}
 }
