@@ -19,12 +19,14 @@ export interface GuardianshipCancelLinkEmailProps {
 	guardianName: string;
 	animalName: string;
 	cancelLink: string;
+	telegramBotLink: string;
 }
 
 const GuardianshipCancelLinkEmail = ({
 	guardianName,
 	animalName,
-	cancelLink
+	cancelLink,
+	telegramBotLink
 }: GuardianshipCancelLinkEmailProps): JSX.Element => {
 	const previewText = `Ссылка для отмены опекунства над ${animalName}. Действует один раз.`;
 
@@ -56,6 +58,17 @@ const GuardianshipCancelLinkEmail = ({
 						<Text className="text-[#4F3D38] text-[16px] leading-[26px]">
 							Если вы решили прекратить опеку над <strong>{animalName}</strong>, нажмите кнопку ниже.
 							Подписка будет отменена, оплаченный период сохранится.
+						</Text>
+
+						<Section className="text-center mt-[24px] mb-[16px]">
+							<Button
+								className="bg-[#0088cc] rounded-lg text-[#FFF8FE] text-[15px] font-semibold no-underline text-center px-7 py-3"
+								href={telegramBotLink}>
+								Перейти в Telegram-бот
+							</Button>
+						</Section>
+						<Text className="text-[#4F3D38] text-[14px] leading-[22px] text-center mb-[24px]">
+							Здесь вы будете получать отчёты по подопечному. Сохраните ссылку, если закроете страницу.
 						</Text>
 
 						<Section className="text-center mt-[32px] mb-[32px]">

@@ -23,6 +23,7 @@ import { GetGuardianshipByAnimalHandler } from './queries/get-guardianship-by-an
 import { DrizzleGuardianshipRepository } from './repositories/drizzle-guardianship.repository';
 import { GuardianshipRepository } from './repositories/guardianship.repository';
 import { GuardianshipReservationHandler } from './events/guardianship-created/guardianship-reservation.handler';
+import { ScheduleTelegramReminderHandler } from './events/guardianship-activated/schedule-telegram-reminder.handler';
 import { GuardianshipProcessor } from './guardianship.processor';
 import { GetMyGaurdianshipsHandler } from './queries/get-my-guardianships/get-my-guardianships.handler';
 
@@ -50,6 +51,7 @@ import { GetMyGaurdianshipsHandler } from './queries/get-my-guardianships/get-my
 		GuardianRegisteredHandler,
 		SendGuardianshipCancelLinkEmailHandler,
 		RemoveReservationJobOnActivationHandler,
+		ScheduleTelegramReminderHandler,
 		GuardianshipReservationHandler,
 		GetMyGaurdianshipsHandler,
 		GuardianshipProcessor,

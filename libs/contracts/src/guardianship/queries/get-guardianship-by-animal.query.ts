@@ -10,7 +10,14 @@ export const getGuardianshipByAnimalRequestSchema = z.object({
 export class GetGuardianshipByAnimalRequestDto extends createZodDto(getGuardianshipByAnimalRequestSchema) {}
 
 export const getGuardianshipByAnimalResponseSchema = createApiSuccessResponseSchema(
-	guardianshipViewSchema.describe('Текущая запись опекунства')
+	guardianshipViewSchema
+		.extend({
+			telegramBotLink: z
+				.url()
+				.optional()
+				.describe('Ссылка на Telegram-бота для привязки (только при активном опекунстве)')
+		})
+		.describe('Текущая запись опекунства')
 );
 
 export class GetGuardianshipByAnimalResponseDto extends createZodDto(getGuardianshipByAnimalResponseSchema) {}

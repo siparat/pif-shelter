@@ -10,9 +10,16 @@ import { Job } from 'bullmq';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { Logger } from 'nestjs-pino';
+import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
+import { DatabaseService } from '@pif/database';
+import { guardianshipTelegramReminderEmail } from '@pif/email-templates';
+import { render } from '@react-email/render';
 import { GuardianshipCancelledEvent } from './events/guardianship-cancelled/guardianship-cancelled.event';
 import { RemoveFromReservationJob } from './jobs/remove-from-reservation.job';
+import { TelegramReminderJob } from './jobs/telegram-reminder.job';
 import { GuardianshipRepository } from './repositories/guardianship.repository';
+import { AppUrlMapper } from '../core/mappers/app-url.mapper';
 
 dayjs.extend(duration);
 
@@ -21,7 +28,10 @@ export class GuardianshipProcessor extends WorkerHost {
 	constructor(
 		private readonly logger: Logger,
 		private readonly repository: GuardianshipRepository,
-		private readonly eventBus: EventBus
+		private readonly eventBus: EventBus,
+		private readonly db: DatabaseService,
+		private readonly mailerService: MailerService,
+		private readonly config: ConfigService
 	) {
 		super();
 	}
@@ -30,6 +40,8 @@ export class GuardianshipProcessor extends WorkerHost {
 		switch (job.name) {
 			case GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION:
 				return this.removeFromReservation(job);
+			case GUARDIANSHIP_QUEUE_JOBS.TELEGRAM_REMINDER:
+				return this.sendTelegramReminder(job);
 			default:
 				this.logger.error('Неизвестная задача', { job, queueName: GUARDIANSHIP_QUEUE_NAME });
 				return;
@@ -55,5 +67,85 @@ export class GuardianshipProcessor extends WorkerHost {
 			new GuardianshipCancelledEvent(guardianship, `Оплата не поступила в течение ${minutes} минут`)
 		);
 		this.logger.log('Опекунство отменено из бронирования', { guardianshipId, jobId });
+	}
+
+	private async sendTelegramReminder({
+		data: { guardianshipId },
+		id: jobId
+	}: Job<TelegramReminderJob>): Promise<void> {
+		const result = await this.db.client.query.guardianships.findFirst({
+			where: { id: guardianshipId },
+			with: { guardian: true, animal: true }
+		});
+
+		if (!result?.guardian?.email || !result.animal?.name) {
+			this.logger.debug('Пропуск напоминания о боте: опекунство или опекун не найдены', {
+				guardianshipId,
+				jobId
+			});
+			return;
+		}
+
+		if (result.guardian.telegramChatId != null) {
+			this.logger.debug('Пропуск напоминания о боте: опекун уже привязал Telegram', {
+				guardianshipId,
+				jobId
+			});
+			return;
+		}
+
+		if (result.telegramReminderSentAt != null) {
+			this.logger.debug('Пропуск напоминания о боте: напоминание уже отправлялось', {
+				guardianshipId,
+				jobId
+			});
+			return;
+		}
+
+		const token = result.guardian.telegramBotLinkToken;
+		if (token == null) {
+			this.logger.warn('Нет токена для ссылки на бота при отправке напоминания', {
+				guardianshipId,
+				jobId
+			});
+			return;
+		}
+
+		try {
+			const botUsername = this.config.getOrThrow<string>('TELEGRAM_BOT_USERNAME');
+			const telegramBotLink = AppUrlMapper.getTelegramBotLink(botUsername, token);
+
+			const html = await render(
+				guardianshipTelegramReminderEmail.component({
+					guardianName: result.guardian.name,
+					animalName: result.animal.name,
+					telegramBotLink
+				})
+			);
+
+			await this.mailerService.sendMail({
+				to: result.guardian.email,
+				subject: guardianshipTelegramReminderEmail.subject({
+					guardianName: result.guardian.name,
+					animalName: result.animal.name,
+					telegramBotLink
+				}),
+				html
+			});
+
+			await this.repository.setTelegramReminderSentAt(guardianshipId, new Date());
+
+			this.logger.log('Напоминание о привязке Telegram отправлено', {
+				guardianshipId,
+				email: result.guardian.email,
+				jobId
+			});
+		} catch (error) {
+			this.logger.error('Ошибка при отправке напоминания о привязке Telegram', {
+				err: error instanceof Error ? error.message : error,
+				guardianshipId,
+				jobId
+			});
+		}
 	}
 }

@@ -6,4 +6,9 @@ export class AppUrlMapper {
 	static getCancelGuardianshipUrl(baseUrl: string, token: string): string {
 		return `${baseUrl}/cancel-guardianship?token=${token}`;
 	}
+
+	static getTelegramBotLink(botUsername: string, linkToken: string): string {
+		const base = botUsername.startsWith('@') ? botUsername.slice(1) : botUsername;
+		return `https://t.me/${base}?start=link_${linkToken}`;
+	}
 }

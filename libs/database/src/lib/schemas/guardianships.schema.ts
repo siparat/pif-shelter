@@ -20,7 +20,8 @@ export const guardianships = pgTable(
 		subscriptionId: text('subscription_id').notNull(),
 		startedAt: timestamp('started_at').defaultNow().notNull(),
 		cancelledAt: timestamp('cancelled_at'),
-		cancellationToken: uuid('cancellation_token').defaultRandom().unique()
+		cancellationToken: uuid('cancellation_token').defaultRandom().unique(),
+		telegramReminderSentAt: timestamp('telegram_reminder_sent_at')
 	},
 	(table) => [
 		index('guardianships_animal_id_idx').on(table.animalId),

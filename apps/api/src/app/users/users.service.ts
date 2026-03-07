@@ -21,4 +21,8 @@ export class UsersService {
 	async delete(id: string): Promise<void> {
 		return this.repository.delete(id);
 	}
+
+	async setTelegramBotLinkToken(userId: string, token: string | null): Promise<void> {
+		return this.repository.setTelegramBotLinkToken(userId, token);
+	}
 }

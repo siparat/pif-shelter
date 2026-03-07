@@ -3,9 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { DatabaseService } from '@pif/database';
 import { guardianshipCancelLinkEmail } from '@pif/email-templates';
+import { randomUUID } from 'crypto';
 import { render } from '@react-email/render';
 import { Logger } from 'nestjs-pino';
 import { AppUrlMapper } from '../../../core/mappers/app-url.mapper';
+import { UsersService } from '../../../users/users.service';
 import { GuardianshipActivatedEvent } from './guardianship-activated.event';
 
 @EventsHandler(GuardianshipActivatedEvent)
@@ -14,6 +16,7 @@ export class SendGuardianshipCancelLinkEmailHandler implements IEventHandler<Gua
 		private readonly db: DatabaseService,
 		private readonly mailerService: MailerService,
 		private readonly config: ConfigService,
+		private readonly usersService: UsersService,
 		private readonly logger: Logger
 	) {}
 
@@ -34,11 +37,20 @@ export class SendGuardianshipCancelLinkEmailHandler implements IEventHandler<Gua
 			const baseUrl = this.config.getOrThrow<string>('APP_BASE_URL');
 			const cancelLink = AppUrlMapper.getCancelGuardianshipUrl(baseUrl, result.cancellationToken);
 
+			let botLinkToken = result.guardian.telegramBotLinkToken;
+			if (botLinkToken == null) {
+				botLinkToken = randomUUID();
+				await this.usersService.setTelegramBotLinkToken(result.guardian.id, botLinkToken);
+			}
+			const botUsername = this.config.getOrThrow<string>('TELEGRAM_BOT_USERNAME');
+			const telegramBotLink = AppUrlMapper.getTelegramBotLink(botUsername, botLinkToken);
+
 			const html = await render(
 				guardianshipCancelLinkEmail.component({
 					guardianName: result.guardian.name,
 					animalName: result.animal.name,
-					cancelLink
+					cancelLink,
+					telegramBotLink
 				})
 			);
 

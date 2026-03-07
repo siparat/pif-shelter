@@ -1,13 +1,14 @@
 import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseService } from '@pif/database';
-import { MailerService } from '@nestjs-modules/mailer';
-import { Logger } from 'nestjs-pino';
 import { GuardianshipStatusEnum } from '@pif/shared';
-import { SendGuardianshipCancelLinkEmailHandler } from './send-guardianship-cancel-link-email.handler';
+import { Logger } from 'nestjs-pino';
+import { UsersService } from '../../../users/users.service';
 import { GuardianshipActivatedEvent } from './guardianship-activated.event';
+import { SendGuardianshipCancelLinkEmailHandler } from './send-guardianship-cancel-link-email.handler';
 
 jest.mock('@react-email/render', () => ({
 	render: jest.fn().mockResolvedValue('<html>ok</html>')
@@ -37,7 +38,8 @@ describe('SendGuardianshipCancelLinkEmailHandler', () => {
 		guardian: {
 			id: faker.string.uuid(),
 			name: 'Иван',
-			email: 'guardian@example.com'
+			email: 'guardian@example.com',
+			telegramBotLinkToken: null as string | null
 		},
 		animal: {
 			id: faker.string.uuid(),
@@ -58,7 +60,9 @@ describe('SendGuardianshipCancelLinkEmailHandler', () => {
 		}) as DeepMocked<DatabaseService>;
 
 		config = createMock<ConfigService>();
-		config.getOrThrow.mockReturnValue('https://app.example.com');
+		config.getOrThrow.mockImplementation((key: string) =>
+			key === 'APP_BASE_URL' ? 'https://app.example.com' : key === 'TELEGRAM_BOT_USERNAME' ? 'pif_bot' : ''
+		);
 
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
@@ -66,6 +70,12 @@ describe('SendGuardianshipCancelLinkEmailHandler', () => {
 				{ provide: DatabaseService, useValue: db },
 				{ provide: MailerService, useValue: createMock<MailerService>() },
 				{ provide: ConfigService, useValue: config },
+				{
+					provide: UsersService,
+					useValue: createMock<UsersService>({
+						setTelegramBotLinkToken: jest.fn().mockResolvedValue(undefined)
+					})
+				},
 				{ provide: Logger, useValue: createMock<Logger>() }
 			]
 		}).compile();

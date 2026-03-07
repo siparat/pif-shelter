@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
@@ -14,11 +15,12 @@ import {
 	StartGuardianshipRequestDto,
 	StartGuardianshipResponseDto
 } from '@pif/contracts';
-import { UserRole } from '@pif/shared';
+import { GuardianshipStatusEnum, UserRole } from '@pif/shared';
 import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
+import { AppUrlMapper } from '../core/mappers/app-url.mapper';
 import { CancelGuardianshipByTokenCommand } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.command';
 import { CancelGuardianshipCommand } from './commands/cancel-guardianship/cancel-guardianship.command';
 import type { ProcessPaymentWebhookResult } from './commands/process-payment-webhook/process-payment-webhook.command';
@@ -34,7 +36,8 @@ import { GetMyGaurdianshipsQuery } from './queries/get-my-guardianships/get-my-g
 export class GuardianshipController {
 	constructor(
 		private readonly commandBus: CommandBus,
-		private readonly queryBus: QueryBus
+		private readonly queryBus: QueryBus,
+		private readonly config: ConfigService
 	) {}
 
 	@ApiOperation({
@@ -131,6 +134,13 @@ export class GuardianshipController {
 		if (animal == null || guardian == null) {
 			throw new GuardianshipNotFoundException();
 		}
+		const telegramBotLink =
+			result.status === GuardianshipStatusEnum.ACTIVE && guardian.telegramBotLinkToken != null
+				? AppUrlMapper.getTelegramBotLink(
+						this.config.getOrThrow<string>('TELEGRAM_BOT_USERNAME'),
+						guardian.telegramBotLinkToken
+					)
+				: undefined;
 		return {
 			...result,
 			animal,
@@ -139,7 +149,8 @@ export class GuardianshipController {
 				createdAt: guardian.createdAt.toISOString(),
 				updatedAt: guardian.updatedAt?.toISOString() || null,
 				deletedAt: guardian.deletedAt?.toISOString() || null
-			}
+			},
+			telegramBotLink
 		};
 	}
 }

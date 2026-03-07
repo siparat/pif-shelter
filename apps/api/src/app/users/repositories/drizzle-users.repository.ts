@@ -25,4 +25,8 @@ export class DrizzleUsersRepository implements UsersRepository {
 	async delete(id: string): Promise<void> {
 		await this.db.client.delete(users).where(eq(users.id, id));
 	}
+
+	async setTelegramBotLinkToken(userId: string, token: string | null): Promise<void> {
+		await this.db.client.update(users).set({ telegramBotLinkToken: token }).where(eq(users.id, userId));
+	}
 }

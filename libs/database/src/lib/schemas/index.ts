@@ -1,5 +1,6 @@
 import { defineRelations } from 'drizzle-orm';
 import { accounts, invitations, roleEnum, sessions, users, verifications } from './users.schema';
+import { botHelpConfig } from './bot-help-config.schema';
 import {
 	animalCoatEnum,
 	animalGenderEnum,
@@ -89,6 +90,7 @@ export const schema = {
 	animals,
 	animalLabels,
 	animalsToAnimalLabels,
+	botHelpConfig,
 	guardianshipStatusEnum,
 	guardianships,
 	roleEnum,
@@ -100,5 +102,6 @@ export const schema = {
 };
 
 export * from './animals.schema';
+export * from './bot-help-config.schema';
 export * from './guardianships.schema';
 export * from './users.schema';

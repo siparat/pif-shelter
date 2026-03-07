@@ -8,4 +8,5 @@ export abstract class GuardianshipRepository {
 	abstract createPending(userId: string, animalId: string, subscriptionId: string): Promise<Guardianship>;
 	abstract activate(id: string): Promise<void>;
 	abstract cancel(id: string, cancelledAt: Date): Promise<void>;
+	abstract setTelegramReminderSentAt(id: string, at: Date): Promise<void>;
 }
