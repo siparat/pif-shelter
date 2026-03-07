@@ -14,6 +14,7 @@ import { StartGuardianshipHandler } from './commands/start-guardianship/start-gu
 import { StartGuardianshipPolicy } from './commands/start-guardianship/start-guardianship.policy';
 import { GuardianRegisteredHandler } from './events/guardian-registered/guardian-registered.handler';
 import { SendGuardianshipCancelLinkEmailHandler } from './events/guardianship-activated/send-guardianship-cancel-link-email.handler';
+import { SendGuardianshipActivatedEmailHandler } from './events/guardianship-activated/send-guardianship-activated-email.handler';
 import { RemoveReservationJobOnActivationHandler } from './events/guardianship-activated/remove-reservation-job-on-activation.handler';
 import { GuardianshipCancelledHandler } from './events/guardianship-cancelled/guardianship-cancelled.handler';
 import { SendGuardianshipCancelledEmailHandler } from './events/guardianship-cancelled/send-guardianship-cancelled-email.handler';
@@ -50,6 +51,7 @@ import { GetMyGaurdianshipsHandler } from './queries/get-my-guardianships/get-my
 		GuardianshipCancelledHandler,
 		GuardianRegisteredHandler,
 		SendGuardianshipCancelLinkEmailHandler,
+		SendGuardianshipActivatedEmailHandler,
 		RemoveReservationJobOnActivationHandler,
 		ScheduleTelegramReminderHandler,
 		GuardianshipReservationHandler,

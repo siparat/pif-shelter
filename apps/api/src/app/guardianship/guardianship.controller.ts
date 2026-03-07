@@ -148,7 +148,8 @@ export class GuardianshipController {
 				...guardian,
 				createdAt: guardian.createdAt.toISOString(),
 				updatedAt: guardian.updatedAt?.toISOString() || null,
-				deletedAt: guardian.deletedAt?.toISOString() || null
+				deletedAt: guardian.deletedAt?.toISOString() || null,
+				telegramChatIdUpdatedAt: guardian.telegramChatIdUpdatedAt?.toISOString() || null
 			},
 			telegramBotLink
 		};

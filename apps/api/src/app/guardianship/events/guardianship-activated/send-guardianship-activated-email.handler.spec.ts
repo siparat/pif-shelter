@@ -6,22 +6,22 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseService } from '@pif/database';
 import { GuardianshipStatusEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
+import { UsersService } from '../../../users/users.service';
 import { GuardianshipActivatedEvent } from './guardianship-activated.event';
-import { SendGuardianshipCancelLinkEmailHandler } from './send-guardianship-cancel-link-email.handler';
+import { SendGuardianshipActivatedEmailHandler } from './send-guardianship-activated-email.handler';
 
 jest.mock('@react-email/render', () => ({
 	render: jest.fn().mockResolvedValue('<html>ok</html>')
 }));
 
-describe('SendGuardianshipCancelLinkEmailHandler', () => {
-	let handler: SendGuardianshipCancelLinkEmailHandler;
+describe('SendGuardianshipActivatedEmailHandler', () => {
+	let handler: SendGuardianshipActivatedEmailHandler;
 	let db: DeepMocked<DatabaseService>;
 	let mailerService: DeepMocked<MailerService>;
 	let config: DeepMocked<ConfigService>;
 	let logger: DeepMocked<Logger>;
 
 	const guardianshipId = faker.string.uuid();
-	const cancellationToken = faker.string.uuid();
 	const eventGuardianship = {
 		id: guardianshipId,
 		animalId: faker.string.uuid(),
@@ -30,7 +30,7 @@ describe('SendGuardianshipCancelLinkEmailHandler', () => {
 		status: GuardianshipStatusEnum.ACTIVE,
 		startedAt: new Date(),
 		cancelledAt: null,
-		cancellationToken
+		cancellationToken: faker.string.uuid()
 	};
 	const baseResult = {
 		...eventGuardianship,
@@ -59,21 +59,25 @@ describe('SendGuardianshipCancelLinkEmailHandler', () => {
 		}) as DeepMocked<DatabaseService>;
 
 		config = createMock<ConfigService>();
-		config.getOrThrow.mockImplementation((key: string) =>
-			key === 'APP_BASE_URL' ? 'https://app.example.com' : ''
-		);
+		config.getOrThrow.mockImplementation((key: string) => (key === 'TELEGRAM_BOT_USERNAME' ? 'pif_bot' : ''));
 
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
-				SendGuardianshipCancelLinkEmailHandler,
+				SendGuardianshipActivatedEmailHandler,
 				{ provide: DatabaseService, useValue: db },
 				{ provide: MailerService, useValue: createMock<MailerService>() },
 				{ provide: ConfigService, useValue: config },
+				{
+					provide: UsersService,
+					useValue: createMock<UsersService>({
+						setTelegramBotLinkToken: jest.fn().mockResolvedValue(undefined)
+					})
+				},
 				{ provide: Logger, useValue: createMock<Logger>() }
 			]
 		}).compile();
 
-		handler = module.get<SendGuardianshipCancelLinkEmailHandler>(SendGuardianshipCancelLinkEmailHandler);
+		handler = module.get<SendGuardianshipActivatedEmailHandler>(SendGuardianshipActivatedEmailHandler);
 		mailerService = module.get(MailerService);
 		logger = module.get(Logger);
 	});
@@ -85,33 +89,7 @@ describe('SendGuardianshipCancelLinkEmailHandler', () => {
 		await handler.handle(new GuardianshipActivatedEvent(eventGuardianship as never));
 
 		expect(logger.debug).toHaveBeenCalledWith(
-			'Пропуск отправки письма со ссылкой отмены: нет данных или токен уже использован',
-			{ guardianshipId }
-		);
-		expect(mailerService.sendMail).not.toHaveBeenCalled();
-	});
-
-	it('skips and logs debug when animal has no name', async () => {
-		const result = { ...baseResult, animal: { ...baseResult.animal, name: null } };
-		(db.client.query.guardianships.findFirst as jest.Mock).mockResolvedValue(result);
-
-		await handler.handle(new GuardianshipActivatedEvent(eventGuardianship as never));
-
-		expect(logger.debug).toHaveBeenCalledWith(
-			'Пропуск отправки письма со ссылкой отмены: нет данных или токен уже использован',
-			{ guardianshipId }
-		);
-		expect(mailerService.sendMail).not.toHaveBeenCalled();
-	});
-
-	it('skips and logs debug when cancellationToken is null', async () => {
-		const result = { ...baseResult, cancellationToken: null };
-		(db.client.query.guardianships.findFirst as jest.Mock).mockResolvedValue(result);
-
-		await handler.handle(new GuardianshipActivatedEvent(eventGuardianship as never));
-
-		expect(logger.debug).toHaveBeenCalledWith(
-			'Пропуск отправки письма со ссылкой отмены: нет данных или токен уже использован',
+			'Пропуск отправки письма «вы оформили опекунство»: нет email или имени животного',
 			{ guardianshipId }
 		);
 		expect(mailerService.sendMail).not.toHaveBeenCalled();
@@ -123,13 +101,13 @@ describe('SendGuardianshipCancelLinkEmailHandler', () => {
 
 		await handler.handle(new GuardianshipActivatedEvent(eventGuardianship as never));
 
-		expect(config.getOrThrow).toHaveBeenCalledWith('APP_BASE_URL');
+		expect(config.getOrThrow).toHaveBeenCalledWith('TELEGRAM_BOT_USERNAME');
 		expect(mailerService.sendMail).toHaveBeenCalledWith({
 			to: baseResult.guardian.email,
 			subject: expect.any(String),
 			html: '<html>ok</html>'
 		});
-		expect(logger.log).toHaveBeenCalledWith('Письмо со ссылкой отмены опекунства отправлено', {
+		expect(logger.log).toHaveBeenCalledWith('Письмо «вы оформили опекунство» отправлено', {
 			guardianshipId,
 			email: baseResult.guardian.email
 		});
@@ -141,22 +119,10 @@ describe('SendGuardianshipCancelLinkEmailHandler', () => {
 
 		await handler.handle(new GuardianshipActivatedEvent(eventGuardianship as never));
 
-		expect(logger.error).toHaveBeenCalledWith('Ошибка при отправке письма со ссылкой отмены опекунства', {
+		expect(logger.error).toHaveBeenCalledWith('Ошибка при отправке письма «вы оформили опекунство»', {
 			err: 'SMTP failed',
 			guardianshipId,
 			email: baseResult.guardian.email
 		});
-	});
-
-	it('skips when findFirst returns null', async () => {
-		(db.client.query.guardianships.findFirst as jest.Mock).mockResolvedValue(null);
-
-		await handler.handle(new GuardianshipActivatedEvent(eventGuardianship as never));
-
-		expect(logger.debug).toHaveBeenCalledWith(
-			'Пропуск отправки письма со ссылкой отмены: нет данных или токен уже использован',
-			{ guardianshipId }
-		);
-		expect(mailerService.sendMail).not.toHaveBeenCalled();
 	});
 });

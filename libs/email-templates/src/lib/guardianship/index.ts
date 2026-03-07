@@ -1,4 +1,5 @@
 export * from './guardian-registered';
+export * from './guardianship-activated';
 export * from './guardianship-cancelled';
 export * from './guardianship-cancel-link';
 export * from './guardianship-telegram-reminder';
