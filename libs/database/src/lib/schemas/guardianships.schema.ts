@@ -1,5 +1,6 @@
 import { GuardianshipStatusEnum } from '@pif/shared';
-import { index, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { inArray } from 'drizzle-orm';
+import { index, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { animals } from './animals.schema';
 import { users } from './users.schema';
 
@@ -24,6 +25,9 @@ export const guardianships = pgTable(
 	(table) => [
 		index('guardianships_animal_id_idx').on(table.animalId),
 		index('guardianships_guardian_user_id_idx').on(table.guardianUserId),
-		index('guardianships_cancellation_token_idx').on(table.cancellationToken)
+		index('guardianships_cancellation_token_idx').on(table.cancellationToken),
+		uniqueIndex('guardianships_one_active_or_pending_per_animal')
+			.on(table.animalId)
+			.where(inArray(table.status, [GuardianshipStatusEnum.ACTIVE, GuardianshipStatusEnum.PENDING_PAYMENT]))
 	]
 );

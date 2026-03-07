@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "guardianships_one_active_or_pending_per_animal" ON "guardianships" ("animal_id") WHERE "status" in ('ACTIVE', 'PENDING_PAYMENT');

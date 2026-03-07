@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService, Guardianship, guardianships } from '@pif/database';
 import { GuardianshipStatusEnum } from '@pif/shared';
 import { eq } from 'drizzle-orm';
+import { AnimalAlreadyHasGuardianException } from '../exceptions/animal-already-has-guardian.exception';
 import { GuardianshipMapper } from '../mappers/guardianship.mapper';
 import { GuardianshipRepository } from './guardianship.repository';
 
@@ -38,8 +39,16 @@ export class DrizzleGuardianshipRepository implements GuardianshipRepository {
 
 	async createPending(userId: string, animalId: string, subscriptionId: string): Promise<Guardianship> {
 		const values = GuardianshipMapper.fromCreateDTO(userId, animalId, subscriptionId);
-		const [guardianship] = await this.db.client.insert(guardianships).values(values).returning();
-		return guardianship;
+		try {
+			const [guardianship] = await this.db.client.insert(guardianships).values(values).returning();
+			return guardianship;
+		} catch (e) {
+			const code = e != null && typeof e === 'object' && 'code' in e ? e.code : undefined;
+			if (code === '23505') {
+				throw new AnimalAlreadyHasGuardianException();
+			}
+			throw e;
+		}
 	}
 
 	async activate(id: string): Promise<void> {
