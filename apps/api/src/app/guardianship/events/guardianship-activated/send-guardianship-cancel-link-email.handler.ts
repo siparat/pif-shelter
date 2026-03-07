@@ -17,15 +17,15 @@ export class SendGuardianshipCancelLinkEmailHandler implements IEventHandler<Gua
 		private readonly logger: Logger
 	) {}
 
-	async handle(event: GuardianshipActivatedEvent): Promise<void> {
+	async handle({ guardianship }: GuardianshipActivatedEvent): Promise<void> {
 		const result = await this.db.client.query.guardianships.findFirst({
-			where: { id: event.guardianshipId },
+			where: { id: guardianship.id },
 			with: { guardian: true, animal: true }
 		});
 
 		if (!result?.guardian?.email || !result.animal?.name || result.cancellationToken == null) {
 			this.logger.debug('Пропуск отправки письма со ссылкой отмены: нет данных или токен уже использован', {
-				guardianshipId: event.guardianshipId
+				guardianshipId: guardianship.id
 			});
 			return;
 		}
@@ -49,13 +49,13 @@ export class SendGuardianshipCancelLinkEmailHandler implements IEventHandler<Gua
 			});
 
 			this.logger.log('Письмо со ссылкой отмены опекунства отправлено', {
-				guardianshipId: event.guardianshipId,
+				guardianshipId: guardianship.id,
 				email: result.guardian.email
 			});
 		} catch (error) {
 			this.logger.error('Ошибка при отправке письма со ссылкой отмены опекунства', {
 				err: error instanceof Error ? error.message : error,
-				guardianshipId: event.guardianshipId,
+				guardianshipId: guardianship.id,
 				email: result.guardian.email
 			});
 		}

@@ -1,13 +1,13 @@
 import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
 import { EventBus } from '@nestjs/cqrs';
+import { Test, TestingModule } from '@nestjs/testing';
 import { PaymentService } from '@pif/payment';
 import { Logger } from 'nestjs-pino';
 import { AnimalNotFoundException } from '../../../animals/exceptions/animal-not-found.exception';
+import { GuardianshipCreatedEvent } from '../../events/guardianship-created/guardianship-created.event';
 import { AnimalAlreadyHasGuardianException } from '../../exceptions/animal-already-has-guardian.exception';
 import { AnimalCostOfGuardianshipNotSetException } from '../../exceptions/animal-cost-of-guardianship-not-set.exception';
-import { GuardianshipCreatedEvent } from '../../events/guardianship-created/guardianship-created.event';
 import { GuardianshipRepository } from '../../repositories/guardianship.repository';
 import { StartGuardianshipCommand } from './start-guardianship.command';
 import { StartGuardianshipHandler } from './start-guardianship.handler';
@@ -84,7 +84,12 @@ describe('StartGuardianshipHandler', () => {
 		const amount = 3200;
 		const paymentUrl = 'https://pay.example/1';
 		policy.assertCanStart.mockResolvedValue({ id: animalId, costOfGuardianship: amount } as never);
-		const created = { id: faker.string.uuid(), animalId, subscriptionId: faker.string.uuid() };
+		const created = {
+			id: faker.string.uuid(),
+			animalId,
+			subscriptionId: faker.string.uuid(),
+			guardianUserId: userId
+		};
 		repository.createPending.mockResolvedValue(created as never);
 		paymentService.generatePaymentLink.mockResolvedValue({ url: paymentUrl, amount });
 
@@ -93,7 +98,7 @@ describe('StartGuardianshipHandler', () => {
 		expect(policy.assertCanStart).toHaveBeenCalledWith(animalId);
 		expect(repository.createPending).toHaveBeenCalledWith(userId, animalId, expect.any(String));
 		expect(paymentService.generatePaymentLink).toHaveBeenCalledWith('subscription', expect.any(String), amount);
-		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipCreatedEvent(animalId, created.id));
+		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipCreatedEvent(created as never));
 		expect(result).toEqual({ guardianshipId: created.id, paymentUrl });
 	});
 });

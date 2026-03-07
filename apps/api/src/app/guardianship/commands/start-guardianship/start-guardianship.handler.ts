@@ -28,7 +28,7 @@ export class StartGuardianshipHandler implements ICommandHandler<StartGuardiansh
 		const guardianship = await this.repository.createPending(userId, animalId, subscriptionId);
 		const { url } = await this.paymentService.generatePaymentLink('subscription', subscriptionId, amount);
 
-		this.eventBus.publish(new GuardianshipCreatedEvent(guardianship.animalId, guardianship.id));
+		this.eventBus.publish(new GuardianshipCreatedEvent(guardianship));
 		this.logger.log('Опекунство создано, ожидает оплаты', {
 			guardianshipId: guardianship.id,
 			animalId,

@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { getQueueToken } from '@nestjs/bullmq';
 import { Test, TestingModule } from '@nestjs/testing';
-import { GUARDIANSHIP_QUEUE_JOBS, GUARDIANSHIP_QUEUE_NAME } from '@pif/shared';
+import { GUARDIANSHIP_QUEUE_JOBS, GUARDIANSHIP_QUEUE_NAME, GuardianshipStatusEnum } from '@pif/shared';
 import { Queue } from 'bullmq';
 import { Logger } from 'nestjs-pino';
 import { GuardianshipActivatedEvent } from './guardianship-activated.event';
@@ -14,6 +14,16 @@ describe('RemoveReservationJobOnActivationHandler', () => {
 	let logger: DeepMocked<Logger>;
 
 	const guardianshipId = faker.string.uuid();
+	const mockGuardianship = {
+		id: guardianshipId,
+		animalId: faker.string.uuid(),
+		guardianUserId: faker.string.uuid(),
+		subscriptionId: faker.string.uuid(),
+		status: GuardianshipStatusEnum.ACTIVE,
+		startedAt: new Date(),
+		cancelledAt: null as Date | null,
+		cancellationToken: null as string | null
+	};
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -33,7 +43,7 @@ describe('RemoveReservationJobOnActivationHandler', () => {
 	});
 
 	it('removes job by jobId when handle is called', async () => {
-		await handler.handle(new GuardianshipActivatedEvent(guardianshipId));
+		await handler.handle(new GuardianshipActivatedEvent(mockGuardianship as never));
 
 		const expectedJobId = `${GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION}:${guardianshipId}`;
 		expect(queue.remove).toHaveBeenCalledWith(expectedJobId);
@@ -42,7 +52,7 @@ describe('RemoveReservationJobOnActivationHandler', () => {
 	it('logs debug when remove throws (job not found, idempotent)', async () => {
 		(queue.remove as jest.Mock).mockRejectedValueOnce(new Error('Job not found'));
 
-		await handler.handle(new GuardianshipActivatedEvent(guardianshipId));
+		await handler.handle(new GuardianshipActivatedEvent(mockGuardianship as never));
 
 		expect(logger.debug).toHaveBeenCalledWith('Задача бронирования уже удалена или не найдена', {
 			guardianshipId,

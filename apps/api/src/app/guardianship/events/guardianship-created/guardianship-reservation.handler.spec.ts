@@ -2,7 +2,12 @@ import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { getQueueToken } from '@nestjs/bullmq';
 import { Test, TestingModule } from '@nestjs/testing';
-import { GUARDIAN_PENDING_PAYMENT_EXPIRE_MS, GUARDIANSHIP_QUEUE_JOBS, GUARDIANSHIP_QUEUE_NAME } from '@pif/shared';
+import {
+	GUARDIAN_PENDING_PAYMENT_EXPIRE_MS,
+	GUARDIANSHIP_QUEUE_JOBS,
+	GUARDIANSHIP_QUEUE_NAME,
+	GuardianshipStatusEnum
+} from '@pif/shared';
 import { Queue } from 'bullmq';
 import { Logger } from 'nestjs-pino';
 import { GuardianshipCreatedEvent } from './guardianship-created.event';
@@ -15,6 +20,18 @@ describe('GuardianshipReservationHandler', () => {
 
 	const guardianshipId = faker.string.uuid();
 	const animalId = faker.string.uuid();
+	const guardianUserId = faker.string.uuid();
+	const subscriptionId = faker.string.uuid();
+	const mockGuardianship = {
+		id: guardianshipId,
+		animalId,
+		guardianUserId,
+		subscriptionId,
+		status: GuardianshipStatusEnum.PENDING_PAYMENT,
+		startedAt: new Date(),
+		cancelledAt: null as Date | null,
+		cancellationToken: faker.string.uuid()
+	};
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
@@ -34,7 +51,7 @@ describe('GuardianshipReservationHandler', () => {
 	});
 
 	it('adds delayed job to queue with correct name, data, jobId and delay', async () => {
-		await handler.handle(new GuardianshipCreatedEvent(animalId, guardianshipId));
+		await handler.handle(new GuardianshipCreatedEvent(mockGuardianship as never));
 
 		const expectedJobId = `${GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION}:${guardianshipId}`;
 		expect(queue.add).toHaveBeenCalledWith(
@@ -45,7 +62,7 @@ describe('GuardianshipReservationHandler', () => {
 	});
 
 	it('logs that reservation job was added', async () => {
-		await handler.handle(new GuardianshipCreatedEvent(animalId, guardianshipId));
+		await handler.handle(new GuardianshipCreatedEvent(mockGuardianship as never));
 
 		expect(logger.log).toHaveBeenCalledWith('Задача удаления из бронирования добавлена', {
 			guardianshipId,

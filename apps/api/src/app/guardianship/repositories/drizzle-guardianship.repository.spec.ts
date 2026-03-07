@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DatabaseService, guardianships } from '@pif/database';
+import { DatabaseService } from '@pif/database';
 import { GuardianshipStatusEnum } from '@pif/shared';
 import { AnimalAlreadyHasGuardianException } from '../exceptions/animal-already-has-guardian.exception';
 import { DrizzleGuardianshipRepository } from './drizzle-guardianship.repository';

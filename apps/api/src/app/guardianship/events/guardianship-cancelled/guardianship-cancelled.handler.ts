@@ -12,7 +12,11 @@ export class GuardianshipCancelledHandler implements IEventHandler<GuardianshipC
 	) {}
 
 	async handle({ guardianship }: GuardianshipCancelledEvent): Promise<void> {
-		await this.cache.del(GuardianshipCacheKeys.byAnimal(guardianship.animalId)).catch(() => undefined);
+		await Promise.all([
+			this.cache.del(GuardianshipCacheKeys.byAnimal(guardianship.animalId)).catch(() => undefined),
+			this.cache.del(GuardianshipCacheKeys.activeByUserId(guardianship.guardianUserId)).catch(() => undefined)
+		]);
+
 		this.logger.log('Кэш опекунства по животному сброшен после отмены', { guardianship });
 	}
 }

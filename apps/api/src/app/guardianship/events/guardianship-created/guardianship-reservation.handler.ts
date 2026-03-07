@@ -13,17 +13,17 @@ export class GuardianshipReservationHandler implements IEventHandler<Guardianshi
 		@InjectQueue(GUARDIANSHIP_QUEUE_NAME) private readonly queue: Queue<RemoveFromReservationJob>
 	) {}
 
-	async handle({ guardianshipId }: GuardianshipCreatedEvent): Promise<void> {
+	async handle({ guardianship }: GuardianshipCreatedEvent): Promise<void> {
 		const name = GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION;
-		const jobId = `${name}:${guardianshipId}`;
+		const jobId = `${name}:${guardianship.id}`;
 		this.queue.add(
 			name,
-			{ guardianshipId },
+			{ guardianshipId: guardianship.id },
 			{
 				jobId,
 				delay: GUARDIAN_PENDING_PAYMENT_EXPIRE_MS
 			}
 		);
-		this.logger.log('Задача удаления из бронирования добавлена', { guardianshipId, jobId });
+		this.logger.log('Задача удаления из бронирования добавлена', { guardianshipId: guardianship.id, jobId });
 	}
 }

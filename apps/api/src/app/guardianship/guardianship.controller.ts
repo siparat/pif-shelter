@@ -7,6 +7,7 @@ import {
 	CancelGuardianshipRequestDto,
 	CancelGuardianshipResponseDto,
 	GetGuardianshipByAnimalResponseDto,
+	GetMyGaurdianshipsResponseDto,
 	PaymentWebhookRequestDto,
 	ReturnDto,
 	StartGuardianshipAuthenticatedRequestDto,
@@ -26,6 +27,7 @@ import { StartGuardianshipAsGuestCommand } from './commands/start-guardianship-a
 import { StartGuardianshipCommand } from './commands/start-guardianship/start-guardianship.command';
 import { GuardianshipNotFoundException } from './exceptions/guardianship-not-found.exception';
 import { GetGuardianshipByAnimalQuery } from './queries/get-guardianship-by-animal/get-guardianship-by-animal.query';
+import { GetMyGaurdianshipsQuery } from './queries/get-my-guardianships/get-my-guardianships.query';
 
 @ApiTags('Guardianship | Опекунство')
 @Controller('guardianships')
@@ -34,6 +36,19 @@ export class GuardianshipController {
 		private readonly commandBus: CommandBus,
 		private readonly queryBus: QueryBus
 	) {}
+
+	@ApiOperation({
+		summary: 'Получить свои опекунства',
+		description: 'Получить список своих активных опекунств'
+	})
+	@ApiCreatedResponse({ description: 'Опекунство создано, требуется оплата', type: GetMyGaurdianshipsResponseDto })
+	@UseGuards(AuthGuard)
+	@Get('my')
+	async getMyGuardianships(
+		@Session() { user: { id } }: ISession
+	): Promise<ReturnDto<typeof GetMyGaurdianshipsResponseDto>> {
+		return this.queryBus.execute(new GetMyGaurdianshipsQuery(id));
+	}
 
 	@ApiOperation({
 		summary: 'Оформить опекунство (без авторизации)',

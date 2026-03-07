@@ -12,3 +12,8 @@ export const guardianshipViewSchema = guardianshipSchema.omit({ cancelledAt: tru
 	guardian: userSchema
 });
 export type GuardianshipView = z.infer<typeof guardianshipViewSchema>;
+
+export const guardianshipWithAnimalSchema = guardianshipSchema.omit({ cancelledAt: true, startedAt: true }).extend({
+	animal: z.nullable(animalSchema)
+});
+export type GuardianshipWithAnimal = z.infer<typeof guardianshipWithAnimalSchema>;

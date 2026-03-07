@@ -1,3 +1,5 @@
+import { Guardianship } from '@pif/database';
+
 export class GuardianshipActivatedEvent {
-	constructor(public readonly guardianshipId: string) {}
+	constructor(public readonly guardianship: Guardianship) {}
 }

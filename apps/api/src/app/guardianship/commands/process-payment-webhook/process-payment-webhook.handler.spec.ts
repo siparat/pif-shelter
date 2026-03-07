@@ -69,7 +69,7 @@ describe('ProcessPaymentWebhookHandler', () => {
 
 		expect(result).toEqual({ guardianshipId, activated: true });
 		expect(repository.activate).toHaveBeenCalledWith(guardianshipId);
-		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipActivatedEvent(guardianshipId));
+		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipActivatedEvent(guardianship));
 	});
 
 	it('returns activated: false when subscription.succeeded but status already ACTIVE (idempotent)', async () => {

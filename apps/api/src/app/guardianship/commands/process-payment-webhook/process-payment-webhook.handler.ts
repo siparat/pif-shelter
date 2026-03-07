@@ -55,7 +55,7 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 		}
 
 		await this.repository.activate(guardianship.id);
-		this.eventBus.publish(new GuardianshipActivatedEvent(guardianship.id));
+		this.eventBus.publish(new GuardianshipActivatedEvent(guardianship));
 		this.logger.log('Оплата подтверждена, опекунство оформлено', {
 			guardianshipId: guardianship.id,
 			subscriptionId: guardianship.subscriptionId

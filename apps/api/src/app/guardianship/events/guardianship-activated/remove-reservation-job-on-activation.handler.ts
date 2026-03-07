@@ -12,12 +12,15 @@ export class RemoveReservationJobOnActivationHandler implements IEventHandler<Gu
 		@InjectQueue(GUARDIANSHIP_QUEUE_NAME) private readonly queue: Queue
 	) {}
 
-	async handle({ guardianshipId }: GuardianshipActivatedEvent): Promise<void> {
-		const jobId = `${GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION}:${guardianshipId}`;
+	async handle({ guardianship }: GuardianshipActivatedEvent): Promise<void> {
+		const jobId = `${GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION}:${guardianship.id}`;
 		try {
 			await this.queue.remove(jobId);
 		} catch {
-			this.logger.debug('Задача бронирования уже удалена или не найдена', { guardianshipId, jobId });
+			this.logger.debug('Задача бронирования уже удалена или не найдена', {
+				guardianshipId: guardianship.id,
+				jobId
+			});
 		}
 	}
 }

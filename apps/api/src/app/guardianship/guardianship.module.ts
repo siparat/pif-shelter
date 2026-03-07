@@ -24,6 +24,7 @@ import { DrizzleGuardianshipRepository } from './repositories/drizzle-guardiansh
 import { GuardianshipRepository } from './repositories/guardianship.repository';
 import { GuardianshipReservationHandler } from './events/guardianship-created/guardianship-reservation.handler';
 import { GuardianshipProcessor } from './guardianship.processor';
+import { GetMyGaurdianshipsHandler } from './queries/get-my-guardianships/get-my-guardianships.handler';
 
 @Module({
 	imports: [
@@ -50,6 +51,7 @@ import { GuardianshipProcessor } from './guardianship.processor';
 		SendGuardianshipCancelLinkEmailHandler,
 		RemoveReservationJobOnActivationHandler,
 		GuardianshipReservationHandler,
+		GetMyGaurdianshipsHandler,
 		GuardianshipProcessor,
 		{
 			provide: GuardianshipRepository,
