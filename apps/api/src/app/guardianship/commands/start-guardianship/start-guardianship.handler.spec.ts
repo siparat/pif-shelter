@@ -69,6 +69,17 @@ describe('StartGuardianshipHandler', () => {
 		expect(repository.createPending).not.toHaveBeenCalled();
 	});
 
+	it('throws AnimalAlreadyHasGuardianException when createPending throws (race / unique violation)', async () => {
+		policy.assertCanStart.mockResolvedValue({ id: animalId, costOfGuardianship: 100 } as never);
+		repository.createPending.mockRejectedValue(new AnimalAlreadyHasGuardianException());
+
+		await expect(handler.execute(new StartGuardianshipCommand(userId, animalId))).rejects.toThrow(
+			AnimalAlreadyHasGuardianException
+		);
+		expect(paymentService.generatePaymentLink).not.toHaveBeenCalled();
+		expect(eventBus.publish).not.toHaveBeenCalled();
+	});
+
 	it('creates guardianship with amount from policy and publishes GuardianshipCreatedEvent', async () => {
 		const amount = 3200;
 		const paymentUrl = 'https://pay.example/1';
