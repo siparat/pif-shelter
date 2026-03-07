@@ -23,7 +23,8 @@
 			"@pif/cache": ["libs/cache/src/index.ts"],
 			"@pif/shared": ["libs/shared/src/index.ts"],
 			"@pif/email-templates": ["libs/email-templates/src/index.ts"],
-			"@pif/storage": ["libs/storage/src/index.ts"]
+			"@pif/storage": ["libs/storage/src/index.ts"],
+			"@pif/payment": ["libs/payment/src/index.ts"]
 		}
 	},
 	"exclude": ["node_modules", "tmp"]

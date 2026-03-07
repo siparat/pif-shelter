@@ -11,6 +11,11 @@ services:
             - 3000:3000
         volumes:
             - ./envs/.api.env:/opt/app/.env
+        depends_on:
+            database:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
     database:
         image: postgres:17
         container_name: database
@@ -25,7 +30,7 @@ services:
         volumes:
             - postgres_data:/var/lib/postgresql/data
         healthcheck:
-            test: ['CMD-SHELL', 'pg_isready -U postgres']
+            test: ['CMD-SHELL', 'pg_isready -U "${POSTGRES_USER}"']
             interval: 5s
             timeout: 5s
             retries: 5
@@ -36,13 +41,38 @@ services:
             - main
         ports:
             - 6379:6379
+        environment:
+            REDISCLI_AUTH: ${REDIS_PASSWORD}
         command: ['redis-server', '--requirepass', '${REDIS_PASSWORD}', '--appendonly', 'yes']
         volumes:
             - redis_data:/data
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 5s
+            timeout: 3s
+            retries: 3
+    queue-redis:
+        image: redis:8-alpine
+        container_name: queue-redis
+        networks:
+            - main
+        ports:
+            - 6380:6379
+        environment:
+            REDISCLI_AUTH: ${QUEUE_REDIS_PASSWORD}
+        command: ['redis-server', '--requirepass', '${QUEUE_REDIS_PASSWORD}', '--appendonly', 'yes']
+        volumes:
+            - queue-redis_data:/data
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 5s
+            timeout: 3s
+            retries: 3
 
 volumes:
     postgres_data:
     redis_data:
+    queue-redis_data:
 
 networks:
     main:

@@ -1,4 +1,5 @@
 import { MailerModule } from '@nestjs-modules/mailer';
+import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
@@ -18,6 +19,7 @@ import { getClsConfig } from './configs/cls.config';
 import { getDatabaseConfig } from './configs/database.config';
 import { getLoggerConfig } from './configs/logger.config';
 import { getMailerConfig } from './configs/mailer.config';
+import { getQueueConfig } from './configs/queue.config';
 import { getStorageConfig } from './configs/storage.config';
 import { getThrottlerConfig } from './configs/throttler.config';
 import { CoreModule } from './core/core.module';
@@ -27,6 +29,7 @@ import { ThrottlerExceptionFilter } from './core/filters/throttler-exception.fil
 import { ZodValidationExceptionFilter } from './core/filters/zod-exception.filter';
 import { HealthModule } from './core/health/health.module';
 import { SeedModule } from './core/seed/seed.module';
+import { GuardianshipModule } from './guardianship/guardianship.module';
 import { MediaModule } from './media/media.module';
 
 @Module({
@@ -40,9 +43,11 @@ import { MediaModule } from './media/media.module';
 		AuthModule.forRootAsync(getAuthConfig()),
 		MailerModule.forRootAsync(getMailerConfig()),
 		StorageModule.forRootAsync(getStorageConfig()),
+		BullModule.forRootAsync(getQueueConfig()),
 		ConfigModule,
 		CoreModule,
 		AnimalsModule,
+		GuardianshipModule,
 		AdminUsersModule,
 		MediaModule,
 		HealthModule,

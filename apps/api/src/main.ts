@@ -9,6 +9,9 @@ import { ZodValidationPipe } from 'nestjs-zod';
 import { AppModule } from './app/app.module';
 import { GlobalDeserializerInterceptor } from './app/core/interceptors/global-deserializer.interceptor';
 import { AUTH_PREFIX } from '@pif/shared';
+import dayjs, { duration } from 'dayjs';
+
+dayjs.extend(duration);
 
 const PORT = 3000;
 

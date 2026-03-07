@@ -10,9 +10,12 @@ RUN pnpm nx build api --prod
 
 FROM node:24-alpine
 WORKDIR /opt/app
+RUN apk add --no-cache curl
 RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY --from=builder /opt/app/dist /opt/app/dist
 COPY --from=builder /opt/app/package.json /opt/app/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod
 CMD ["node", "dist/apps/api/main.js"]
 EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+	CMD curl -f http://localhost:3000/health || exit 1

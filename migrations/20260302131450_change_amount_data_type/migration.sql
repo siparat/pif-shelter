@@ -1,0 +1,1 @@
+ALTER TABLE "guardianships" ALTER COLUMN "monthly_amount" SET DATA TYPE numeric USING "monthly_amount"::numeric;

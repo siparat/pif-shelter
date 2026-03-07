@@ -14,6 +14,8 @@ import {
 	ListAnimalsResponseDto,
 	ListAnimalsResult,
 	ReturnDto,
+	SetCostOfGuardianshipRequestDto,
+	SetCostOfGuardianshipResponseDto,
 	UpdateAnimalRequestDto,
 	UpdateAnimalResponseDto
 } from '@pif/contracts';
@@ -25,6 +27,7 @@ import { RoleGuard } from '../core/guards/role.guard';
 import { AssignAnimalLabelCommand } from './commands/assign-animal-label/assign-animal-label.command';
 import { ChangeAnimalStatusCommand } from './commands/change-status/change-status.command';
 import { CreateAnimalCommand } from './commands/create-animal/create-animal.command';
+import { SetCostOfGuardianshipCommand } from './commands/set-cost-of-guardianship/set-cost-of-guardianship.command';
 import { UnassignAnimalLabelCommand } from './commands/unassign-animal-label/unassign-animal-label.command';
 import { UpdateAnimalCommand } from './commands/update-animal/update-animal.command';
 import { GetAnimalByIdQuery } from './queries/get-animal-by-id/get-animal-by-id.query';
@@ -49,6 +52,23 @@ export class AnimalsController {
 	async create(@Body() dto: CreateAnimalRequestDto): Promise<ReturnDto<typeof CreateAnimalResponseDto>> {
 		const id = await this.commandBus.execute(new CreateAnimalCommand(dto));
 		return { id };
+	}
+
+	@ApiOperation({
+		summary: 'Установить стоимость опекунства для животного',
+		description:
+			'Устанавливает стоимость опекунства для животного по ID. Если стоимость == null, то отменяется подписка на оплату опекунства и возвращает средства'
+	})
+	@ApiOkResponse({ description: 'Стоимость опекунства успешно установлена', type: SetCostOfGuardianshipResponseDto })
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@UseGuards(AuthGuard, RoleGuard)
+	@Patch(':id/cost-of-guardianship')
+	async setCostOfGuardianship(
+		@Param('id', ParseUUIDPipe) id: string,
+		@Body() dto: SetCostOfGuardianshipRequestDto
+	): Promise<ReturnDto<typeof SetCostOfGuardianshipResponseDto>> {
+		const { newCost, oldCost } = await this.commandBus.execute(new SetCostOfGuardianshipCommand(id, dto));
+		return { animalId: id, newCost, oldCost };
 	}
 
 	@ApiOperation({ summary: 'Список питомцев', description: 'Возвращает список питомцев с пагинацией и фильтрацией.' })

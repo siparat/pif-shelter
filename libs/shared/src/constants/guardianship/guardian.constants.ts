@@ -1,0 +1,3 @@
+export const GUARDIAN_DEFAULT_POSITION = 'Опекун';
+
+export const GUARDIAN_PENDING_PAYMENT_EXPIRE_MS = 1000 * 60 * 10;

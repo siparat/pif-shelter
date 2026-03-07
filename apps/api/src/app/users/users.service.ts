@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@pif/database';
+import { users } from '@pif/database';
 import { UsersRepository } from './repositories/users.repository';
 
 @Injectable()
 export class UsersService {
 	constructor(private readonly repository: UsersRepository) {}
 
-	async findByTelegram(telegram: string): Promise<User | undefined> {
+	async findByTelegram(telegram: string): Promise<typeof users.$inferSelect | undefined> {
 		return this.repository.findByTelegram(telegram);
 	}
 
-	async findByEmail(email: string): Promise<User | undefined> {
+	async findByEmail(email: string): Promise<typeof users.$inferSelect | undefined> {
 		return this.repository.findByEmail(email);
 	}
 
-	async findById(id: string): Promise<User | undefined> {
+	async findById(id: string): Promise<typeof users.$inferSelect | undefined> {
 		return this.repository.findById(id);
 	}
 
