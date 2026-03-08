@@ -25,4 +25,20 @@ export class UsersService {
 	async setTelegramBotLinkToken(userId: string, token: string | null): Promise<void> {
 		return this.repository.setTelegramBotLinkToken(userId, token);
 	}
+
+	async findByTelegramChatId(telegramChatId: string): Promise<typeof users.$inferSelect | undefined> {
+		return this.repository.findByTelegramChatId(telegramChatId);
+	}
+
+	async setTelegramUnreachable(userId: string, value: boolean): Promise<void> {
+		return this.repository.setTelegramUnreachable(userId, value);
+	}
+
+	async findByTelegramBotLinkToken(token: string): Promise<typeof users.$inferSelect | undefined> {
+		return this.repository.findByTelegramBotLinkToken(token);
+	}
+
+	async linkTelegramChat(userId: string, telegramChatId: string): Promise<void> {
+		return this.repository.linkTelegramChat(userId, telegramChatId);
+	}
 }

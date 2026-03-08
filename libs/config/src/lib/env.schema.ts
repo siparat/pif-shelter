@@ -28,6 +28,8 @@ export const envSchema = z.object({
 	S3_BUCKET: z.string(),
 	QUEUE_REDIS_URL: z.string(),
 	TELEGRAM_BOT_USERNAME: z.string().default('pif_bot'),
+	TELEGRAM_BOT_TOKEN: z.string().optional(),
+	TELEGRAM_BOT_INTERNAL_SECRET: z.string().optional(),
 	BOT_HELP_CONTACTS: z.string().optional(),
 	BOT_HELP_ADDRESS: z.string().optional(),
 	BOT_HELP_VISITING_RULES: z.string().optional(),
