@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { LinkTelegramResult } from '@pif/contracts';
 import { botHelpConfig, DatabaseService } from '@pif/database';
@@ -8,6 +9,10 @@ import { Context, TelegramError } from 'telegraf';
 import { GetMyGaurdianshipsQuery } from '../guardianship/queries/get-my-guardianships/get-my-guardianships.query';
 import { UsersService } from '../users/users.service';
 import { LinkTelegramByTokenCommand } from './commands/link-telegram-by-token/link-telegram-by-token.command';
+import { sendStartLinkMismatchMessage } from './messages/start-link-mismatch.message';
+import { sendStartLinkAlreadyUsedMessage } from './messages/start-link-already-used.message';
+import { sendStartLinkSuccessMessage } from './messages/start-link-success.message';
+import { sendTelegramUsernameIsNotExistsMessage } from './messages/telegram-username-is-not-exists.message';
 
 @Update()
 export class TelegramBotUpdate {
@@ -16,7 +21,8 @@ export class TelegramBotUpdate {
 		private readonly queryBus: QueryBus,
 		private readonly db: DatabaseService,
 		private readonly usersService: UsersService,
-		private readonly logger: Logger
+		private readonly logger: Logger,
+		private readonly config: ConfigService
 	) {}
 
 	@Start()
@@ -78,11 +84,7 @@ export class TelegramBotUpdate {
 		const chatId = ctx.chat?.id;
 		const telegramUsername = ctx.from?.username;
 		if (!chatId || !telegramUsername) {
-			await this.safeReply(
-				ctx,
-				'Для привязки нужен ваш Telegram username. Укажите его в настройках Telegram и попробуйте снова по ссылке из письма.'
-			);
-			return;
+			return sendTelegramUsernameIsNotExistsMessage(ctx)
 		}
 
 		const { result } = await this.commandBus.execute(
@@ -90,26 +92,14 @@ export class TelegramBotUpdate {
 		);
 		switch (result) {
 			case LinkTelegramResult.SUCCESS: {
-				await this.safeReply(
-					ctx,
-					'Отлично! Ваш аккаунт привязан. Теперь вы будете получать отчёты по подопечным. Команды: /my_animals — список подопечных, /help — справка.'
-				);
-				return;
+				return sendStartLinkSuccessMessage(ctx);
 			}
 			case LinkTelegramResult.ALREADY_USED: {
-				await this.safeReply(
-					ctx,
-					'Ссылка уже использована. Если это вы, используйте команды бота: /my_animals, /help.'
-				);
-				return;
+				return sendStartLinkAlreadyUsedMessage(ctx);
 			}
 			case LinkTelegramResult.USERNAME_MISMATCH: {
-				const expectedUser = await this.usersService.findByTelegramBotLinkToken(token);
-				await this.safeReply(
-					ctx,
-					`Эта ссылка предназначена для другого аккаунта (${expectedUser?.telegram ?? 'не найден'}). Вы вошли как @${telegramUsername}. Если это ошибка, напишите в приют.`
-				);
-				return;
+				const adminUsername = this.config.getOrThrow<string>('TELEGRAM_ADMIN_USERNAME');
+				return sendStartLinkMismatchMessage(ctx, { adminUsername });
 			}
 		}
 	}

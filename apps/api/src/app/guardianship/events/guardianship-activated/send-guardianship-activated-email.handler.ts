@@ -3,10 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { DatabaseService } from '@pif/database';
 import { guardianshipActivatedEmail } from '@pif/email-templates';
-import { randomUUID } from 'crypto';
 import { render } from '@react-email/render';
+import { randomUUID } from 'crypto';
 import { Logger } from 'nestjs-pino';
-import { AppUrlMapper } from '../../../core/mappers/app-url.mapper';
+import { TelegramUrlMapper } from '../../../core/mappers/telegram-url.mapper';
 import { UsersService } from '../../../users/users.service';
 import { GuardianshipActivatedEvent } from './guardianship-activated.event';
 
@@ -40,7 +40,7 @@ export class SendGuardianshipActivatedEmailHandler implements IEventHandler<Guar
 				await this.usersService.setTelegramBotLinkToken(result.guardian.id, botLinkToken);
 			}
 			const botUsername = this.config.getOrThrow<string>('TELEGRAM_BOT_USERNAME');
-			const telegramBotLink = AppUrlMapper.getTelegramBotLink(botUsername, botLinkToken);
+			const telegramBotLink = TelegramUrlMapper.getTelegramBotLink(botUsername, botLinkToken);
 
 			const html = await render(
 				guardianshipActivatedEmail.component({

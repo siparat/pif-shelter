@@ -1,25 +1,25 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { ConfigService } from '@nestjs/config';
 import { EventBus } from '@nestjs/cqrs';
+import { DatabaseService } from '@pif/database';
+import { guardianshipTelegramReminderEmail } from '@pif/email-templates';
 import {
 	GUARDIAN_PENDING_PAYMENT_EXPIRE_MS,
 	GUARDIANSHIP_QUEUE_JOBS,
 	GUARDIANSHIP_QUEUE_NAME,
 	GuardianshipStatusEnum
 } from '@pif/shared';
+import { render } from '@react-email/render';
 import { Job } from 'bullmq';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { Logger } from 'nestjs-pino';
-import { MailerService } from '@nestjs-modules/mailer';
-import { ConfigService } from '@nestjs/config';
-import { DatabaseService } from '@pif/database';
-import { guardianshipTelegramReminderEmail } from '@pif/email-templates';
-import { render } from '@react-email/render';
+import { TelegramUrlMapper } from '../core/mappers/telegram-url.mapper';
 import { GuardianshipCancelledEvent } from './events/guardianship-cancelled/guardianship-cancelled.event';
 import { RemoveFromReservationJob } from './jobs/remove-from-reservation.job';
 import { TelegramReminderJob } from './jobs/telegram-reminder.job';
 import { GuardianshipRepository } from './repositories/guardianship.repository';
-import { AppUrlMapper } from '../core/mappers/app-url.mapper';
 
 dayjs.extend(duration);
 
@@ -113,7 +113,7 @@ export class GuardianshipProcessor extends WorkerHost {
 
 		try {
 			const botUsername = this.config.getOrThrow<string>('TELEGRAM_BOT_USERNAME');
-			const telegramBotLink = AppUrlMapper.getTelegramBotLink(botUsername, token);
+			const telegramBotLink = TelegramUrlMapper.getTelegramBotLink(botUsername, token);
 
 			const html = await render(
 				guardianshipTelegramReminderEmail.component({

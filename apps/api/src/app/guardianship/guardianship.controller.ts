@@ -20,7 +20,7 @@ import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
-import { AppUrlMapper } from '../core/mappers/app-url.mapper';
+import { TelegramUrlMapper } from '../core/mappers/telegram-url.mapper';
 import { CancelGuardianshipByTokenCommand } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.command';
 import { CancelGuardianshipCommand } from './commands/cancel-guardianship/cancel-guardianship.command';
 import type { ProcessPaymentWebhookResult } from './commands/process-payment-webhook/process-payment-webhook.command';
@@ -136,7 +136,7 @@ export class GuardianshipController {
 		}
 		const telegramBotLink =
 			result.status === GuardianshipStatusEnum.ACTIVE && guardian.telegramBotLinkToken != null
-				? AppUrlMapper.getTelegramBotLink(
+				? TelegramUrlMapper.getTelegramBotLink(
 						this.config.getOrThrow<string>('TELEGRAM_BOT_USERNAME'),
 						guardian.telegramBotLinkToken
 					)
