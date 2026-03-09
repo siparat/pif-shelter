@@ -1,0 +1,2 @@
+ALTER TABLE "animals" ADD COLUMN "curator_id" text;--> statement-breakpoint
+ALTER TABLE "animals" ADD CONSTRAINT "animals_curator_id_users_id_fkey" FOREIGN KEY ("curator_id") REFERENCES "users"("id") ON DELETE SET NULL;

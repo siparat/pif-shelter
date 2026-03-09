@@ -59,4 +59,12 @@ export class DrizzleAnimalsRepository implements AnimalsRepository {
 			.delete(animalsToAnimalLabels)
 			.where(and(eq(animalsToAnimalLabels.animalId, animalId), eq(animalsToAnimalLabels.labelId, labelId)));
 	}
+
+	async setCurator(animalId: string, curatorUserId: string | null): Promise<void> {
+		await this.db.client
+			.update(animals)
+			.set({ curatorId: curatorUserId })
+			.where(eq(animals.id, animalId))
+			.returning({ id: animals.id });
+	}
 }
