@@ -4,7 +4,10 @@ import { map, Observable } from 'rxjs';
 
 @Injectable()
 export class GlobalDeserializerInterceptor implements NestInterceptor {
-	intercept(_: ExecutionContext, next: CallHandler): Observable<IApiSuccessResponse<unknown>> {
+	intercept(ctx: ExecutionContext, next: CallHandler): Observable<IApiSuccessResponse<unknown>> {
+		if (ctx.getType() !== 'http') {
+			return next.handle();
+		}
 		return next.handle().pipe(
 			map((res: unknown) => {
 				if (this.isPaginatedResult(res)) {

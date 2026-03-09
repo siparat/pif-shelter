@@ -1,7 +1,10 @@
 import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { EventBus } from '@nestjs/cqrs';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { MailerService } from '@nestjs-modules/mailer';
+import { DatabaseService } from '@pif/database';
 import {
 	GUARDIAN_PENDING_PAYMENT_EXPIRE_MS,
 	GUARDIANSHIP_QUEUE_JOBS,
@@ -34,7 +37,10 @@ describe('GuardianshipProcessor', () => {
 				GuardianshipProcessor,
 				{ provide: GuardianshipRepository, useValue: createMock<GuardianshipRepository>() },
 				{ provide: EventBus, useValue: createMock<EventBus>() },
-				{ provide: Logger, useValue: createMock<Logger>() }
+				{ provide: Logger, useValue: createMock<Logger>() },
+				{ provide: DatabaseService, useValue: createMock<DatabaseService>() },
+				{ provide: MailerService, useValue: createMock<MailerService>() },
+				{ provide: ConfigService, useValue: createMock<ConfigService>() }
 			]
 		}).compile();
 

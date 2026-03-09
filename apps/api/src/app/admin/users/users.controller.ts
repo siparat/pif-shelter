@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
@@ -7,7 +7,9 @@ import {
 	AcceptInvitationResponseDto,
 	CreateInvitationRequestDto,
 	CreateInvitationResponseDto,
-	ReturnDto
+	ReturnDto,
+	SetTelegramUnreachableRequestDto,
+	SetTelegramUnreachableResponseDto
 } from '@pif/contracts';
 import { UserRole } from '@pif/shared';
 import { AllowAnonymous, AuthGuard } from '@thallesp/nestjs-better-auth';
@@ -15,6 +17,7 @@ import { Roles } from '../../core/decorators/roles.decorator';
 import { RoleGuard } from '../../core/guards/role.guard';
 import { AcceptInvitationCommand } from './commands/accept-invitation/accept-invitation.command';
 import { CreateInvitationCommand } from './commands/create-invitation/create-invitation.command';
+import { SetTelegramUnreachableCommand } from './commands/set-telegram-unreachable/set-telegram-unreachable.command';
 
 @ApiTags('Admin Users | Пользователи в админ-панели')
 @UseGuards(AuthGuard, RoleGuard)
@@ -41,5 +44,16 @@ export class AdminUsersController {
 		@Body() dto: AcceptInvitationRequestDto
 	): Promise<ReturnDto<typeof AcceptInvitationResponseDto>> {
 		return this.commandBus.execute(new AcceptInvitationCommand(dto));
+	}
+
+	@ApiOperation({ summary: 'Установить или снять флаг telegram_unreachable' })
+	@ApiOkResponse({ description: 'Флаг обновлён', type: SetTelegramUnreachableResponseDto })
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@Patch(':userId/telegram-unreachable')
+	async setTelegramUnreachable(
+		@Param('userId') userId: string,
+		@Body() dto: SetTelegramUnreachableRequestDto
+	): Promise<ReturnDto<typeof SetTelegramUnreachableResponseDto>> {
+		return this.commandBus.execute(new SetTelegramUnreachableCommand(userId, dto.unreachable));
 	}
 }

@@ -58,7 +58,7 @@ const GuardianshipCancelLinkEmail = ({
 							Подписка будет отменена, оплаченный период сохранится.
 						</Text>
 
-						<Section className="text-center mt-[32px] mb-[32px]">
+						<Section className="text-center mt-[24px] mb-[16px]">
 							<Button
 								className="bg-[#FE8651] rounded-lg text-[#FFF8FE] text-[15px] font-semibold no-underline text-center px-7 py-3"
 								href={cancelLink}>

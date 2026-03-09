@@ -64,4 +64,8 @@ export class DrizzleGuardianshipRepository implements GuardianshipRepository {
 			.set({ status: GuardianshipStatusEnum.CANCELLED, cancelledAt, cancellationToken: null })
 			.where(eq(guardianships.id, id));
 	}
+
+	async setTelegramReminderSentAt(id: string, at: Date): Promise<void> {
+		await this.db.client.update(guardianships).set({ telegramReminderSentAt: at }).where(eq(guardianships.id, id));
+	}
 }

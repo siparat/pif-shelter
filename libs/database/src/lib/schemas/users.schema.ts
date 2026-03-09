@@ -15,7 +15,11 @@ export const users = pgTable('users', {
 	role: roleEnum('role').default(UserRole.VOLUNTEER).notNull(),
 	position: text('position').notNull(),
 	banned: boolean('banned').default(false).notNull(),
-	telegram: text('telegram').notNull().unique()
+	telegram: text('telegram').notNull().unique(),
+	telegramChatId: text('telegram_chat_id'),
+	telegramChatIdUpdatedAt: timestamp('telegram_chat_id_updated_at'),
+	telegramUnreachable: boolean('telegram_unreachable').default(false).notNull(),
+	telegramBotLinkToken: uuid('telegram_bot_link_token').unique()
 });
 
 export const sessions = pgTable(
