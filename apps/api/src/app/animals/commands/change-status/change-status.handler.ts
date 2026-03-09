@@ -3,7 +3,7 @@ import { AnimalStatusEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
 import { FileStoragePolicy } from '../../../core/policies/file-storage.policy';
 import { AnimalStatusChangedEvent } from '../../events/animal-status-changed/animal-status-changed.event';
-import { AnimalNotFoundException } from '../../exceptions/animal-not-found.exception';
+import { CanEditAnimalPolicy } from '../../policies/can-edit-animal.policy';
 import { AnimalsRepository } from '../../repositories/animals.repository';
 import { ChangeAnimalStatusCommand } from './change-status.command';
 
@@ -11,16 +11,19 @@ import { ChangeAnimalStatusCommand } from './change-status.command';
 export class ChangeAnimalStatusHandler implements ICommandHandler<ChangeAnimalStatusCommand> {
 	constructor(
 		private readonly repository: AnimalsRepository,
+		private readonly canEditAnimalPolicy: CanEditAnimalPolicy,
 		private readonly storagePolicy: FileStoragePolicy,
 		private readonly eventBus: EventBus,
 		private readonly logger: Logger
 	) {}
 
-	async execute({ id, status }: ChangeAnimalStatusCommand): Promise<{ id: string; status: AnimalStatusEnum }> {
-		const animal = await this.repository.findById(id);
-		if (!animal) {
-			throw new AnimalNotFoundException(id);
-		}
+	async execute({
+		id,
+		status,
+		userId,
+		userRole
+	}: ChangeAnimalStatusCommand): Promise<{ id: string; status: AnimalStatusEnum }> {
+		const animal = await this.canEditAnimalPolicy.assertCanEdit(id, userId, userRole);
 
 		if (status !== AnimalStatusEnum.DRAFT) {
 			if (animal.avatarUrl) await this.storagePolicy.assertExists(animal.avatarUrl);
@@ -30,7 +33,13 @@ export class ChangeAnimalStatusHandler implements ICommandHandler<ChangeAnimalSt
 
 		this.eventBus.publish(new AnimalStatusChangedEvent(id, animal.status, status));
 
-		this.logger.log('Статус животного обновлено', { animalId: id, oldStatus: animal.status, newStatus: status });
+		this.logger.log('Статус животного обновлено', {
+			animalId: id,
+			oldStatus: animal.status,
+			newStatus: status,
+			userId,
+			userRole
+		});
 
 		return { id, status };
 	}

@@ -1,6 +1,7 @@
 import { AnimalCoatEnum, AnimalGenderEnum, AnimalSizeEnum, AnimalSpeciesEnum, AnimalStatusEnum } from '@pif/shared';
 import { boolean, date, decimal, index, jsonb, pgEnum, pgTable, primaryKey, text, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from './timestamps';
+import { users } from './users.schema';
 
 export const animalSpeciesEnum = pgEnum('animal_species', AnimalSpeciesEnum);
 export const animalGenderEnum = pgEnum('animal_gender', AnimalGenderEnum);
@@ -38,9 +39,14 @@ export const animals = pgTable(
 
 		status: animalStatusEnum('status').default(AnimalStatusEnum.DRAFT).notNull(),
 		costOfGuardianship: decimal<'number'>('cost_of_guardianship'),
+		curatorId: text('curator_id').references(() => users.id, { onDelete: 'set null' }),
 		...timestamps
 	},
-	(table) => [index('animals_name_idx').on(table.name), index('animals_description_idx').on(table.description)]
+	(table) => [
+		index('animals_name_idx').on(table.name),
+		index('animals_description_idx').on(table.description),
+		index('animals_сurator_idx').on(table.curatorId)
+	]
 );
 
 export const animalsToAnimalLabels = pgTable(

@@ -31,6 +31,10 @@ export const relations = defineRelations(
 				from: r.animals.id.through(r.animalsToAnimalLabels.animalId),
 				to: r.animalLabels.id.through(r.animalsToAnimalLabels.labelId)
 			}),
+			curator: r.one.users({
+				from: r.animals.curatorId,
+				to: r.users.id
+			}),
 			guardianship: r.one.guardianships({
 				from: r.animals.id,
 				to: r.guardianships.animalId
@@ -58,6 +62,10 @@ export const relations = defineRelations(
 			guardianships: r.many.guardianships({
 				from: r.users.id,
 				to: r.guardianships.guardianUserId
+			}),
+			curatedAnimals: r.many.animals({
+				from: r.users.id,
+				to: r.animals.curatorId
 			})
 		},
 		sessions: {
