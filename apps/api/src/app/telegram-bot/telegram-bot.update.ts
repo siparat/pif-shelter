@@ -2,20 +2,30 @@ import { OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { LinkTelegramResult } from '@pif/contracts';
-import { GUARDIANSHIP_BOT_LINK_PREFIX, GuardianshipBotCommands } from '@pif/shared';
+import { GUARDIANSHIP_BOT_LINK_PREFIX, GuardianshipBotCallback, GuardianshipBotCommands } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
-import { Command, Ctx, InjectBot, Start, Update } from 'nestjs-telegraf';
-import { Context, Telegraf, TelegramError } from 'telegraf';
+import { Command, Ctx, InjectBot, On, Start, Update } from 'nestjs-telegraf';
+import { Telegraf, TelegramError } from 'telegraf';
+import { CancelGuardianshipAsGuardianCommand } from '../guardianship/commands/cancel-guardianship-as-guardian/cancel-guardianship-as-guardian.command';
 import { GetMyGaurdianshipsQuery } from '../guardianship/queries/get-my-guardianships/get-my-guardianships.query';
 import { UsersService } from '../users/users.service';
 import { LinkTelegramByTokenCommand } from './commands/link-telegram-by-token/link-telegram-by-token.command';
+import { sendAccountNotLinkedMessage, sendNoGuardianshipsMessage } from './messages/exceptions.message';
 import { sendHelpMessage } from './messages/help.message';
+import { sendReportMessage } from './messages/report.message';
 import { sendShelterPhotoMessage } from './messages/shelter-photo.message';
 import { sendStartLinkAlreadyUsedMessage } from './messages/start-link-already-used.message';
 import { sendStartLinkMismatchMessage } from './messages/start-link-mismatch.message';
 import { sendStartLinkSuccessMessage } from './messages/start-link-success.message';
 import { sendTelegramUsernameIsNotExistsMessage } from './messages/telegram-username-is-not-exists.message';
+import {
+	sendUnsubscribeAbortedMessage,
+	sendUnsubscribeConfirmMessage,
+	sendUnsubscribeListMessage,
+	sendUnsubscribeSuccessMessage
+} from './messages/unsubscribe.message';
 import { BotHelpConfigRepository } from './repositories/bot-help-config.repository';
+import type { BotContext } from './telegram-bot.context';
 
 @Update()
 export class TelegramBotUpdate implements OnModuleInit {
@@ -39,7 +49,7 @@ export class TelegramBotUpdate implements OnModuleInit {
 	}
 
 	@Start()
-	async onStart(@Ctx() ctx: Context): Promise<void> {
+	async onStart(@Ctx() ctx: BotContext): Promise<void> {
 		if (
 			'startPayload' in ctx &&
 			typeof ctx.startPayload === 'string' &&
@@ -52,31 +62,115 @@ export class TelegramBotUpdate implements OnModuleInit {
 	}
 
 	@Command(GuardianshipBotCommands.HELP.command)
-	async onHelp(@Ctx() ctx: Context): Promise<void> {
+	async onHelp(@Ctx() ctx: BotContext): Promise<void> {
 		const helpContent = await this.botHelpConfigRepository.getHelpContent();
 		await sendHelpMessage(ctx, helpContent);
 		await this.setCommands();
 	}
 
 	@Command(GuardianshipBotCommands.MY_ANIMALS.command)
-	async onMyAnimals(@Ctx() ctx: Context): Promise<void> {
+	async onMyAnimals(@Ctx() ctx: BotContext): Promise<void> {
 		const chatId = ctx.chat?.id;
 		if (!chatId) return;
 		const user = await this.usersService.findByTelegramChatId(String(chatId));
 		if (!user) {
-			await ctx.reply('❗Сначала привяжите аккаунт по ссылке из письма после оформления опекунства');
-			return;
+			return sendAccountNotLinkedMessage(ctx);
 		}
 		const { guardianships } = await this.queryBus.execute(new GetMyGaurdianshipsQuery(user.id));
 		if (!guardianships?.length) {
-			await ctx.reply('⚠️ У вас пока нет активных опекунств');
-			return;
+			return sendNoGuardianshipsMessage(ctx);
 		}
 		const lines = guardianships.map((g) => `• ${g.animal?.name ?? '—'}`);
 		await ctx.reply(`Ваши подопечные:\n${lines.join('\n')}`);
 	}
 
-	private async handleStartWithToken(token: string, ctx: Context): Promise<void> {
+	@Command(GuardianshipBotCommands.REPORT.command)
+	async onReport(@Ctx() ctx: BotContext): Promise<void> {
+		await sendReportMessage(ctx);
+	}
+
+	@Command(GuardianshipBotCommands.UNSUBSCRIBE.command)
+	async onUnsubscribe(@Ctx() ctx: BotContext): Promise<void> {
+		const chatId = ctx.chat?.id;
+		if (!chatId) return;
+
+		const user = await this.usersService.findByTelegramChatId(String(chatId));
+		if (!user) {
+			return sendAccountNotLinkedMessage(ctx);
+		}
+		const { guardianships } = await this.queryBus.execute(new GetMyGaurdianshipsQuery(user.id));
+		if (!guardianships?.length) {
+			return sendNoGuardianshipsMessage(ctx);
+		}
+		const list = guardianships.map((g) => ({
+			guardianshipId: g.id,
+			animalName: g.animal?.name ?? '—'
+		}));
+		ctx.session.unsubscribe = { guardianships: list };
+		await sendUnsubscribeListMessage(ctx, { list });
+	}
+
+	@On('callback_query')
+	async onCallbackQuery(@Ctx() ctx: BotContext): Promise<void> {
+		const chatId = ctx.chat?.id;
+		const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? ctx.callbackQuery.data : undefined;
+		if (!chatId || typeof data !== 'string') return;
+
+		if (data === GuardianshipBotCallback.UNSCRIBE.ABORT) {
+			if (ctx.session?.unsubscribe) ctx.session.unsubscribe = undefined;
+			await ctx.answerCbQuery();
+			return await sendUnsubscribeAbortedMessage(ctx);
+		}
+
+		if (data.startsWith(GuardianshipBotCallback.UNSCRIBE.CONFIRM_PREFIX)) {
+			const guardianshipId = data.slice(GuardianshipBotCallback.UNSCRIBE.CONFIRM_PREFIX.length);
+			const selected = ctx.session?.unsubscribe?.selected;
+			if (!selected || selected.guardianshipId !== guardianshipId) {
+				await ctx.answerCbQuery('Сессия истекла. Начните заново: /unsubscribe');
+				return;
+			}
+			const user = await this.usersService.findByTelegramChatId(String(chatId));
+			if (!user) {
+				await ctx.answerCbQuery('Пользователь не найден');
+				return;
+			}
+			try {
+				await this.commandBus.execute(new CancelGuardianshipAsGuardianCommand(guardianshipId, user.id));
+				if (ctx.session?.unsubscribe) ctx.session.unsubscribe = undefined;
+				await ctx.answerCbQuery();
+				await sendUnsubscribeSuccessMessage(ctx, { animalName: selected.animalName });
+				this.logger.log('Опекун отменил опекунство через бота', {
+					guardianshipId,
+					guardianUserId: user.id,
+					chatId: String(chatId)
+				});
+			} catch (err) {
+				this.logger.warn('Ошибка отмены опекунства через бота', {
+					err: err instanceof Error ? err.message : err,
+					guardianshipId,
+					chatId: String(chatId)
+				});
+				await ctx.answerCbQuery('Не удалось отменить. Попробуйте позже или напишите в приют.');
+			}
+			return;
+		}
+
+		if (data.startsWith(GuardianshipBotCallback.UNSCRIBE.CHOICE_PREFIX)) {
+			const guardianshipId = data.slice(GuardianshipBotCallback.UNSCRIBE.CHOICE_PREFIX.length);
+			const unsubscribe = ctx.session?.unsubscribe;
+			const guardianship = unsubscribe?.guardianships.find((g) => g.guardianshipId === guardianshipId);
+			if (!unsubscribe || !guardianship) {
+				await ctx.answerCbQuery('Сессия истекла. Начните заново: /unsubscribe');
+				return;
+			}
+			ctx.session ??= {};
+			ctx.session.unsubscribe = { ...unsubscribe, selected: guardianship };
+			await ctx.answerCbQuery();
+			await sendUnsubscribeConfirmMessage(ctx, { animalName: guardianship.animalName }, guardianshipId);
+		}
+	}
+
+	private async handleStartWithToken(token: string, ctx: BotContext): Promise<void> {
 		const chatId = ctx.chat?.id;
 		const telegramUsername = ctx.from?.username;
 		if (!chatId || !telegramUsername) {

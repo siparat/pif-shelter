@@ -6,6 +6,8 @@ import { GUARDIANSHIP_QUEUE_NAME } from '@pif/shared';
 import { AnimalsModule } from '../animals/animals.module';
 import { UsersModule } from '../users/users.module';
 import { CancelGuardianshipByTokenHandler } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.handler';
+import { CancelGuardianshipAsGuardianHandler } from './commands/cancel-guardianship-as-guardian/cancel-guardianship-as-guardian.handler';
+import { CancelGuardianshipAsGuardianPolicy } from './commands/cancel-guardianship-as-guardian/cancel-guardianship-as-guardian.policy';
 import { CancelGuardianshipHandler } from './commands/cancel-guardianship/cancel-guardianship.handler';
 import { CancelGuardianshipPolicy } from './commands/cancel-guardianship/cancel-guardianship.policy';
 import { ProcessPaymentWebhookHandler } from './commands/process-payment-webhook/process-payment-webhook.handler';
@@ -43,6 +45,8 @@ import { GetMyGaurdianshipsHandler } from './queries/get-my-guardianships/get-my
 		StartGuardianshipPolicy,
 		CancelGuardianshipHandler,
 		CancelGuardianshipByTokenHandler,
+		CancelGuardianshipAsGuardianHandler,
+		CancelGuardianshipAsGuardianPolicy,
 		ProcessPaymentWebhookHandler,
 		SendGuardianshipCancelledEmailHandler,
 		CancelGuardianshipPolicy,
