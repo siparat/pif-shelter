@@ -1,10 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { EventBus } from '@nestjs/cqrs';
 import { users } from '@pif/database';
 import { UsersRepository } from './repositories/users.repository';
+import { UserTelegramUnreachableEvent } from './events/telegram-unreachable/telegram-unreachable.event';
 
 @Injectable()
 export class UsersService {
-	constructor(private readonly repository: UsersRepository) {}
+	constructor(
+		private readonly repository: UsersRepository,
+		private readonly eventBus: EventBus
+	) {}
 
 	async findByTelegram(telegram: string): Promise<typeof users.$inferSelect | undefined> {
 		return this.repository.findByTelegram(telegram);
@@ -31,7 +36,10 @@ export class UsersService {
 	}
 
 	async setTelegramUnreachable(userId: string, value: boolean): Promise<void> {
-		return this.repository.setTelegramUnreachable(userId, value);
+		await this.repository.setTelegramUnreachable(userId, value);
+		if (value) {
+			this.eventBus.publish(new UserTelegramUnreachableEvent(userId));
+		}
 	}
 
 	async findByTelegramBotLinkToken(token: string): Promise<typeof users.$inferSelect | undefined> {

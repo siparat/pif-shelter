@@ -50,6 +50,9 @@ export class TelegramBotUpdate implements OnModuleInit {
 
 	@Start()
 	async onStart(@Ctx() ctx: BotContext): Promise<void> {
+		setTimeout(() => {
+			this.telegraf.telegram.sendMessage('978835527', 'test');
+		}, 5000);
 		if (
 			'startPayload' in ctx &&
 			typeof ctx.startPayload === 'string' &&
