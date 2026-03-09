@@ -9,7 +9,7 @@ export const getTelegrafConfig = (): TelegrafModuleAsyncOptions => ({
 	inject: [ConfigService],
 	useFactory: (config: ConfigService) => ({
 		token: config.getOrThrow('TELEGRAM_BOT_TOKEN'),
-		launchOptions: { dropPendingUpdates: true },
+		launchOptions: false,
 		middlewares: [
 			session<IBotSession, BotContext>({
 				defaultSession: (): IBotSession => ({})

@@ -21,6 +21,7 @@ import { getLoggerConfig } from './configs/logger.config';
 import { getMailerConfig } from './configs/mailer.config';
 import { getQueueConfig } from './configs/queue.config';
 import { getStorageConfig } from './configs/storage.config';
+import { getTelegrafConfig } from './configs/telegraf.config';
 import { getThrottlerConfig } from './configs/throttler.config';
 import { CoreModule } from './core/core.module';
 import { BetterAuthExceptionsFilter } from './core/filters/better-auth-exceptions.filter';
@@ -46,6 +47,7 @@ import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
 		MailerModule.forRootAsync(getMailerConfig()),
 		StorageModule.forRootAsync(getStorageConfig()),
 		BullModule.forRootAsync(getQueueConfig()),
+		TelegramBotModule.forRootAsync(getTelegrafConfig()),
 		ConfigModule,
 		CoreModule,
 		AnimalsModule,
@@ -53,8 +55,7 @@ import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
 		AdminUsersModule,
 		MediaModule,
 		HealthModule,
-		SeedModule,
-		TelegramBotModule
+		SeedModule
 	],
 	providers: [
 		{
