@@ -1,34 +1,45 @@
+import { OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { LinkTelegramResult } from '@pif/contracts';
-import { botHelpConfig, DatabaseService } from '@pif/database';
-import { GUARDIANSHIP_BOT_LINK_PREFIX } from '@pif/shared';
+import { GUARDIANSHIP_BOT_LINK_PREFIX, GuardianshipBotCommands } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
-import { Command, Ctx, Start, Update } from 'nestjs-telegraf';
-import { Context, TelegramError } from 'telegraf';
+import { Command, Ctx, InjectBot, Start, Update } from 'nestjs-telegraf';
+import { Context, Telegraf, TelegramError } from 'telegraf';
 import { GetMyGaurdianshipsQuery } from '../guardianship/queries/get-my-guardianships/get-my-guardianships.query';
 import { UsersService } from '../users/users.service';
 import { LinkTelegramByTokenCommand } from './commands/link-telegram-by-token/link-telegram-by-token.command';
-import { sendStartLinkMismatchMessage } from './messages/start-link-mismatch.message';
+import { sendHelpMessage } from './messages/help.message';
+import { sendShelterPhotoMessage } from './messages/shelter-photo.message';
 import { sendStartLinkAlreadyUsedMessage } from './messages/start-link-already-used.message';
+import { sendStartLinkMismatchMessage } from './messages/start-link-mismatch.message';
 import { sendStartLinkSuccessMessage } from './messages/start-link-success.message';
 import { sendTelegramUsernameIsNotExistsMessage } from './messages/telegram-username-is-not-exists.message';
+import { BotHelpConfigRepository } from './repositories/bot-help-config.repository';
 
 @Update()
-export class TelegramBotUpdate {
+export class TelegramBotUpdate implements OnModuleInit {
 	constructor(
 		private readonly commandBus: CommandBus,
 		private readonly queryBus: QueryBus,
-		private readonly db: DatabaseService,
+		private readonly botHelpConfigRepository: BotHelpConfigRepository,
 		private readonly usersService: UsersService,
 		private readonly logger: Logger,
-		private readonly config: ConfigService
+		private readonly config: ConfigService,
+		@InjectBot() private readonly telegraf: Telegraf
 	) {}
+
+	onModuleInit(): void {
+		this.telegraf.catch((err: unknown) => this.handleTelegrafError(err).catch((e) => this.logger.error(e)));
+		process.on('unhandledRejection', (reason: unknown) => {
+			if (reason instanceof TelegramError) {
+				this.handleTelegrafError(reason);
+			}
+		});
+	}
 
 	@Start()
 	async onStart(@Ctx() ctx: Context): Promise<void> {
-		const chatId = ctx.chat?.id;
-
 		if (
 			'startPayload' in ctx &&
 			typeof ctx.startPayload === 'string' &&
@@ -36,55 +47,40 @@ export class TelegramBotUpdate {
 		) {
 			return this.handleStartWithToken(ctx.startPayload.slice(GUARDIANSHIP_BOT_LINK_PREFIX.length), ctx);
 		}
-
-		const userIdByChat = chatId ? await this.usersService.findByTelegramChatId(String(chatId)) : null;
-		if (userIdByChat) {
-			await this.safeReply(ctx, 'Вы уже привязаны. Команды: /my_animals — список подопечных, /help — справка.');
-			return;
-		}
-
-		await this.safeReply(
-			ctx,
-			'Привет! Это бот приюта ПИФ. Для привязки аккаунта перейдите по ссылке из письма после оформления опекунства.'
-		);
+		await this.setCommands();
+		return sendShelterPhotoMessage(ctx);
 	}
 
-	@Command('help')
+	@Command(GuardianshipBotCommands.HELP.command)
 	async onHelp(@Ctx() ctx: Context): Promise<void> {
-		const all = await this.db.client.select().from(botHelpConfig);
-		const order = ['help_contacts', 'help_address', 'help_visiting_rules', 'help_site_url'];
-		const parts: string[] = [];
-		for (const key of order) {
-			const row = all.find((r) => r.key === key);
-			if (row?.value) parts.push(row.value);
-		}
-		const text = parts.length > 0 ? parts.join('\n\n') : 'Справка пока не заполнена. Напишите в приют.';
-		await this.safeReply(ctx, text);
+		const helpContent = await this.botHelpConfigRepository.getHelpContent();
+		await sendHelpMessage(ctx, helpContent);
+		await this.setCommands();
 	}
 
-	@Command('my_animals')
+	@Command(GuardianshipBotCommands.MY_ANIMALS.command)
 	async onMyAnimals(@Ctx() ctx: Context): Promise<void> {
 		const chatId = ctx.chat?.id;
 		if (!chatId) return;
 		const user = await this.usersService.findByTelegramChatId(String(chatId));
 		if (!user) {
-			await this.safeReply(ctx, 'Сначала привяжите аккаунт по ссылке из письма после оформления опекунства.');
+			await ctx.reply('❗Сначала привяжите аккаунт по ссылке из письма после оформления опекунства');
 			return;
 		}
 		const { guardianships } = await this.queryBus.execute(new GetMyGaurdianshipsQuery(user.id));
 		if (!guardianships?.length) {
-			await this.safeReply(ctx, 'У вас пока нет активных опекунств.');
+			await ctx.reply('⚠️ У вас пока нет активных опекунств');
 			return;
 		}
 		const lines = guardianships.map((g) => `• ${g.animal?.name ?? '—'}`);
-		await this.safeReply(ctx, `Ваши подопечные:\n${lines.join('\n')}`);
+		await ctx.reply(`Ваши подопечные:\n${lines.join('\n')}`);
 	}
 
 	private async handleStartWithToken(token: string, ctx: Context): Promise<void> {
 		const chatId = ctx.chat?.id;
 		const telegramUsername = ctx.from?.username;
 		if (!chatId || !telegramUsername) {
-			return sendTelegramUsernameIsNotExistsMessage(ctx)
+			return sendTelegramUsernameIsNotExistsMessage(ctx);
 		}
 
 		const { result } = await this.commandBus.execute(
@@ -104,26 +100,38 @@ export class TelegramBotUpdate {
 		}
 	}
 
-	private async safeReply(ctx: Context, text: string): Promise<void> {
+	private async setCommands(): Promise<void> {
+		this.telegraf.telegram.setMyCommands(Object.values(GuardianshipBotCommands));
+	}
+
+	private async handleTelegrafError(err: unknown): Promise<void> {
 		try {
-			await ctx.reply(text);
-		} catch (err) {
 			if (!(err instanceof TelegramError)) {
-				throw err;
+				this.logger.error(err);
+				return;
 			}
-			const code = err.response.error_code;
-			if (code !== 403 || !ctx.chat?.id) {
-				throw err;
+			if (err.response.error_code !== 403) {
+				this.logger.error(err);
+				return;
 			}
-			const chatIdStr = String(ctx.chat.id);
-			const user = await this.usersService.findByTelegramChatId(chatIdStr);
-			if (user) {
-				await this.usersService.setTelegramUnreachable(user.id, true);
-				this.logger.warn('Пользователь помечен как telegram_unreachable после 403', {
-					userId: user.id,
-					chatId: chatIdStr
-				});
+			if (
+				'payload' in err.on &&
+				err.on.payload &&
+				typeof err.on.payload === 'object' &&
+				'chat_id' in err.on.payload
+			) {
+				const chatId = String(err.on.payload.chat_id);
+				const user = await this.usersService.findByTelegramChatId(chatId);
+				if (user) {
+					await this.usersService.setTelegramUnreachable(user.id, true);
+					this.logger.warn('Пользователь помечен как telegram_unreachable после 403', {
+						user,
+						chatId
+					});
+				}
 			}
+		} catch (e) {
+			this.logger.error(e);
 		}
 	}
 }

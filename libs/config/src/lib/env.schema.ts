@@ -30,7 +30,6 @@ export const envSchema = z.object({
 	TELEGRAM_ADMIN_USERNAME: z.string(),
 	TELEGRAM_BOT_USERNAME: z.string().default('pif_shelter_bot'),
 	TELEGRAM_BOT_TOKEN: z.string().optional(),
-	TELEGRAM_BOT_INTERNAL_SECRET: z.string().optional(),
 	BOT_HELP_CONTACTS: z.string().optional(),
 	BOT_HELP_ADDRESS: z.string().optional(),
 	BOT_HELP_VISITING_RULES: z.string().optional(),
