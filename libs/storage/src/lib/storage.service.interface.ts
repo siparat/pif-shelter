@@ -4,6 +4,7 @@ export abstract class StorageService {
 		contentType: string,
 		maxSize: number
 	): Promise<{ url: string; fields: Record<string, string>; key: string }>;
+	abstract getSignedUrl(key: string, expiresInSeconds?: number): Promise<string>;
 	abstract delete(key: string): Promise<void>;
 	abstract checkIfExists(key: string): Promise<boolean>;
 }
