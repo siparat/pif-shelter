@@ -1,1 +1,3 @@
 export const S3_PROVIDE_KEY = 'S3_PROVIDE_KEY';
+
+export const DEFAULT_SIGNED_URL_EXPIRES_IN = 3600;

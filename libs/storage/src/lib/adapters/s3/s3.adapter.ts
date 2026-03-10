@@ -1,8 +1,9 @@
-import { DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Inject, Injectable } from '@nestjs/common';
 import { StorageService } from '../../storage.service.interface';
-import { S3_PROVIDE_KEY } from './s3.constants';
+import { DEFAULT_SIGNED_URL_EXPIRES_IN, S3_PROVIDE_KEY } from './s3.constants';
 import { IS3Provider } from './s3.types';
 
 @Injectable()
@@ -28,6 +29,11 @@ export class S3Adapter implements StorageService {
 		});
 
 		return { url, fields, key };
+	}
+
+	async getSignedUrl(key: string, expiresInSeconds = DEFAULT_SIGNED_URL_EXPIRES_IN): Promise<string> {
+		const command = new GetObjectCommand({ Bucket: this.s3.bucket, Key: key });
+		return getSignedUrl(this.s3.client, command, { expiresIn: expiresInSeconds });
 	}
 
 	async delete(key: string): Promise<void> {
