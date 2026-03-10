@@ -22,7 +22,6 @@ import { sendAccountNotLinkedMessage, sendNoGuardianshipsMessage } from './messa
 import { sendHelpMessage } from './messages/help.message';
 import { sendMyAnimalCardMessage } from './messages/my-animal-card.message';
 import { buildMyAnimalsListContent, sendMyAnimalsListMessage } from './messages/my-animals-list.message';
-import { sendReportMessage } from './messages/report.message';
 import { sendShelterPhotoMessage } from './messages/shelter-photo.message';
 import { sendStartLinkAlreadyUsedMessage } from './messages/start-link-already-used.message';
 import { sendStartLinkMismatchMessage } from './messages/start-link-mismatch.message';
@@ -98,11 +97,6 @@ export class TelegramBotUpdate implements OnModuleInit {
 			perPage: MY_ANIMALS_BOT_PAGE_SIZE,
 			totalPages
 		});
-	}
-
-	@Command(GuardianshipBotCommands.REPORT.command)
-	async onReport(@Ctx() ctx: BotContext): Promise<void> {
-		await sendReportMessage(ctx);
 	}
 
 	@Command(GuardianshipBotCommands.UNSUBSCRIBE.command)
