@@ -27,10 +27,6 @@ export const GuardianshipBotCommands = {
 		command: 'my_animals',
 		description: 'Список моих подопечных'
 	},
-	REPORT: {
-		command: 'report',
-		description: 'Запросить статус'
-	},
 	UNSUBSCRIBE: {
 		command: 'unsubscribe',
 		description: 'Управление подпиской'
