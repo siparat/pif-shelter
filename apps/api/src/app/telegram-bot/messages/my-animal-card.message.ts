@@ -44,6 +44,7 @@ ${Format.bold('Куратор:')} ${curator?.name ?? '—'}
 ${Format.italic(animal.labels.map((label) => `🏷️ ${label.name}`).join(', '))}
 
 ${Format.italic(desc)}
+
 ${curator?.telegram ? Format.italic('Связаться с куратором — кнопка ниже') : ''}
 	`;
 

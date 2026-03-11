@@ -15,6 +15,7 @@ import { SendEmailAboutCostGuardianshipHandler } from './events/animal-cost-of-g
 import { AnimalLabelAssignedHandler } from './events/animal-label-assigned/animal-label-assigned.handler';
 import { AnimalCuratorSetHandler } from './events/animal-curator-set/animal-curator-set.handler';
 import { AnimalLabelUnassignedHandler } from './events/animal-label-unassigned/animal-label-unassigned.handler';
+import { OnAnimalStatusAdoptedOrRainbowHandler } from './events/animal-status-changed/on-animal-status-adopted-or-rainbow.handler';
 import { GetAnimalByIdHandler } from './queries/get-animal-by-id/get-animal-by-id.handler';
 import { ListAnimalLabelsHandler } from './queries/list-animal-labels/list-animal-labels.handler';
 import { ListAnimalsHandler } from './queries/list-animals/list-animals.handler';
@@ -54,6 +55,7 @@ import { PaymentModule } from '@pif/payment';
 		AnimalLabelAssignedHandler,
 		AnimalCuratorSetHandler,
 		AnimalLabelUnassignedHandler,
+		OnAnimalStatusAdoptedOrRainbowHandler,
 
 		{
 			provide: AnimalsRepository,

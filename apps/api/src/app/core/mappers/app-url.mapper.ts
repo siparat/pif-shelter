@@ -6,4 +6,8 @@ export class AppUrlMapper {
 	static getCancelGuardianshipUrl(baseUrl: string, token: string): string {
 		return `${baseUrl}/cancel-guardianship?token=${token}`;
 	}
+
+	static getHomeUrl(baseUrl: string): string {
+		return `${baseUrl}/`;
+	}
 }
