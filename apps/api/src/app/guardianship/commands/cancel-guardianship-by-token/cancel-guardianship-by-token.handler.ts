@@ -35,7 +35,7 @@ export class CancelGuardianshipByTokenHandler implements ICommandHandler<CancelG
 		}
 		await this.repository.cancel(guardianship.id, new Date());
 		this.eventBus.publish(
-			new GuardianshipCancelledEvent(guardianship, 'Пользователь отменил опекунство по ссылке из email')
+			new GuardianshipCancelledEvent(guardianship, false, 'Пользователь отменил опекунство по ссылке из email')
 		);
 		this.logger.log('Опекунство отменено по токену', {
 			guardianshipId: guardianship.id,

@@ -80,7 +80,7 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 			subscriptionId: guardianship.subscriptionId
 		});
 
-		this.eventBus.publish(new GuardianshipCancelledEvent(guardianship, 'Платёж не прошёл'));
+		this.eventBus.publish(new GuardianshipCancelledEvent(guardianship, false, 'Платёж не прошёл'));
 
 		return true;
 	}
@@ -95,7 +95,7 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 
 		await this.repository.cancel(guardianship.id, new Date());
 		this.eventBus.publish(
-			new GuardianshipCancelledEvent(guardianship, 'Отмена в платежном сервисе вами или сервисом')
+			new GuardianshipCancelledEvent(guardianship, false, 'Отмена в платежном сервисе вами или сервисом')
 		);
 		this.logger.log('Опекунство отменено в платежном сервисе', {
 			guardianshipId: guardianship.id,

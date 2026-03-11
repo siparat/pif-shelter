@@ -4,6 +4,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { PaymentModule } from '@pif/payment';
 import { GUARDIANSHIP_QUEUE_NAME } from '@pif/shared';
 import { AnimalsModule } from '../animals/animals.module';
+import { TelegramBotModule } from '../telegram-bot/telegram-bot.module';
 import { UsersModule } from '../users/users.module';
 import { CancelGuardianshipByTokenHandler } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.handler';
 import { CancelGuardianshipAsGuardianHandler } from './commands/cancel-guardianship-as-guardian/cancel-guardianship-as-guardian.handler';
@@ -20,6 +21,7 @@ import { SendGuardianshipActivatedEmailHandler } from './events/guardianship-act
 import { RemoveReservationJobOnActivationHandler } from './events/guardianship-activated/remove-reservation-job-on-activation.handler';
 import { GuardianshipCancelledHandler } from './events/guardianship-cancelled/guardianship-cancelled.handler';
 import { SendGuardianshipCancelledEmailHandler } from './events/guardianship-cancelled/send-guardianship-cancelled-email.handler';
+import { SendGuardianshipCancelledTelegramHandler } from './events/guardianship-cancelled/send-guardianship-cancelled-telegram.handler';
 import { GuardianshipCreatedHandler } from './events/guardianship-created/guardianship-created.handler';
 import { GuardianshipController } from './guardianship.controller';
 import { GetGuardianshipByAnimalHandler } from './queries/get-guardianship-by-animal/get-guardianship-by-animal.handler';
@@ -37,7 +39,8 @@ import { GetMyGaurdianshipsHandler } from './queries/get-my-guardianships/get-my
 		CqrsModule,
 		AnimalsModule,
 		PaymentModule,
-		UsersModule
+		UsersModule,
+		TelegramBotModule
 	],
 	controllers: [GuardianshipController],
 	providers: [
@@ -50,6 +53,7 @@ import { GetMyGaurdianshipsHandler } from './queries/get-my-guardianships/get-my
 		CancelGuardianshipAsGuardianPolicy,
 		ProcessPaymentWebhookHandler,
 		SendGuardianshipCancelledEmailHandler,
+		SendGuardianshipCancelledTelegramHandler,
 		CancelGuardianshipPolicy,
 		GetGuardianshipByAnimalHandler,
 		GetAnimalForGuardianCardHandler,

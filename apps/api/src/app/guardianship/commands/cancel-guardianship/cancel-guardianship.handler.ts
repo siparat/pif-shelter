@@ -17,7 +17,11 @@ export class CancelGuardianshipHandler implements ICommandHandler<CancelGuardian
 		private readonly logger: Logger
 	) {}
 
-	async execute({ guardianshipId, reason }: CancelGuardianshipCommand): Promise<{ guardianshipId: string }> {
+	async execute({
+		guardianshipId,
+		reason,
+		isRefundExpected
+	}: CancelGuardianshipCommand): Promise<{ guardianshipId: string }> {
 		const { guardianship, isAlreadyTerminal } = await this.policy.assertCanCancel(guardianshipId);
 		if (isAlreadyTerminal) {
 			return { guardianshipId };
@@ -28,7 +32,7 @@ export class CancelGuardianshipHandler implements ICommandHandler<CancelGuardian
 			throw new PaymentServiceUnavailableException();
 		}
 		await this.repository.cancel(guardianshipId, new Date());
-		this.eventBus.publish(new GuardianshipCancelledEvent(guardianship, reason));
+		this.eventBus.publish(new GuardianshipCancelledEvent(guardianship, isRefundExpected, reason));
 		this.logger.log('Опекунство отменено', { guardianshipId, animalId: guardianship.animalId });
 
 		return { guardianshipId };
