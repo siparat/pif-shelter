@@ -125,7 +125,6 @@ export class TelegramBotUpdate implements OnModuleInit {
 		const chatId = ctx.chat?.id;
 		const data = ctx.callbackQuery && 'data' in ctx.callbackQuery ? ctx.callbackQuery.data : undefined;
 		if (!chatId || typeof data !== 'string') return;
-
 		if (data === GuardianshipBotCallback.UNSCRIBE.ABORT) {
 			return this.unscribeAbort(ctx);
 		}
@@ -202,7 +201,12 @@ export class TelegramBotUpdate implements OnModuleInit {
 				curator,
 				avatarPhotoUrl
 			});
-		} catch {
+		} catch (err) {
+			this.logger.error('Ошибка при загрузке карточки животного', 'TelegramBotUpdate', {
+				err: err instanceof Error ? err.message : err,
+				animalId,
+				chatId: String(chatId)
+			});
 			await ctx.answerCbQuery('Не удалось загрузить карточку. Попробуйте позже.');
 		}
 	}

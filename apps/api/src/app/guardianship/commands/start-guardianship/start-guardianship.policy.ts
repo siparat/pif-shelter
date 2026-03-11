@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Animal } from '@pif/database';
-import { AnimalNotFoundException } from '../../../animals/exceptions/animal-not-found.exception';
+import { AnimalStatusEnum } from '@pif/shared';
 import { AnimalsService } from '../../../animals/animals.service';
+import { AnimalNotFoundException } from '../../../animals/exceptions/animal-not-found.exception';
 import { AnimalAlreadyHasGuardianException } from '../../exceptions/animal-already-has-guardian.exception';
 import { AnimalCostOfGuardianshipNotSetException } from '../../exceptions/animal-cost-of-guardianship-not-set.exception';
+import { AnimalNotPublishedException } from '../../exceptions/animal-not-available.exception';
 import { GuardianshipRepository } from '../../repositories/guardianship.repository';
 
 @Injectable()
@@ -25,6 +27,10 @@ export class StartGuardianshipPolicy {
 		const existing = await this.repository.findActiveOrPendingByAnimalId(animalId);
 		if (existing) {
 			throw new AnimalAlreadyHasGuardianException();
+		}
+
+		if (animal.status !== AnimalStatusEnum.PUBLISHED) {
+			throw new AnimalNotPublishedException(animal.name);
 		}
 		return animal;
 	}
