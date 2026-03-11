@@ -96,7 +96,9 @@ describe('ProcessPaymentWebhookHandler', () => {
 		expect(result).toEqual({ guardianshipId, cancelled: true });
 		expect(paymentService.cancelSubscription).toHaveBeenCalledWith(subscriptionId);
 		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date));
-		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipCancelledEvent(guardianship, 'Платёж не прошёл'));
+		expect(eventBus.publish).toHaveBeenCalledWith(
+			new GuardianshipCancelledEvent(guardianship, false, 'Платёж не прошёл')
+		);
 	});
 
 	it('returns cancelled: false when subscription.failed but status already CANCELLED (idempotent)', async () => {
@@ -123,7 +125,7 @@ describe('ProcessPaymentWebhookHandler', () => {
 		expect(result).toEqual({ guardianshipId, cancelled: true });
 		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date));
 		expect(eventBus.publish).toHaveBeenCalledWith(
-			new GuardianshipCancelledEvent(guardianship, 'Отмена в платежном сервисе вами или сервисом')
+			new GuardianshipCancelledEvent(guardianship, false, 'Отмена в платежном сервисе вами или сервисом')
 		);
 	});
 
