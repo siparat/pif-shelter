@@ -93,7 +93,7 @@ export class GuardianshipController {
 	async cancel(
 		@Body() { guardianshipId, reason }: CancelGuardianshipRequestDto
 	): Promise<ReturnDto<typeof CancelGuardianshipResponseDto>> {
-		return this.commandBus.execute(new CancelGuardianshipCommand(guardianshipId, reason));
+		return this.commandBus.execute(new CancelGuardianshipCommand(guardianshipId, false, reason));
 	}
 
 	@ApiOperation({

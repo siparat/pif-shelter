@@ -6,9 +6,13 @@ import { UsersModule } from '../users/users.module';
 import { LinkTelegramByTokenHandler } from './commands/link-telegram-by-token/link-telegram-by-token.handler';
 import { BotHelpConfigRepository } from './repositories/bot-help-config.repository';
 import { DrizzleBotHelpConfigRepository } from './repositories/drizzle-bot-help-config.repository';
+import { TelegramBotService } from './telegram-bot.service';
 import { TelegramBotUpdate } from './telegram-bot.update';
 
-@Module({})
+@Module({
+	providers: [TelegramBotService],
+	exports: [TelegramBotService]
+})
 export class TelegramBotModule implements OnModuleInit, OnApplicationShutdown {
 	constructor(@InjectBot() private readonly telegraf: Telegraf) {}
 
@@ -26,12 +30,14 @@ export class TelegramBotModule implements OnModuleInit, OnApplicationShutdown {
 			imports: [CqrsModule, UsersModule, TelegrafModule.forRootAsync(options)],
 			providers: [
 				TelegramBotUpdate,
+				TelegramBotService,
 				LinkTelegramByTokenHandler,
 				{
 					provide: BotHelpConfigRepository,
 					useClass: DrizzleBotHelpConfigRepository
 				}
-			]
+			],
+			exports: [TelegramBotService]
 		};
 	}
 }

@@ -35,7 +35,7 @@ export class CancelGuardianshipAsGuardianHandler implements ICommandHandler<Canc
 		}
 		await this.repository.cancel(guardianshipId, new Date());
 		this.eventBus.publish(
-			new GuardianshipCancelledEvent(guardianship, 'Опекун отменил опекунство через Telegram-бота')
+			new GuardianshipCancelledEvent(guardianship, false, 'Опекун отменил опекунство через Telegram-бота')
 		);
 		this.logger.log('Опекунство отменено опекуном через бота', {
 			guardianshipId,

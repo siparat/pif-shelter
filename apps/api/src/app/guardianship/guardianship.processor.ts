@@ -64,7 +64,7 @@ export class GuardianshipProcessor extends WorkerHost {
 		await this.repository.cancel(guardianship.id, new Date());
 		const minutes = Math.floor(dayjs.duration(GUARDIAN_PENDING_PAYMENT_EXPIRE_MS).asMinutes());
 		this.eventBus.publish(
-			new GuardianshipCancelledEvent(guardianship, `Оплата не поступила в течение ${minutes} минут`)
+			new GuardianshipCancelledEvent(guardianship, false, `Оплата не поступила в течение ${minutes} минут`)
 		);
 		this.logger.log('Опекунство отменено из бронирования', { guardianshipId, jobId });
 	}
