@@ -41,7 +41,7 @@ ${Format.bold('Возраст:')} ${year.toString()} ${pluralize(year, ['год'
 ${Format.bold('Статус:')} ${AnimalStatusNames[animal.status as keyof typeof AnimalStatusNames] ?? animal.status}
 ${Format.bold('Стоимость опекунства:')} ${animal.costOfGuardianship ? Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(animal.costOfGuardianship) : '—'}
 ${Format.bold('Куратор:')} ${curator?.name ?? '—'}
-${animal.labels.map((label) => `🏷️${label.name}`).join(', ')}
+${Format.italic(animal.labels.map((label) => `🏷️ ${label.name}`).join(', '))}
 
 ${Format.italic(desc)}
 ${curator?.telegram ? Format.italic('Связаться с куратором — кнопка ниже') : ''}
