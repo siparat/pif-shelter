@@ -102,7 +102,7 @@ describe('CancelGuardianshipByTokenHandler', () => {
 		expect(paymentService.cancelSubscription).toHaveBeenCalledWith('sub-1');
 		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date));
 		expect(eventBus.publish).toHaveBeenCalledWith(
-			new GuardianshipCancelledEvent(guardianship, 'Пользователь отменил опекунство по ссылке из email')
+			new GuardianshipCancelledEvent(guardianship, false, 'Пользователь отменил опекунство по ссылке из email')
 		);
 	});
 });

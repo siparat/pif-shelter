@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
-import { GuardianshipStatusEnum } from '@pif/shared';
+import { AnimalStatusEnum, GuardianshipStatusEnum } from '@pif/shared';
 import { AnimalNotFoundException } from '../../../animals/exceptions/animal-not-found.exception';
 import { AnimalsService } from '../../../animals/animals.service';
 import { AnimalAlreadyHasGuardianException } from '../../exceptions/animal-already-has-guardian.exception';
@@ -72,7 +72,12 @@ describe('StartGuardianshipPolicy', () => {
 	});
 
 	it('returns animal when no active or pending guardianship and cost is set', async () => {
-		const animal = { id: animalId, costOfGuardianship: 3200 } as never;
+		const animal = {
+			id: animalId,
+			costOfGuardianship: 3200,
+			status: AnimalStatusEnum.PUBLISHED,
+			name: faker.animal.cat()
+		} as never;
 		animalsService.findById.mockResolvedValue(animal);
 		repository.findActiveOrPendingByAnimalId.mockResolvedValue(undefined);
 

@@ -116,7 +116,9 @@ describe('GuardianshipProcessor', () => {
 
 		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, cancelledAt);
 		const expectedReason = `Оплата не поступила в течение ${Math.floor(dayjs.duration(GUARDIAN_PENDING_PAYMENT_EXPIRE_MS).asMinutes())} минут`;
-		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipCancelledEvent(guardianship, expectedReason));
+		expect(eventBus.publish).toHaveBeenCalledWith(
+			new GuardianshipCancelledEvent(guardianship, false, expectedReason)
+		);
 		expect(logger.log).toHaveBeenCalledWith('Опекунство отменено из бронирования', { guardianshipId, jobId });
 	});
 
