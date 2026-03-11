@@ -38,10 +38,9 @@ export class SendEmailAboutCostGuardianshipHandler implements IEventHandler<Anim
 
 		if (newCost === null) {
 			await Promise.all([
-				this.paymentService.cancelSubscription(animal.guardianship.subscriptionId),
-				this.paymentService.refundSubscription(animal.guardianship.subscriptionId)
+				this.paymentService.refundSubscription(animal.guardianship.subscriptionId),
+				this.commandBus.execute(new CancelGuardianshipCommand(animal.guardianship.id, true))
 			]);
-			await this.commandBus.execute(new CancelGuardianshipCommand(animal.guardianship.id, true));
 			try {
 				const html = await render(
 					guardianshipRefundedEmail.component({
