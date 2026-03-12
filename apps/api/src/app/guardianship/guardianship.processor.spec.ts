@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { EventBus } from '@nestjs/cqrs';
-import { ConfigService } from '@nestjs/config';
-import { Test, TestingModule } from '@nestjs/testing';
 import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
+import { EventBus } from '@nestjs/cqrs';
+import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseService } from '@pif/database';
 import {
 	GUARDIAN_PENDING_PAYMENT_EXPIRE_MS,
@@ -13,10 +13,13 @@ import {
 } from '@pif/shared';
 import { Job } from 'bullmq';
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 import { Logger } from 'nestjs-pino';
 import { GuardianshipCancelledEvent } from './events/guardianship-cancelled/guardianship-cancelled.event';
 import { GuardianshipProcessor } from './guardianship.processor';
 import { GuardianshipRepository } from './repositories/guardianship.repository';
+
+dayjs.extend(duration);
 
 describe('GuardianshipProcessor', () => {
 	let processor: GuardianshipProcessor;
