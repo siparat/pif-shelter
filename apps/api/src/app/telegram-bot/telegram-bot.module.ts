@@ -1,4 +1,4 @@
-import { DynamicModule, Module, OnModuleInit, OnApplicationShutdown } from '@nestjs/common';
+import { DynamicModule, Global, Module, OnApplicationShutdown, OnModuleInit } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { InjectBot, TelegrafModule, TelegrafModuleAsyncOptions } from 'nestjs-telegraf';
 import { Telegraf } from 'telegraf';
@@ -9,6 +9,7 @@ import { DrizzleBotHelpConfigRepository } from './repositories/drizzle-bot-help-
 import { TelegramBotService } from './telegram-bot.service';
 import { TelegramBotUpdate } from './telegram-bot.update';
 
+@Global()
 @Module({
 	providers: [TelegramBotService],
 	exports: [TelegramBotService]
