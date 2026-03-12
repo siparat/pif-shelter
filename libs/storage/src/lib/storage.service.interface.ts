@@ -2,7 +2,8 @@ export abstract class StorageService {
 	abstract getPresignedPostData(
 		key: string,
 		contentType: string,
-		maxSize: number
+		maxSize: number,
+		expires?: number
 	): Promise<{ url: string; fields: Record<string, string>; key: string }>;
 	abstract getSignedUrl(key: string, expiresInSeconds?: number): Promise<string>;
 	abstract delete(key: string): Promise<void>;

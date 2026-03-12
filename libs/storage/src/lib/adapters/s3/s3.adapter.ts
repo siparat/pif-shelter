@@ -13,7 +13,8 @@ export class S3Adapter implements StorageService {
 	async getPresignedPostData(
 		key: string,
 		contentType: string,
-		maxSize: number
+		maxSize: number,
+		expires = 60
 	): Promise<{ url: string; fields: Record<string, string>; key: string }> {
 		const { url, fields } = await createPresignedPost(this.s3.client, {
 			Bucket: this.s3.bucket,
@@ -22,7 +23,7 @@ export class S3Adapter implements StorageService {
 				['content-length-range', 0, maxSize],
 				['eq', '$Content-Type', contentType]
 			],
-			Expires: 60,
+			Expires: expires,
 			Fields: {
 				['Content-Type']: contentType
 			}

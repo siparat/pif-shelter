@@ -1,7 +1,7 @@
 import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
 import { createApiSuccessResponseSchema } from '../../../common/base.responses';
-import { s3ImageKeySchema } from '../../../common/schemas/s3-image-key.schema';
+import { s3ImageKeySchema } from '../../../common/schemas/s3-key.schema';
 import { telegramNicknameSchema } from '../../../common/schemas/telegram-nickname.schema';
 
 export const acceptInvitationRequestSchema = z.object({
