@@ -1,27 +1,29 @@
+import helmet from '@fastify/helmet';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { ApiErrorResponseDto } from '@pif/contracts';
+import { AUTH_PREFIX } from '@pif/shared';
 import { AuthService } from '@thallesp/nestjs-better-auth';
-import helmet from 'helmet';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 import { Logger } from 'nestjs-pino';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AppModule } from './app/app.module';
 import { GlobalDeserializerInterceptor } from './app/core/interceptors/global-deserializer.interceptor';
-import { AUTH_PREFIX } from '@pif/shared';
-import dayjs, { duration } from 'dayjs';
 
 dayjs.extend(duration);
 
 const PORT = 3000;
 
 async function bootstrap(): Promise<void> {
-	const app = await NestFactory.create(AppModule, { bufferLogs: true });
+	const app = await NestFactory.create(AppModule, new FastifyAdapter(), { bufferLogs: true });
 
 	app.enableShutdownHooks();
 	app.useLogger(app.get(Logger));
 
-	app.use(helmet());
+	app.use(helmet);
 
 	app.enableCors({
 		origin: app.get(ConfigService).getOrThrow<string>('ALLOWED_ORIGINS').split(','),

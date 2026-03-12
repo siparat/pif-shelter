@@ -1,12 +1,12 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { ThrottlerException } from '@nestjs/throttler';
 import { IApiErrorResponse } from '@pif/shared';
-import { Response } from 'express';
+import { FastifyReply } from 'fastify';
 
 @Catch(ThrottlerException)
 export class ThrottlerExceptionFilter implements ExceptionFilter {
 	catch(exception: ThrottlerException, host: ArgumentsHost): void {
-		const res = host.switchToHttp().getResponse<Response>();
+		const res = host.switchToHttp().getResponse<FastifyReply>();
 		const json: IApiErrorResponse = {
 			success: false,
 			error: {
@@ -14,6 +14,6 @@ export class ThrottlerExceptionFilter implements ExceptionFilter {
 				message: 'Слишком много запросов'
 			}
 		};
-		res.status(exception.getStatus()).json(json);
+		res.status(exception.getStatus()).send(json);
 	}
 }

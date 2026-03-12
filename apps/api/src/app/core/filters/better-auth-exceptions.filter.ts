@@ -1,13 +1,13 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { IApiErrorResponse } from '@pif/shared';
 import { APIError } from 'better-auth';
-import { Response } from 'express';
+import { FastifyReply } from 'fastify';
 
 @Catch(APIError)
 export class BetterAuthExceptionsFilter implements ExceptionFilter {
 	catch(exception: APIError, host: ArgumentsHost): void {
 		const ctx = host.switchToHttp();
-		const response = ctx.getResponse<Response>();
+		const response = ctx.getResponse<FastifyReply>();
 
 		const errorResponse: IApiErrorResponse = {
 			success: false,
@@ -17,6 +17,6 @@ export class BetterAuthExceptionsFilter implements ExceptionFilter {
 			}
 		};
 
-		response.status(exception.statusCode).json(errorResponse);
+		response.status(exception.statusCode).send(errorResponse);
 	}
 }

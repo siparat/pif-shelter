@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
 import { IApiErrorResponse } from '@pif/shared';
-import { Response } from 'express';
+import { FastifyReply } from 'fastify';
 import { ZodValidationException } from 'nestjs-zod';
 import { ZodError } from 'zod';
 
@@ -8,7 +8,7 @@ import { ZodError } from 'zod';
 export class ZodValidationExceptionFilter implements ExceptionFilter {
 	catch(exception: ZodValidationException, host: ArgumentsHost): void {
 		const ctx = host.switchToHttp();
-		const response = ctx.getResponse<Response>();
+		const response = ctx.getResponse<FastifyReply>();
 		const status = HttpStatus.BAD_REQUEST;
 
 		const zodError = exception.getZodError() as ZodError;
@@ -25,6 +25,6 @@ export class ZodValidationExceptionFilter implements ExceptionFilter {
 			}
 		};
 
-		response.status(status).json(errorResponse);
+		response.status(status).send(errorResponse);
 	}
 }

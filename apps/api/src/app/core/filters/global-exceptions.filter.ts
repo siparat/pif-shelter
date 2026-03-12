@@ -1,6 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { IApiErrorResponse } from '@pif/shared';
-import { Response } from 'express';
+
+import { FastifyReply } from 'fastify';
 import { Logger } from 'nestjs-pino';
 
 @Catch()
@@ -9,12 +10,12 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
 
 	catch(exception: unknown, host: ArgumentsHost): void {
 		const ctx = host.switchToHttp();
-		const response = ctx.getResponse<Response>();
+		const response = ctx.getResponse<FastifyReply>();
 		const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
 		// Error Health Check (503)
 		if (status === HttpStatus.SERVICE_UNAVAILABLE && exception instanceof HttpException) {
-			response.status(status).json(exception.getResponse());
+			response.status(status).send(exception.getResponse());
 			return;
 		}
 
@@ -36,6 +37,6 @@ export class GlobalExceptionsFilter implements ExceptionFilter {
 			}
 		};
 
-		response.status(status).json(errorResponse);
+		response.status(status).send(errorResponse);
 	}
 }
