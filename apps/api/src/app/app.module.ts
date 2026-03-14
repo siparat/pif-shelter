@@ -1,6 +1,6 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bullmq';
-import { Module } from '@nestjs/common';
+import { Controller, Get, Module, Post } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -33,6 +33,7 @@ import { HealthModule } from './core/health/health.module';
 import { SeedModule } from './core/seed/seed.module';
 import { GuardianshipModule } from './guardianship/guardianship.module';
 import { MediaModule } from './media/media.module';
+import { PostsModule } from './posts/posts.module';
 import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
 
 @Module({
@@ -54,6 +55,7 @@ import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
 		GuardianshipModule,
 		AdminUsersModule,
 		MediaModule,
+		PostsModule,
 		HealthModule,
 		SeedModule
 	],

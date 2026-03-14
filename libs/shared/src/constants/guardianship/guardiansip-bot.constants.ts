@@ -32,3 +32,5 @@ export const GuardianshipBotCommands = {
 		description: 'Управление подпиской'
 	}
 } as const;
+
+export const LIMIT_MESSAGE_LENGTH = 4096;

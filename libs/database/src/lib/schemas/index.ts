@@ -12,6 +12,7 @@ import {
 	animalStatusEnum
 } from './animals.schema';
 import { guardianshipStatusEnum, guardianships } from './guardianships.schema';
+import { postMedia, postMediaTypeEnum, postVisibilityEnum, posts } from './posts.schema';
 
 export const relations = defineRelations(
 	{
@@ -19,6 +20,8 @@ export const relations = defineRelations(
 		animalLabels,
 		animalsToAnimalLabels,
 		guardianships,
+		postMedia,
+		posts,
 		users,
 		sessions,
 		accounts,
@@ -54,6 +57,26 @@ export const relations = defineRelations(
 			guardian: r.one.users({
 				from: r.guardianships.guardianUserId,
 				to: r.users.id
+			})
+		},
+		postMedia: {
+			post: r.one.posts({
+				from: r.postMedia.postId,
+				to: r.posts.id
+			})
+		},
+		posts: {
+			animal: r.one.animals({
+				from: r.posts.animalId,
+				to: r.animals.id
+			}),
+			author: r.one.users({
+				from: r.posts.authorId,
+				to: r.users.id
+			}),
+			media: r.many.postMedia({
+				from: r.posts.id,
+				to: r.postMedia.postId
 			})
 		},
 		users: {
@@ -101,6 +124,10 @@ export const schema = {
 	botHelpConfig,
 	guardianshipStatusEnum,
 	guardianships,
+	postMedia,
+	postMediaTypeEnum,
+	postVisibilityEnum,
+	posts,
 	roleEnum,
 	users,
 	sessions,
@@ -112,4 +139,5 @@ export const schema = {
 export * from './animals.schema';
 export * from './bot-help-config.schema';
 export * from './guardianships.schema';
+export * from './posts.schema';
 export * from './users.schema';
