@@ -1,11 +1,11 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
 import { ListAnimalsResult } from '@pif/contracts';
-import { animals, DatabaseService, getSortOrder, animalListColumns } from '@pif/database';
+import { animalListColumns, animals, DatabaseService, getSortOrder } from '@pif/database';
+import { AnimalCacheKeys } from '@pif/shared';
 import { and, count } from 'drizzle-orm';
 import { ListAnimalsBuilder } from './list-animals.builder';
 import { ListAnimalsQuery } from './list-animals.query';
-import { AnimalCacheKeys } from '@pif/shared';
 
 @QueryHandler(ListAnimalsQuery)
 export class ListAnimalsHandler implements IQueryHandler<ListAnimalsQuery> {
@@ -43,7 +43,7 @@ export class ListAnimalsHandler implements IQueryHandler<ListAnimalsQuery> {
 				limit: perPage,
 				offset: perPage * (page - 1),
 				orderBy: { [orderBy.column]: orderBy.direction },
-				with: { labels: true },
+				with: { labels: { columns: { id: true, name: true, color: true } } },
 				columns: animalListColumns
 			}),
 			this.db.client
