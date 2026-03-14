@@ -65,6 +65,7 @@ export type ISession = AppAuth['$Infer']['Session'] & { user: { role: UserRole }
 
 export const getAuthConfig = (): Parameters<typeof AuthModule.forRootAsync>[0] => ({
 	disableGlobalAuthGuard: true,
+	disableControllers: true,
 	isGlobal: true,
 	imports: [ConfigModule],
 	inject: [ConfigService, DRIZZLE_PROVIDE_KEY],

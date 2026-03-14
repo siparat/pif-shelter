@@ -2,14 +2,17 @@ import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { ApiErrorResponseDto } from '@pif/contracts';
+import { AUTH_PREFIX } from '@pif/shared';
+import { AuthService } from '@thallesp/nestjs-better-auth';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { Logger } from 'nestjs-pino';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { AppModule } from './app/app.module';
+import type { AppAuth } from './app/configs/auth.config';
+import { handleBetterAuthRequest } from './app/core/auth/better-auth-fastify.handler';
 import { GlobalDeserializerInterceptor } from './app/core/interceptors/global-deserializer.interceptor';
-import { AuthService } from '@thallesp/nestjs-better-auth';
-import { AUTH_PREFIX } from '@pif/shared';
 
 dayjs.extend(duration);
 
@@ -24,10 +27,21 @@ async function bootstrap(): Promise<void> {
 	app.useLogger(app.get(Logger));
 
 	await app.register(require('@fastify/helmet'));
-	// Костыль для better auth, т.к. он строго привязан к express
-	app.use((req: any, _: any, next: any) => {
-		if (req.baseUrl === undefined) req.baseUrl = req.originalUrl || req.url || '';
-		next();
+
+	const auth = app.get(AuthService).instance as AppAuth;
+	const fastify = app.getHttpAdapter().getInstance();
+
+	fastify.route({
+		method: ['GET', 'POST'],
+		url: `/${AUTH_PREFIX}`,
+		handler: (req, rep) =>
+			handleBetterAuthRequest(auth, req as unknown as FastifyRequest, rep as unknown as FastifyReply)
+	});
+	fastify.route({
+		method: ['GET', 'POST'],
+		url: `/${AUTH_PREFIX}/*`,
+		handler: (req, rep) =>
+			handleBetterAuthRequest(auth, req as unknown as FastifyRequest, rep as unknown as FastifyReply)
 	});
 
 	const config = new DocumentBuilder().setTitle('ПИФ API').setVersion('0.1').build();
