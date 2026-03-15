@@ -4,6 +4,8 @@ import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestj
 import {
 	CreatePostRequestDto,
 	CreatePostResponseDto,
+	GetPostResponseDto,
+	ReturnDto,
 	UpdatePostRequestDto,
 	UpdatePostResponseDto
 } from '@pif/contracts';
@@ -16,7 +18,6 @@ import { RoleGuard } from '../core/guards/role.guard';
 import { CreatePostCommand } from './commands/create-post/create-post.command';
 import { DeletePostCommand } from './commands/delete-post/delete-post.command';
 import { UpdatePostCommand } from './commands/update-post/update-post.command';
-import { PostResponseDto } from './mappers/post.mapper';
 import { GetPostQuery } from './queries/get-post/get-post.query';
 
 @ApiTags('Posts | Посты')
@@ -32,9 +33,12 @@ export class PostsController {
 		summary: 'Получить пост по ID',
 		description: 'Возвращает пост. Приватные посты доступны опекунам и сотрудникам.'
 	})
-	@ApiOkResponse({ description: 'Пост найден' })
+	@ApiOkResponse({ description: 'Пост найден', type: GetPostResponseDto })
 	@Get(':id')
-	async getById(@Param('id', ParseUUIDPipe) id: string, @Headers() headers: HeadersInit): Promise<PostResponseDto> {
+	async getById(
+		@Param('id', ParseUUIDPipe) id: string,
+		@Headers() headers: HeadersInit
+	): Promise<ReturnDto<typeof GetPostResponseDto>> {
 		const session = (await this.authService.api.getSession({ headers })) as ISession | undefined;
 		const userId = session?.user?.id ?? null;
 		const userRole = session?.user?.role ?? null;
