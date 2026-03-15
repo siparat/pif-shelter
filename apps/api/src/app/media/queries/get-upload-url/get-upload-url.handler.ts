@@ -41,6 +41,8 @@ export class GetUploadUrlHandler implements IQueryHandler<GetUploadUrlQuery> {
 						return 5 * 1024 * 1024;
 					case 'users':
 						return 2 * 1024 * 1024;
+					case 'posts':
+						return 5 * 1024 * 1024;
 					default:
 						return 2 * 1024 * 1024;
 				}
