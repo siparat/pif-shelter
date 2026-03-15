@@ -1,5 +1,6 @@
 import { PostMediaTypeEnum, PostVisibilityEnum } from '@pif/shared';
 import { createZodDto } from 'nestjs-zod';
+import sanitizeHtml from 'sanitize-html';
 import z from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
 
@@ -30,6 +31,7 @@ export const createPostRequestSchema = z.object({
 		.trim()
 		.min(1, 'Текст поста не может быть пустым')
 		.max(50000, { message: 'Текст поста не может быть длиннее 50000 символов' })
+		.transform((html) => sanitizeHtml(html, { allowedTags: ['b', 'i', 'u', 's', 'code', 'pre'] }))
 		.describe('Текст поста (HTML)'),
 	visibility: z.enum(PostVisibilityEnum).default(PostVisibilityEnum.PUBLIC).describe('Видимость поста'),
 	media: mediaArraySchema.describe('Медиа поста (до 10 элементов, не более 1 видео)')
