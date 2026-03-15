@@ -1,5 +1,9 @@
-import { CreatePostRequestDto } from '@pif/contracts';
-import { posts } from '@pif/database';
+import { CreatePostRequestDto, UpdatePostRequestDto } from '@pif/contracts';
+import { postMedia, posts } from '@pif/database';
+
+export type PostWithMedia = typeof posts.$inferSelect & {
+	media: (typeof postMedia.$inferSelect)[];
+};
 
 export abstract class PostsRepository {
 	abstract create(
@@ -8,4 +12,10 @@ export abstract class PostsRepository {
 		animalAgeYears: number,
 		animalAgeMonths: number
 	): Promise<typeof posts.$inferInsert>;
+
+	abstract findById(id: string): Promise<PostWithMedia | undefined>;
+
+	abstract update(id: string, dto: UpdatePostRequestDto): Promise<typeof posts.$inferInsert>;
+
+	abstract delete(id: string): Promise<boolean>;
 }
