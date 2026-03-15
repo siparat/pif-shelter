@@ -1,99 +1,86 @@
-import { createMock } from '@golevelup/ts-jest';
+import { faker } from '@faker-js/faker';
+import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
-import { DatabaseService, invitations, relations, schema } from '@pif/database';
-import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
-import { eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { Logger } from 'nestjs-pino';
-import * as path from 'path';
-import { Pool } from 'pg';
 import { UsersService } from '../../../../users/users.service';
+import { InvitationCreatedEvent } from '../../events/invitation-created/invitation-created.event';
+import { UserAlreadyExistsException } from '../../exceptions/user-already-exists.exception';
 import { AdminUsersRepository } from '../../repositories/admin-users.repository';
-import { DrizzleAdminUsersRepository } from '../../repositories/drizzle-admin-users.repository';
 import { CreateInvitationCommand } from './create-invitation.command';
 import { CreateInvitationHandler } from './create-invitation.handler';
 
-describe('CreateInvitationHandler (Integration)', () => {
-	let container: StartedPostgreSqlContainer;
+describe('CreateInvitationHandler', () => {
 	let handler: CreateInvitationHandler;
-	let dbService: DatabaseService;
-	let pool: Pool;
-	let usersService: UsersService;
+	let repository: DeepMocked<AdminUsersRepository>;
+	let usersService: DeepMocked<UsersService>;
+	let eventBus: DeepMocked<EventBus>;
 
-	beforeAll(async () => {
-		container = await new PostgreSqlContainer('postgres:17-alpine').start();
-		pool = new Pool({ connectionString: container.getConnectionUri() });
-		const db = drizzle({ schema, relations, client: pool });
+	const dto = {
+		email: 'new-volunteer@pif.xyz',
+		name: 'John Doe',
+		roleName: 'Volunteer'
+	};
 
-		await migrate(db, {
-			migrationsFolder: path.join(__dirname, '../../../../../../../../migrations')
-		});
-
-		dbService = new DatabaseService(db);
-		usersService = createMock<UsersService>();
-
+	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
 				CreateInvitationHandler,
-				{ provide: AdminUsersRepository, useValue: new DrizzleAdminUsersRepository(dbService) },
-				{ provide: UsersService, useValue: usersService },
+				{ provide: AdminUsersRepository, useValue: createMock<AdminUsersRepository>() },
+				{ provide: UsersService, useValue: createMock<UsersService>() },
 				{ provide: EventBus, useValue: createMock<EventBus>() },
 				{ provide: Logger, useValue: createMock<Logger>() }
 			]
 		}).compile();
 
 		handler = module.get<CreateInvitationHandler>(CreateInvitationHandler);
-	}, 60000);
-
-	afterAll(async () => {
-		await pool.end();
-		await container.stop();
+		repository = module.get(AdminUsersRepository);
+		usersService = module.get(UsersService);
+		eventBus = module.get(EventBus);
 	});
 
-	it('should successfully create an invitation and store it in the database', async () => {
-		const email = 'new-volunteer@pif.xyz';
-		const command = new CreateInvitationCommand({
-			email,
-			name: 'John Doe',
-			roleName: 'Volunteer'
-		});
+	it('creates invitation and publishes InvitationCreatedEvent when user does not exist', async () => {
+		const invitationId = faker.string.uuid();
+		const invitation = {
+			id: invitationId,
+			email: dto.email,
+			personName: dto.name,
+			roleName: dto.roleName,
+			used: false,
+			expiresAt: new Date(),
+			deletedAt: null
+		} as never;
 
-		(usersService.findByEmail as jest.Mock).mockResolvedValue(null);
+		usersService.findByEmail.mockResolvedValue(undefined);
+		repository.createInvitation.mockResolvedValue(invitation);
 
+		const command = new CreateInvitationCommand(dto);
 		const result = await handler.execute(command);
 
-		expect(result).toBeDefined();
-
-		const dbRecord = await dbService.client.select().from(invitations).where(eq(invitations.email, email)).limit(1);
-
-		expect(dbRecord).toHaveLength(1);
-		expect(dbRecord[0].personName).toBe('John Doe');
-		expect(dbRecord[0].used).toBe(false);
+		expect(usersService.findByEmail).toHaveBeenCalledWith(dto.email);
+		expect(repository.createInvitation).toHaveBeenCalledWith(dto, expect.any(Date));
+		expect(eventBus.publish).toHaveBeenCalledWith(expect.any(InvitationCreatedEvent));
+		expect((eventBus.publish as jest.Mock).mock.calls[0][0].invitation).toEqual(invitation);
+		expect(result).toEqual({ invitationId });
 	});
 
-	it('should invalidate old invitations when a new one is created for the same email', async () => {
-		const email = 'duplicate@pif.xyz';
-		const command = new CreateInvitationCommand({
-			email,
-			name: 'Duplicate Test',
-			roleName: 'Volunteer'
-		});
+	it('throws UserAlreadyExistsException when user already exists', async () => {
+		usersService.findByEmail.mockResolvedValue({ id: faker.string.uuid(), email: dto.email } as never);
 
-		(usersService.findByEmail as jest.Mock).mockResolvedValue(null);
+		const command = new CreateInvitationCommand(dto);
 
-		const firstResult = await handler.execute(command);
-		const secondResult = await handler.execute(command);
+		await expect(handler.execute(command)).rejects.toThrow(UserAlreadyExistsException);
+		expect(repository.createInvitation).not.toHaveBeenCalled();
+		expect(eventBus.publish).not.toHaveBeenCalled();
+	});
 
-		const records = await dbService.client.select().from(invitations).where(eq(invitations.email, email));
+	it('rethrows when repository throws', async () => {
+		usersService.findByEmail.mockResolvedValue(undefined);
+		repository.createInvitation.mockRejectedValue(new Error('DB error'));
 
-		expect(records).toHaveLength(2);
+		const command = new CreateInvitationCommand(dto);
 
-		const firstRecord = records.find((r) => r.id === firstResult.invitationId);
-		const secondRecord = records.find((r) => r.id === secondResult.invitationId);
-
-		expect(firstRecord?.deletedAt).not.toBeNull();
-		expect(secondRecord?.deletedAt).toBeNull();
+		await expect(handler.execute(command)).rejects.toThrow('DB error');
+		expect(eventBus.publish).not.toHaveBeenCalled();
 	});
 });
