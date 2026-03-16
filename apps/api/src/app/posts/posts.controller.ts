@@ -1,10 +1,25 @@
-import { Body, Controller, Delete, Get, Headers, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Headers,
+	Param,
+	ParseUUIDPipe,
+	Patch,
+	Post,
+	Query,
+	UseGuards
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
 	CreatePostRequestDto,
 	CreatePostResponseDto,
 	GetPostResponseDto,
+	ListPostsRequestDto,
+	ListPostsResponseDto,
+	ListPostsResult,
 	ReturnDto,
 	UpdatePostRequestDto,
 	UpdatePostResponseDto
@@ -19,6 +34,7 @@ import { CreatePostCommand } from './commands/create-post/create-post.command';
 import { DeletePostCommand } from './commands/delete-post/delete-post.command';
 import { UpdatePostCommand } from './commands/update-post/update-post.command';
 import { GetPostQuery } from './queries/get-post/get-post.query';
+import { ListPostsQuery } from './queries/list-posts/list-posts.query';
 
 @ApiTags('Posts | Посты')
 @Controller('posts')
@@ -28,6 +44,23 @@ export class PostsController {
 		private readonly queryBus: QueryBus,
 		private readonly authService: AuthService
 	) {}
+
+	@ApiOperation({
+		summary: 'Список постов',
+		description:
+			'Возвращает список постов с пагинацией и поиском. Без авторизации — только публичные. С авторизацией — с учётом прав (приватные для опекунов и сотрудников).'
+	})
+	@ApiOkResponse({ description: 'Список получен', type: ListPostsResponseDto })
+	@Get()
+	async list(
+		@Query(ZodValidationPipe) query: ListPostsRequestDto,
+		@Headers() headers: HeadersInit
+	): Promise<ListPostsResult> {
+		const session = (await this.authService.api.getSession({ headers })) as ISession | undefined;
+		const userId = session?.user?.id ?? null;
+		const userRole = session?.user?.role ?? null;
+		return this.queryBus.execute(new ListPostsQuery(query, userId, userRole));
+	}
 
 	@ApiOperation({
 		summary: 'Получить пост по ID',

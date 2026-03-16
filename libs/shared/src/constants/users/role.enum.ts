@@ -4,3 +4,5 @@ export enum UserRole {
 	VOLUNTEER = 'VOLUNTEER',
 	GUARDIAN = 'GUARDIAN'
 }
+
+export const STAFF_ROLES = [UserRole.VOLUNTEER, UserRole.SENIOR_VOLUNTEER, UserRole.ADMIN];
