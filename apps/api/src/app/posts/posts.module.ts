@@ -12,6 +12,7 @@ import { CanEditPostPolicy } from './policies/can-edit-post.policy';
 import { CanViewPostPolicy } from './policies/can-view-post.policy';
 import { PostsController } from './posts.controller';
 import { GetPostQueryHandler } from './queries/get-post/get-post.handler';
+import { ListPostsHandler } from './queries/list-posts/list-posts.handler';
 import { DrizzlePostsRepository } from './repositories/drizzle-posts.repository';
 import { PostsRepository } from './repositories/posts.repository';
 
@@ -26,6 +27,7 @@ import { PostsRepository } from './repositories/posts.repository';
 		UpdatePostHandler,
 		DeletePostHandler,
 		GetPostQueryHandler,
+		ListPostsHandler,
 		PostCreatedHandler,
 		PostUpdatedHandler,
 		PostDeletedHandler,
