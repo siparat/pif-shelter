@@ -1,7 +1,7 @@
-import { PostVisibilityEnum, PostMediaTypeEnum } from '@pif/shared';
-import { index, integer, pgEnum, pgTable, smallint, text, uuid } from 'drizzle-orm/pg-core';
-import { timestamps } from './timestamps';
+import { PostMediaTypeEnum, PostVisibilityEnum } from '@pif/shared';
+import { index, integer, pgEnum, pgTable, smallint, text, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { animals } from './animals.schema';
+import { timestamps } from './timestamps';
 import { users } from './users.schema';
 
 export const postVisibilityEnum = pgEnum('post_visibility', PostVisibilityEnum);
@@ -46,4 +46,19 @@ export const postMedia = pgTable(
 		...timestamps
 	},
 	(table) => [index('post_media_post_id_idx').on(table.postId)]
+);
+
+export const postReactions = pgTable(
+	'post_reactions',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		postId: uuid('post_id')
+			.notNull()
+			.references(() => posts.id, { onDelete: 'cascade' }),
+		emoji: text('emoji').notNull(),
+		anonymousVisitorId: text('anonymous_visitor_id').notNull()
+	},
+	(table) => [
+		uniqueIndex('post_reactions_post_id_anonymous_visitor_id_unique').on(table.postId, table.anonymousVisitorId)
+	]
 );

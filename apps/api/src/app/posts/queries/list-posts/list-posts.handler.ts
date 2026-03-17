@@ -5,6 +5,7 @@ import { DatabaseService, getSortOrder, posts } from '@pif/database';
 import { PostCacheKeys, PostVisibilityEnum, STAFF_ROLES } from '@pif/shared';
 import { and, count, eq } from 'drizzle-orm';
 import { PostMapper, PostResponseDto } from '../../mappers/post.mapper';
+import { PostReactionsRepository } from '../../repositories/post-reactions.repository';
 import { ListPostsBuilder } from './list-posts.builder';
 import { ListPostsQuery } from './list-posts.query';
 
@@ -12,10 +13,11 @@ import { ListPostsQuery } from './list-posts.query';
 export class ListPostsHandler implements IQueryHandler<ListPostsQuery> {
 	constructor(
 		private readonly db: DatabaseService,
+		private readonly postReactionsRepository: PostReactionsRepository,
 		private readonly cache: CacheService
 	) {}
 
-	async execute({ dto, userId, userRole }: ListPostsQuery): Promise<ListPostsResult> {
+	async execute({ dto, userId, userRole, visitorId }: ListPostsQuery): Promise<ListPostsResult> {
 		const cacheKey = this.cache.buildQueryKey(PostCacheKeys.LIST, { ...dto, userId, userRole });
 		const cached = await this.cache.get<ListPostsResult>(cacheKey).catch(() => null);
 		if (cached) {
@@ -52,7 +54,9 @@ export class ListPostsHandler implements IQueryHandler<ListPostsQuery> {
 				.where(and(...baseSql))
 		]);
 
-		const data = rows.map((row) => PostMapper.toResponse(row));
+		const postIds = rows.map((r) => r.id);
+		const countsMap = await this.postReactionsRepository.getCountsByPostIds(postIds, visitorId);
+		const data = rows.map((row) => PostMapper.toResponse(row, countsMap.get(row.id) ?? []));
 		const total = totalResult.count;
 		const result = this.buildResult(data, total, page, perPage);
 		await this.cache.set(cacheKey, result).catch(() => undefined);

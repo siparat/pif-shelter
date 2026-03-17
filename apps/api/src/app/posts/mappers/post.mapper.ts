@@ -3,6 +3,7 @@ import { postMedia, posts } from '@pif/database';
 import { InferInsertModel } from 'drizzle-orm';
 import { z } from 'zod';
 import { PostWithMedia } from '../repositories/posts.repository';
+import { PostReactionCount } from '../repositories/post-reactions.repository';
 
 type PostInsertModel = InferInsertModel<typeof posts>;
 type PostMediaInsertModel = InferInsertModel<typeof postMedia>;
@@ -46,7 +47,7 @@ export class PostMapper {
 		}));
 	}
 
-	static toResponse(post: PostWithMedia): PostResponseDto {
+	static toResponse(post: PostWithMedia, reactions: PostReactionCount[] = []): PostResponseDto {
 		return {
 			id: post.id,
 			animalId: post.animalId,
@@ -55,6 +56,7 @@ export class PostMapper {
 			body: post.body,
 			visibility: post.visibility,
 			media: post.media.map((m) => ({ id: m.id, storageKey: m.storageKey, type: m.type, order: m.order })),
+			reactions,
 			campaignId: post.campaignId,
 			animalAgeYears: post.animalAgeYears,
 			animalAgeMonths: post.animalAgeMonths,

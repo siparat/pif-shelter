@@ -1,9 +1,11 @@
 import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserRole } from '@pif/shared';
 import { AnimalsService } from '../../../animals/animals.service';
+import { AnimalNotFoundException } from '../../exceptions/animal-not-found.exception';
+import { InsufficientRoleException } from '../../exceptions/insufficient-role.exception';
+import { NotCuratorException } from '../../exceptions/not-curator.exception';
 import { CanCreatePostPolicy } from './can-create-post.policy';
 
 describe('CanCreatePostPolicy', () => {
@@ -27,14 +29,14 @@ describe('CanCreatePostPolicy', () => {
 		animalsService = module.get(AnimalsService);
 	});
 
-	it('throws NotFoundException when animal not found', async () => {
+	it('throws AnimalNotFoundException when animal not found', async () => {
 		animalsService.findById.mockResolvedValue(undefined);
 
 		await expect(policy.assertCanCreatePost(animalId, userId, UserRole.VOLUNTEER)).rejects.toThrow(
-			NotFoundException
+			AnimalNotFoundException
 		);
 		await expect(policy.assertCanCreatePost(animalId, userId, UserRole.VOLUNTEER)).rejects.toThrow(
-			'Животное не найдено'
+			`Животное с ID ${animalId} не найдено`
 		);
 	});
 
@@ -63,20 +65,20 @@ describe('CanCreatePostPolicy', () => {
 		expect(result).toBe(animal);
 	});
 
-	it('throws ForbiddenException when VOLUNTEER is not curator', async () => {
+	it('throws NotCuratorException when VOLUNTEER is not curator', async () => {
 		const otherCurator = { ...animal, curatorId: faker.string.uuid() };
 		animalsService.findById.mockResolvedValue(otherCurator as never);
 
 		await expect(policy.assertCanCreatePost(animalId, userId, UserRole.VOLUNTEER)).rejects.toThrow(
-			ForbiddenException
+			NotCuratorException
 		);
 	});
 
-	it('throws ForbiddenException for GUARDIAN role', async () => {
+	it('throws InsufficientRoleException for GUARDIAN role', async () => {
 		animalsService.findById.mockResolvedValue(animal as never);
 
 		await expect(policy.assertCanCreatePost(animalId, userId, UserRole.GUARDIAN)).rejects.toThrow(
-			ForbiddenException
+			InsufficientRoleException
 		);
 	});
 });
