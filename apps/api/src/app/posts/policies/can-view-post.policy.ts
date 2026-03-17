@@ -1,6 +1,7 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '@pif/database';
 import { GuardianshipStatusEnum, PostVisibilityEnum, UserRole } from '@pif/shared';
+import { NotGuardianException } from '../exceptions/not-guardian.exception';
 
 export type PostViewContext = { visibility: PostVisibilityEnum; animalId: string };
 
@@ -13,7 +14,7 @@ export class CanViewPostPolicy {
 			return;
 		}
 		if (!userId || !userRole) {
-			throw new ForbiddenException('Приватный пост доступен только авторизованным опекунам или сотрудникам');
+			throw new NotGuardianException();
 		}
 		if (userRole === UserRole.VOLUNTEER || userRole === UserRole.SENIOR_VOLUNTEER || userRole === UserRole.ADMIN) {
 			return;
@@ -26,7 +27,7 @@ export class CanViewPostPolicy {
 			}
 		});
 		if (!guardianship) {
-			throw new ForbiddenException('Приватный пост доступен только опекунам этого животного или сотрудникам');
+			throw new NotGuardianException();
 		}
 	}
 }

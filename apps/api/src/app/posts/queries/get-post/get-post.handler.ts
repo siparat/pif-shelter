@@ -4,6 +4,7 @@ import { PostCacheKeys } from '@pif/shared';
 import { PostNotFoundException } from '../../exceptions/post-not-found.exception';
 import { PostMapper, PostResponseDto } from '../../mappers/post.mapper';
 import { CanViewPostPolicy } from '../../policies/can-view-post.policy';
+import { PostReactionsRepository } from '../../repositories/post-reactions.repository';
 import { PostsRepository } from '../../repositories/posts.repository';
 import { GetPostQuery } from './get-post.query';
 
@@ -11,6 +12,7 @@ import { GetPostQuery } from './get-post.query';
 export class GetPostQueryHandler implements IQueryHandler<GetPostQuery> {
 	constructor(
 		private readonly repository: PostsRepository,
+		private readonly postReactionsRepository: PostReactionsRepository,
 		private readonly cache: CacheService,
 		private readonly canViewPostPolicy: CanViewPostPolicy
 	) {}
@@ -29,7 +31,8 @@ export class GetPostQueryHandler implements IQueryHandler<GetPostQuery> {
 		}
 		await this.canViewPostPolicy.assertCanView(post, query.userId, query.userRole);
 
-		const response = PostMapper.toResponse(post);
+		const reactions = await this.postReactionsRepository.getCountsByPostId(post.id, query.visitorId);
+		const response = PostMapper.toResponse(post, reactions);
 		await this.cache.set(cacheKey, response).catch(() => undefined);
 
 		return response;

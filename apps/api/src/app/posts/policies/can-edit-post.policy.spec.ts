@@ -1,11 +1,12 @@
 import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserRole } from '@pif/shared';
 import { PostNotFoundException } from '../exceptions/post-not-found.exception';
 import { PostsRepository } from '../repositories/posts.repository';
 import { CanEditPostPolicy } from './can-edit-post.policy';
+import { InsufficientRoleException } from '../exceptions/insufficient-role.exception';
+import { NotCuratorException } from '../exceptions/not-curator.exception';
 
 describe('CanEditPostPolicy', () => {
 	let policy: CanEditPostPolicy;
@@ -60,16 +61,18 @@ describe('CanEditPostPolicy', () => {
 		expect(result).toBe(post);
 	});
 
-	it('throws ForbiddenException when VOLUNTEER is not author', async () => {
+	it('throws NotCuratorException when VOLUNTEER is not author', async () => {
 		const otherPost = { id: post.id, authorId: faker.string.uuid(), animalId: post.animalId, media: [] as never[] };
 		repository.findById.mockResolvedValue(otherPost as never);
 
-		await expect(policy.assertCanEdit(postId, userId, UserRole.VOLUNTEER)).rejects.toThrow(ForbiddenException);
+		await expect(policy.assertCanEdit(postId, userId, UserRole.VOLUNTEER)).rejects.toThrow(NotCuratorException);
 	});
 
-	it('throws ForbiddenException for GUARDIAN role', async () => {
+	it('throws InsufficientRoleException for GUARDIAN role', async () => {
 		repository.findById.mockResolvedValue(post as never);
 
-		await expect(policy.assertCanEdit(postId, userId, UserRole.GUARDIAN)).rejects.toThrow(ForbiddenException);
+		await expect(policy.assertCanEdit(postId, userId, UserRole.GUARDIAN)).rejects.toThrow(
+			InsufficientRoleException
+		);
 	});
 });

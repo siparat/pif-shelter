@@ -6,6 +6,7 @@ import { PostMediaTypeEnum, PostVisibilityEnum, UserRole } from '@pif/shared';
 import { PostNotFoundException } from '../../exceptions/post-not-found.exception';
 import { PostMapper, PostResponseDto } from '../../mappers/post.mapper';
 import { CanViewPostPolicy } from '../../policies/can-view-post.policy';
+import { PostReactionsRepository } from '../../repositories/post-reactions.repository';
 import { PostsRepository } from '../../repositories/posts.repository';
 import { GetPostQueryHandler } from './get-post.handler';
 import { GetPostQuery } from './get-post.query';
@@ -13,6 +14,7 @@ import { GetPostQuery } from './get-post.query';
 describe('GetPostQueryHandler', () => {
 	let handler: GetPostQueryHandler;
 	let repository: DeepMocked<PostsRepository>;
+	let postReactionsRepository: DeepMocked<PostReactionsRepository>;
 	let cache: DeepMocked<CacheService>;
 	let canViewPostPolicy: DeepMocked<CanViewPostPolicy>;
 
@@ -41,6 +43,7 @@ describe('GetPostQueryHandler', () => {
 		body: mockPost.body,
 		visibility: mockPost.visibility,
 		media: [],
+		reactions: [],
 		campaignId: mockPost.campaignId,
 		animalAgeYears: mockPost.animalAgeYears,
 		animalAgeMonths: mockPost.animalAgeMonths,
@@ -53,6 +56,7 @@ describe('GetPostQueryHandler', () => {
 			providers: [
 				GetPostQueryHandler,
 				{ provide: PostsRepository, useValue: createMock<PostsRepository>() },
+				{ provide: PostReactionsRepository, useValue: createMock<PostReactionsRepository>() },
 				{ provide: CacheService, useValue: createMock<CacheService>() },
 				{ provide: CanViewPostPolicy, useValue: createMock<CanViewPostPolicy>() }
 			]
@@ -60,6 +64,7 @@ describe('GetPostQueryHandler', () => {
 
 		handler = module.get<GetPostQueryHandler>(GetPostQueryHandler);
 		repository = module.get(PostsRepository);
+		postReactionsRepository = module.get(PostReactionsRepository);
 		cache = module.get(CacheService);
 		canViewPostPolicy = module.get(CanViewPostPolicy);
 	});
@@ -91,6 +96,7 @@ describe('GetPostQueryHandler', () => {
 		jest.spyOn(PostMapper, 'toResponse').mockReturnValue(mockResponse);
 		cache.get.mockResolvedValue(null);
 		repository.findById.mockResolvedValue(mockPost as never);
+		postReactionsRepository.getCountsByPostId.mockResolvedValue([]);
 		canViewPostPolicy.assertCanView.mockResolvedValue(undefined);
 		cache.set.mockResolvedValue(undefined);
 
@@ -98,8 +104,9 @@ describe('GetPostQueryHandler', () => {
 		const result = await handler.execute(query);
 
 		expect(repository.findById).toHaveBeenCalledWith(postId);
+		expect(postReactionsRepository.getCountsByPostId).toHaveBeenCalledWith(postId, undefined);
 		expect(canViewPostPolicy.assertCanView).toHaveBeenCalledWith(mockPost as never, 'user-1', UserRole.ADMIN);
-		expect(PostMapper.toResponse).toHaveBeenCalledWith(mockPost as never);
+		expect(PostMapper.toResponse).toHaveBeenCalledWith(mockPost as never, []);
 		expect(cache.set).toHaveBeenCalled();
 		expect(result).toEqual(mockResponse);
 	});

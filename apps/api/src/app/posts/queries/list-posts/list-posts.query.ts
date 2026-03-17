@@ -6,7 +6,8 @@ export class ListPostsQuery extends Query<ListPostsResult> {
 	constructor(
 		public readonly dto: ListPostsRequestDto,
 		public readonly userId: string | null,
-		public readonly userRole: UserRole | null
+		public readonly userRole: UserRole | null,
+		public readonly visitorId?: string
 	) {
 		super();
 	}

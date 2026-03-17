@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseService } from '@pif/database';
 import { GuardianshipStatusEnum, PostVisibilityEnum, UserRole } from '@pif/shared';
+import { NotGuardianException } from '../exceptions/not-guardian.exception';
 import { CanViewPostPolicy, PostViewContext } from './can-view-post.policy';
 
 describe('CanViewPostPolicy', () => {
@@ -43,13 +43,10 @@ describe('CanViewPostPolicy', () => {
 		await expect(policy.assertCanView(post, userId, UserRole.GUARDIAN)).resolves.toBeUndefined();
 	});
 
-	it('throws ForbiddenException for PRIVATE post when no user', async () => {
+	it('throws NotGuardianException for PRIVATE post when no user', async () => {
 		const post: PostViewContext = { visibility: PostVisibilityEnum.PRIVATE, animalId };
 
-		await expect(policy.assertCanView(post, null, null)).rejects.toThrow(ForbiddenException);
-		await expect(policy.assertCanView(post, null, null)).rejects.toThrow(
-			/Приватный пост доступен только авторизованным/
-		);
+		await expect(policy.assertCanView(post, null, null)).rejects.toThrow(NotGuardianException);
 	});
 
 	it('allows PRIVATE post for VOLUNTEER', async () => {
@@ -90,13 +87,10 @@ describe('CanViewPostPolicy', () => {
 		});
 	});
 
-	it('throws ForbiddenException for PRIVATE post when GUARDIAN has no active guardianship', async () => {
+	it('throws NotGuardianException for PRIVATE post when GUARDIAN has no active guardianship', async () => {
 		const post: PostViewContext = { visibility: PostVisibilityEnum.PRIVATE, animalId };
 		(db.client.query.guardianships.findFirst as jest.Mock).mockResolvedValue(null);
 
-		await expect(policy.assertCanView(post, userId, UserRole.GUARDIAN)).rejects.toThrow(ForbiddenException);
-		await expect(policy.assertCanView(post, userId, UserRole.GUARDIAN)).rejects.toThrow(
-			/Приватный пост доступен только опекунам/
-		);
+		await expect(policy.assertCanView(post, userId, UserRole.GUARDIAN)).rejects.toThrow(NotGuardianException);
 	});
 });

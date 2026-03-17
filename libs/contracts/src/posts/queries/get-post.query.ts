@@ -10,6 +10,12 @@ const postMediaItemResponseSchema = z.object({
 	order: z.number().int().min(0).describe('Порядок отображения')
 });
 
+const postReactionItemSchema = z.object({
+	isActive: z.boolean(),
+	emoji: z.string(),
+	count: z.number().int().min(0)
+});
+
 export const postResponseSchema = z.object({
 	id: z.uuid(),
 	animalId: z.uuid(),
@@ -18,6 +24,7 @@ export const postResponseSchema = z.object({
 	body: z.string(),
 	visibility: z.enum(PostVisibilityEnum),
 	media: z.array(postMediaItemResponseSchema),
+	reactions: z.array(postReactionItemSchema),
 	campaignId: z.uuid().nullable(),
 	animalAgeYears: z.number().int().min(0),
 	animalAgeMonths: z.number().int().min(0),

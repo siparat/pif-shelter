@@ -1,7 +1,10 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserRole } from '@pif/shared';
+
 import { PostNotFoundException } from '../exceptions/post-not-found.exception';
 import { PostWithMedia, PostsRepository } from '../repositories/posts.repository';
+import { InsufficientRoleException } from '../exceptions/insufficient-role.exception';
+import { NotCuratorException } from '../exceptions/not-curator.exception';
 
 @Injectable()
 export class CanEditPostPolicy {
@@ -19,8 +22,8 @@ export class CanEditPostPolicy {
 			if (post.authorId === userId) {
 				return post;
 			}
-			throw new ForbiddenException('Редактировать пост может только автор или сотрудник с большими правами');
+			throw new NotCuratorException();
 		}
-		throw new ForbiddenException('Недостаточно прав для редактирования поста');
+		throw new InsufficientRoleException();
 	}
 }

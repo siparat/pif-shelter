@@ -1,4 +1,5 @@
 import {
+	BadRequestException,
 	Body,
 	Controller,
 	Delete,
@@ -12,7 +13,8 @@ import {
 	UseGuards
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import {
 	CreatePostRequestDto,
 	CreatePostResponseDto,
@@ -21,6 +23,7 @@ import {
 	ListPostsResponseDto,
 	ListPostsResult,
 	ReturnDto,
+	SetPostReactionRequestDto,
 	UpdatePostRequestDto,
 	UpdatePostResponseDto
 } from '@pif/contracts';
@@ -32,6 +35,7 @@ import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
 import { CreatePostCommand } from './commands/create-post/create-post.command';
 import { DeletePostCommand } from './commands/delete-post/delete-post.command';
+import { SetPostReactionCommand } from './commands/set-post-reaction/set-post-reaction.command';
 import { UpdatePostCommand } from './commands/update-post/update-post.command';
 import { GetPostQuery } from './queries/get-post/get-post.query';
 import { ListPostsQuery } from './queries/list-posts/list-posts.query';
@@ -45,6 +49,11 @@ export class PostsController {
 		private readonly authService: AuthService
 	) {}
 
+	@ApiHeader({
+		name: 'X-Anonymous-Visitor-Id',
+		required: false,
+		description: 'Идентификатор анонимного пользователя'
+	})
 	@ApiOperation({
 		summary: 'Список постов',
 		description:
@@ -54,14 +63,20 @@ export class PostsController {
 	@Get()
 	async list(
 		@Query(ZodValidationPipe) query: ListPostsRequestDto,
-		@Headers() headers: HeadersInit
+		@Headers() headers: HeadersInit,
+		@Headers('X-Anonymous-Visitor-Id') visitorId?: string
 	): Promise<ListPostsResult> {
 		const session = (await this.authService.api.getSession({ headers })) as ISession | undefined;
 		const userId = session?.user?.id ?? null;
 		const userRole = session?.user?.role ?? null;
-		return this.queryBus.execute(new ListPostsQuery(query, userId, userRole));
+		return this.queryBus.execute(new ListPostsQuery(query, userId, userRole, userId || visitorId));
 	}
 
+	@ApiHeader({
+		name: 'X-Anonymous-Visitor-Id',
+		required: false,
+		description: 'Идентификатор анонимного пользователя'
+	})
 	@ApiOperation({
 		summary: 'Получить пост по ID',
 		description: 'Возвращает пост. Приватные посты доступны опекунам и сотрудникам.'
@@ -70,12 +85,41 @@ export class PostsController {
 	@Get(':id')
 	async getById(
 		@Param('id', ParseUUIDPipe) id: string,
-		@Headers() headers: HeadersInit
+		@Headers() headers: HeadersInit,
+		@Headers('X-Anonymous-Visitor-Id') visitorId?: string
 	): Promise<ReturnDto<typeof GetPostResponseDto>> {
 		const session = (await this.authService.api.getSession({ headers })) as ISession | undefined;
 		const userId = session?.user?.id ?? null;
 		const userRole = session?.user?.role ?? null;
-		return this.queryBus.execute(new GetPostQuery(id, userId, userRole));
+		return this.queryBus.execute(new GetPostQuery(id, userId, userRole, userId || visitorId));
+	}
+
+	@ApiHeader({
+		name: 'X-Anonymous-Visitor-Id',
+		required: false,
+		description: 'Идентификатор анонимного пользователя'
+	})
+	@ApiOperation({
+		summary: 'Поставить или снять реакцию на пост',
+		description:
+			'Устанавливает реакцию от анонимного посетителя. Повторный запрос с тем же emoji снимает реакцию (toggle). Один посетитель — одна реакция на пост. Без авторизации.'
+	})
+	@ApiOkResponse({ description: 'Реакция обновлена' })
+	@Throttle({ short: { ttl: 1000, limit: 3 } })
+	@Patch(':id/reaction')
+	async setReaction(
+		@Param('id', ParseUUIDPipe) id: string,
+		@Body(ZodValidationPipe) dto: SetPostReactionRequestDto,
+		@Headers() headers: HeadersInit,
+		@Headers('X-Anonymous-Visitor-Id')
+		visitorId?: string
+	): Promise<void> {
+		const session = (await this.authService.api.getSession({ headers })) as ISession | undefined;
+		const userId = session?.user?.id ?? visitorId;
+		if (!userId) {
+			throw new BadRequestException('X-Anonymous-Visitor-Id не передан');
+		}
+		await this.commandBus.execute(new SetPostReactionCommand(id, dto.emoji, userId));
 	}
 
 	@ApiOperation({
