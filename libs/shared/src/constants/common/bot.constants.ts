@@ -1,0 +1,1 @@
+export const LIMIT_MESSAGE_LENGTH = 4096;

@@ -10,4 +10,8 @@ export class AppUrlMapper {
 	static getHomeUrl(baseUrl: string): string {
 		return `${baseUrl}/`;
 	}
+
+	static getPostUrl(baseUrl: string, postId: string): string {
+		return `${baseUrl}/posts/${postId}`;
+	}
 }
