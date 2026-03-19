@@ -41,6 +41,12 @@ export class S3Adapter implements StorageService {
 		await this.s3.client.send(new DeleteObjectCommand({ Bucket: this.s3.bucket, Key: key }));
 	}
 
+	async getMetadata(key: string): Promise<{ contentType?: string; size?: number }> {
+		const command = new HeadObjectCommand({ Bucket: this.s3.bucket, Key: key });
+		const response = await this.s3.client.send(command);
+		return { contentType: response.ContentType, size: response.ContentLength };
+	}
+
 	async checkIfExists(key: string): Promise<boolean> {
 		try {
 			await this.s3.client.send(new HeadObjectCommand({ Bucket: this.s3.bucket, Key: key }));

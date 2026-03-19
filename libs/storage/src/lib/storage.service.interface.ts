@@ -8,4 +8,5 @@ export abstract class StorageService {
 	abstract getSignedUrl(key: string, expiresInSeconds?: number): Promise<string>;
 	abstract delete(key: string): Promise<void>;
 	abstract checkIfExists(key: string): Promise<boolean>;
+	abstract getMetadata(key: string): Promise<{ contentType?: string; size?: number }>;
 }
