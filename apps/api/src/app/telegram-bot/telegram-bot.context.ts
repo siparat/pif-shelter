@@ -5,8 +5,19 @@ export interface IUnsubscribeSessionState {
 	selected?: { guardianshipId: string; animalName: string };
 }
 
+export interface IMyAnimalPostsSessionState {
+	byAnimalId: Record<
+		string,
+		{
+			textMessageId?: number;
+			mediaMessageIds?: number[];
+		}
+	>;
+}
+
 export interface IBotSession {
 	unsubscribe?: IUnsubscribeSessionState;
+	myAnimalPosts?: IMyAnimalPostsSessionState;
 }
 
 export type BotContext = Context & { session: IBotSession };
