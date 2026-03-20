@@ -1,5 +1,12 @@
 import { animalLabels, animals } from '@pif/database';
-import { AnimalGenderEnum, AnimalSpeciesEnum, AnimalStatusNames, buildTelegrafMessage, pluralize } from '@pif/shared';
+import {
+	AnimalGenderEnum,
+	AnimalSpeciesEnum,
+	AnimalStatusNames,
+	buildTelegrafMessage,
+	GuardianshipBotCallback,
+	pluralize
+} from '@pif/shared';
 import dayjs from 'dayjs';
 import { Context, Format, Markup } from 'telegraf';
 import { TelegramUrlMapper } from '../../core/mappers/telegram-url.mapper';
@@ -53,11 +60,13 @@ ${curator?.telegram ? Format.italic('Связаться с куратором �
 
 export const sendMyAnimalCardMessage = async (ctx: Context, props: IMyAnimalCardProps): Promise<void> => {
 	const caption = buildCardCaption(props);
-	const buttons: ReturnType<typeof Markup.button.url>[] = [];
+	const buttons: (ReturnType<typeof Markup.button.url> | ReturnType<typeof Markup.button.callback>)[][] = [
+		[Markup.button.callback('📰 Посты', `${GuardianshipBotCallback.MY_ANIMALS.POSTS_PREFIX}${props.animal.id}:1`)]
+	];
 	if (props.curator?.telegram) {
-		buttons.push(
+		buttons.push([
 			Markup.button.url('💬 Связаться с волонтером', TelegramUrlMapper.getUserUrl(props.curator.telegram))
-		);
+		]);
 	}
 	const replyMarkup = buttons.length > 0 ? Markup.inlineKeyboard(buttons) : undefined;
 

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { postMedia } from '@pif/database';
 import { PostMediaTypeEnum, PostVisibilityEnum } from '@pif/shared';
 import { StorageService } from '@pif/storage';
 import { InjectBot } from 'nestjs-telegraf';
@@ -62,10 +61,10 @@ export class TelegramBotService {
 		}
 	}
 
-	private async constructMediaGroup(
+	async constructMediaGroup(
 		isCutText: boolean,
 		text: string,
-		media: (typeof postMedia.$inferSelect)[]
+		media: Array<{ type: PostMediaTypeEnum; storageKey: string }>
 	): Promise<(InputMediaPhoto | InputMediaVideo)[]> {
 		const mediaGroup: (InputMediaPhoto | InputMediaVideo)[] = [];
 		const handledMedia = await Promise.all(

@@ -2,7 +2,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
 import { ListPostsResult } from '@pif/contracts';
 import { DatabaseService, getSortOrder, posts } from '@pif/database';
-import { PostCacheKeys, PostVisibilityEnum, STAFF_ROLES } from '@pif/shared';
+import { GuardianshipStatusEnum, PostCacheKeys, PostVisibilityEnum, STAFF_ROLES, UserRole } from '@pif/shared';
 import { and, count, eq } from 'drizzle-orm';
 import { PostMapper, PostResponseDto } from '../../mappers/post.mapper';
 import { PostReactionsRepository } from '../../repositories/post-reactions.repository';
@@ -18,13 +18,26 @@ export class ListPostsHandler implements IQueryHandler<ListPostsQuery> {
 	) {}
 
 	async execute({ dto, userId, userRole, visitorId }: ListPostsQuery): Promise<ListPostsResult> {
-		const cacheKey = this.cache.buildQueryKey(PostCacheKeys.LIST, { ...dto, userId, userRole });
+		const isStaff = userRole && STAFF_ROLES.includes(userRole);
+		const isGuardian = userRole === UserRole.GUARDIAN && userId != null && !isStaff;
+
+		let canSeePrivate = false;
+		if (isGuardian) {
+			const guardianship = await this.db.client.query.guardianships.findFirst({
+				where: {
+					animalId: dto.animalId,
+					guardianUserId: userId,
+					status: GuardianshipStatusEnum.ACTIVE
+				}
+			});
+			canSeePrivate = guardianship != null;
+		}
+
+		const cacheKey = this.cache.buildQueryKey(PostCacheKeys.LIST, { ...dto, userId, userRole, canSeePrivate });
 		const cached = await this.cache.get<ListPostsResult>(cacheKey).catch(() => null);
 		if (cached) {
 			return cached;
 		}
-
-		const isStaff = userRole && STAFF_ROLES.includes(userRole);
 
 		const { page = 1, perPage = 20, q, sort, fromDate, toDate } = dto;
 		const { sql: baseSql, orm: baseOrm } = new ListPostsBuilder(posts as typeof posts & Record<string, unknown>)
@@ -33,7 +46,7 @@ export class ListPostsHandler implements IQueryHandler<ListPostsQuery> {
 			.setPostDateRange(fromDate, toDate)
 			.build();
 
-		if (!isStaff) {
+		if (!isStaff && !canSeePrivate) {
 			baseOrm.AND?.push({ visibility: PostVisibilityEnum.PUBLIC });
 			baseSql.push(eq(posts.visibility, PostVisibilityEnum.PUBLIC));
 		}

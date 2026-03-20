@@ -12,7 +12,8 @@ export const GuardianshipBotCallback = {
 	},
 	MY_ANIMALS: {
 		LIST_PAGE_PREFIX: 'my_animals:page:',
-		CARD_PREFIX: 'my_animals:card:'
+		CARD_PREFIX: 'my_animals:card:',
+		POSTS_PREFIX: 'my_animals:posts:'
 	}
 } as const;
 

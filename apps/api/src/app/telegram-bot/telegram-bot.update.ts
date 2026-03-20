@@ -1,7 +1,7 @@
 import { OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { LinkTelegramResult } from '@pif/contracts';
+import { LinkTelegramResult, ListPostsRequestDto } from '@pif/contracts';
 import {
 	AnimalStatusEnum,
 	GUARDIANSHIP_BOT_LINK_PREFIX,
@@ -13,14 +13,17 @@ import { StorageService } from '@pif/storage';
 import { Logger } from 'nestjs-pino';
 import { Command, Ctx, InjectBot, On, Start, Update } from 'nestjs-telegraf';
 import { Telegraf, TelegramError } from 'telegraf';
+import { AppUrlMapper } from '../core/mappers/app-url.mapper';
 import { CancelGuardianshipAsGuardianCommand } from '../guardianship/commands/cancel-guardianship-as-guardian/cancel-guardianship-as-guardian.command';
 import { GetAnimalForGuardianCardQuery } from '../guardianship/queries/get-animal-for-guardian-card/get-animal-for-guardian-card.query';
 import { GetMyGaurdianshipsQuery } from '../guardianship/queries/get-my-guardianships/get-my-guardianships.query';
+import { ListPostsQuery } from '../posts/queries/list-posts/list-posts.query';
 import { UsersService } from '../users/users.service';
 import { LinkTelegramByTokenCommand } from './commands/link-telegram-by-token/link-telegram-by-token.command';
 import { sendAccountNotLinkedMessage, sendNoGuardianshipsMessage } from './messages/exceptions.message';
 import { sendHelpMessage } from './messages/help.message';
 import { sendMyAnimalCardMessage } from './messages/my-animal-card.message';
+import { buildMyAnimalPostPageMessage } from './messages/my-animal-post-page.message';
 import { buildMyAnimalsListContent, sendMyAnimalsListMessage } from './messages/my-animals-list.message';
 import { sendShelterPhotoMessage } from './messages/shelter-photo.message';
 import { sendStartLinkAlreadyUsedMessage } from './messages/start-link-already-used.message';
@@ -35,6 +38,7 @@ import {
 } from './messages/unsubscribe.message';
 import { BotHelpConfigRepository } from './repositories/bot-help-config.repository';
 import type { BotContext } from './telegram-bot.context';
+import { TelegramBotService } from './telegram-bot.service';
 
 @Update()
 export class TelegramBotUpdate implements OnModuleInit {
@@ -46,6 +50,7 @@ export class TelegramBotUpdate implements OnModuleInit {
 		private readonly storage: StorageService,
 		private readonly logger: Logger,
 		private readonly config: ConfigService,
+		private readonly telegramBotService: TelegramBotService,
 		@InjectBot() private readonly telegraf: Telegraf
 	) {}
 
@@ -141,6 +146,10 @@ export class TelegramBotUpdate implements OnModuleInit {
 			return this.myAnimalsListPage(ctx, data, chatId);
 		}
 
+		if (data.startsWith(GuardianshipBotCallback.MY_ANIMALS.POSTS_PREFIX)) {
+			return this.myAnimalPostPage(ctx, data, chatId);
+		}
+
 		if (data.startsWith(GuardianshipBotCallback.MY_ANIMALS.CARD_PREFIX)) {
 			return this.myAnimalsCard(ctx, data, chatId);
 		}
@@ -208,6 +217,100 @@ export class TelegramBotUpdate implements OnModuleInit {
 				chatId: String(chatId)
 			});
 			await ctx.answerCbQuery('Не удалось загрузить карточку. Попробуйте позже.');
+		}
+	}
+
+	private async myAnimalPostPage(ctx: BotContext, data: string, chatId: number): Promise<void> {
+		const payload = data.slice(GuardianshipBotCallback.MY_ANIMALS.POSTS_PREFIX.length);
+		const [animalId, positionStr] = payload.split(':');
+		const position = Number(positionStr);
+		if (!animalId || Number.isNaN(position) || position < 1) {
+			await ctx.answerCbQuery('Некорректный запрос');
+			return;
+		}
+
+		const user = await this.usersService.findByTelegramChatId(String(chatId));
+		if (!user) {
+			await ctx.answerCbQuery('Пользователь не найден');
+			return;
+		}
+
+		try {
+			await ctx.answerCbQuery();
+			const { animal } = await this.queryBus.execute(new GetAnimalForGuardianCardQuery(animalId, user.id));
+			const dto: ListPostsRequestDto = {
+				animalId,
+				page: position,
+				perPage: 1,
+				sort: 'createdAt:desc'
+			};
+			const result = await this.queryBus.execute(new ListPostsQuery(dto, user.id, user.role, user.id));
+
+			const post = result.data?.[0];
+			if (!post) {
+				return;
+			}
+
+			const totalPosts = result.meta.total;
+			const baseUrl = this.config.getOrThrow<string>('APP_BASE_URL');
+			const fullPostUrl = AppUrlMapper.getPostUrl(baseUrl, post.id);
+
+			const content = buildMyAnimalPostPageMessage({
+				animalId,
+				animalName: animal.name,
+				postId: post.id,
+				postTitle: post.title,
+				postBodyHtml: post.body,
+				postCreatedAt: post.createdAt,
+				position,
+				totalPosts,
+				fullPostUrl
+			});
+
+			const prevState = ctx.session?.myAnimalPosts?.byAnimalId?.[animalId];
+			if (prevState?.textMessageId != null) {
+				await ctx.telegram.deleteMessage(chatId, prevState.textMessageId).catch(() => undefined);
+			}
+			if (prevState?.mediaMessageIds?.length) {
+				await Promise.all(
+					prevState.mediaMessageIds.map((mid) =>
+						ctx.telegram.deleteMessage(chatId, mid).catch(() => undefined)
+					)
+				);
+			}
+
+			const media = await this.telegramBotService.constructMediaGroup(true, content.text, post.media);
+
+			let sentMediaMessageIds: number[] = [];
+			if (media.length > 1) {
+				const sent = await ctx.telegram.sendMediaGroup(chatId, media);
+				sentMediaMessageIds = sent.map((m) => m.message_id);
+			} else if (media.length === 1) {
+				const m = media[0];
+				if (m.type === 'photo') {
+					const sent = await ctx.telegram.sendPhoto(chatId, m.media);
+					sentMediaMessageIds = [sent.message_id];
+				} else {
+					const sent = await ctx.telegram.sendVideo(chatId, m.media);
+					sentMediaMessageIds = [sent.message_id];
+				}
+			}
+
+			const textMsg = await ctx.reply(content.text, { parse_mode: 'HTML', ...content.keyboard });
+			const textMessageId = textMsg.message_id;
+
+			ctx.session ??= {};
+			ctx.session.myAnimalPosts ??= { byAnimalId: {} };
+			ctx.session.myAnimalPosts.byAnimalId[animalId] = { textMessageId, mediaMessageIds: sentMediaMessageIds };
+		} catch (err) {
+			this.logger.error('Ошибка при загрузке страницы поста', {
+				err: err instanceof Error ? err.message : err,
+				animalId,
+				position,
+				chatId: String(chatId)
+			});
+			await ctx.answerCbQuery('Не удалось загрузить пост. Попробуйте позже.');
+			return;
 		}
 	}
 
