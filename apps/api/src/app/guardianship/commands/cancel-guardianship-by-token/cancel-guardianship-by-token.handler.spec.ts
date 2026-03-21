@@ -100,7 +100,7 @@ describe('CancelGuardianshipByTokenHandler', () => {
 		expect(result).toEqual({ guardianshipId });
 		expect(policy.assertCanCancel).toHaveBeenCalledWith(guardianshipId);
 		expect(paymentService.cancelSubscription).toHaveBeenCalledWith('sub-1');
-		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date));
+		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date), null);
 		expect(eventBus.publish).toHaveBeenCalledWith(
 			new GuardianshipCancelledEvent(guardianship, false, 'Пользователь отменил опекунство по ссылке из email')
 		);

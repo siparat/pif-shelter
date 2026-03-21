@@ -1,8 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
 import { ListPostsResult } from '@pif/contracts';
-import { DatabaseService, getSortOrder, posts } from '@pif/database';
-import { GuardianshipStatusEnum, PostCacheKeys, PostVisibilityEnum, STAFF_ROLES, UserRole } from '@pif/shared';
+import { DatabaseService, getSortOrder, guardianshipPortalAccessWhere, guardianships, posts } from '@pif/database';
+import { PostCacheKeys, PostVisibilityEnum, STAFF_ROLES, UserRole } from '@pif/shared';
 import { and, count, eq } from 'drizzle-orm';
 import { PostMapper, PostResponseDto } from '../../mappers/post.mapper';
 import { PostReactionsRepository } from '../../repositories/post-reactions.repository';
@@ -23,13 +23,16 @@ export class ListPostsHandler implements IQueryHandler<ListPostsQuery> {
 
 		let canSeePrivate = false;
 		if (isGuardian) {
-			const guardianship = await this.db.client.query.guardianships.findFirst({
-				where: {
-					animalId: dto.animalId,
-					guardianUserId: userId,
-					status: GuardianshipStatusEnum.ACTIVE
-				}
-			});
+			const [guardianship] = await this.db.client
+				.select({ id: guardianships.id })
+				.from(guardianships)
+				.where(
+					guardianshipPortalAccessWhere(new Date(), {
+						animalId: dto.animalId,
+						guardianUserId: userId
+					})
+				)
+				.limit(1);
 			canSeePrivate = guardianship != null;
 		}
 

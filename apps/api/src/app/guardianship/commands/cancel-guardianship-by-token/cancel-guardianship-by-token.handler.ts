@@ -1,10 +1,12 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { PaymentService } from '@pif/payment';
+import { GuardianshipStatusEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
 import { GuardianshipCancelledEvent } from '../../events/guardianship-cancelled/guardianship-cancelled.event';
 import { GuardianshipNotFoundByTokenException } from '../../exceptions/guardianship-not-found-by-token.exception';
 import { PaymentServiceUnavailableException } from '../../exceptions/payment-service-unavailable.exception';
 import { GuardianshipRepository } from '../../repositories/guardianship.repository';
+import { resolveGuardianPrivilegesUntilForCancel } from '../../utils/resolve-guardian-privileges-until-for-cancel';
 import { CancelGuardianshipPolicy } from '../cancel-guardianship/cancel-guardianship.policy';
 import { CancelGuardianshipByTokenCommand } from './cancel-guardianship-by-token.command';
 
@@ -33,7 +35,13 @@ export class CancelGuardianshipByTokenHandler implements ICommandHandler<CancelG
 		if (!isSuccess) {
 			throw new PaymentServiceUnavailableException();
 		}
-		await this.repository.cancel(guardianship.id, new Date());
+		const guardianPrivilegesUntil = resolveGuardianPrivilegesUntilForCancel(guardianship, false);
+		if (guardianPrivilegesUntil === null && guardianship.status === GuardianshipStatusEnum.ACTIVE) {
+			this.logger.warn('Отмена по токену ACTIVE без paid_period_end_at — портальный доступ не продлён', {
+				guardianshipId: guardianship.id
+			});
+		}
+		await this.repository.cancel(guardianship.id, new Date(), guardianPrivilegesUntil);
 		this.eventBus.publish(
 			new GuardianshipCancelledEvent(guardianship, false, 'Пользователь отменил опекунство по ссылке из email')
 		);

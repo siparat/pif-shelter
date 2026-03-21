@@ -1,8 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
 import { GetMyGaurdianshipsResponseDto, ReturnDto } from '@pif/contracts';
-import { DatabaseService } from '@pif/database';
-import { GuardianshipCacheKeys, GuardianshipStatusEnum } from '@pif/shared';
+import { animals, DatabaseService, guardianshipPortalAccessWhere, guardianships } from '@pif/database';
+import { eq } from 'drizzle-orm';
+import { GuardianshipCacheKeys } from '@pif/shared';
 import { GetMyGaurdianshipsQuery } from './get-my-guardianships.query';
 
 @QueryHandler(GetMyGaurdianshipsQuery)
@@ -19,12 +20,14 @@ export class GetMyGaurdianshipsHandler implements IQueryHandler<GetMyGaurdianshi
 			return cached;
 		}
 
-		const guardianships = await this.db.client.query.guardianships.findMany({
-			where: { guardianUserId: userId, status: GuardianshipStatusEnum.ACTIVE },
-			with: { animal: true }
-		});
+		const now = new Date();
+		const rows = await this.db.client
+			.select({ g: guardianships, animal: animals })
+			.from(guardianships)
+			.innerJoin(animals, eq(guardianships.animalId, animals.id))
+			.where(guardianshipPortalAccessWhere(now, { guardianUserId: userId }));
 
-		const result = { guardianships };
+		const result = { guardianships: rows.map(({ g, animal }) => ({ ...g, animal })) };
 		await this.cache.set(key, result).catch(() => undefined);
 
 		return result;

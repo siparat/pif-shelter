@@ -5,7 +5,11 @@ import { createApiSuccessResponseSchema } from '../../common';
 
 export const getMyGaurdianshipsResponseSchema = createApiSuccessResponseSchema(
 	z.object({
-		guardianships: z.array(guardianshipWithAnimalSchema).describe('Список опекунств')
+		guardianships: z
+			.array(guardianshipWithAnimalSchema)
+			.describe(
+				'Опекунства с портальным доступом: ACTIVE и CANCELLED с действующим guardianPrivilegesUntil; paidPeriodEndAt — конец оплаченного периода'
+			)
 	})
 );
 

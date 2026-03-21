@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
 import { animals, DatabaseService, guardianships, users } from '@pif/database';
-import { GuardianshipCacheKeys } from '@pif/shared';
+import { GuardianshipCacheKeys, GuardianshipStatusEnum } from '@pif/shared';
 import { GuardianshipNotFoundException } from '../../exceptions/guardianship-not-found.exception';
 import { GetGuardianshipByAnimalQuery } from './get-guardianship-by-animal.query';
 
@@ -27,7 +27,7 @@ export class GetGuardianshipByAnimalHandler implements IQueryHandler<GetGuardian
 		}
 
 		const result = await this.db.client.query.guardianships.findFirst({
-			where: { animalId: query.animalId },
+			where: { animalId: query.animalId, status: GuardianshipStatusEnum.ACTIVE },
 			with: { guardian: true, animal: true }
 		});
 

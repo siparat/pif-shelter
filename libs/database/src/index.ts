@@ -10,3 +10,4 @@ export * from './lib/interfaces/drizzle.interface';
 export * from './lib/interfaces/sorting.interface';
 export * from './lib/schemas';
 export * from './lib/utils/sorting.utils';
+export * from './lib/utils/guardianship-portal-access.where';

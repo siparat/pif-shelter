@@ -7,6 +7,8 @@ export abstract class GuardianshipRepository {
 	abstract findActiveOrPendingByAnimalId(id: string): Promise<typeof guardianships.$inferSelect | undefined>;
 	abstract createPending(userId: string, animalId: string, subscriptionId: string): Promise<Guardianship>;
 	abstract activate(id: string): Promise<void>;
-	abstract cancel(id: string, cancelledAt: Date): Promise<void>;
+	abstract activateWithPaidPeriodEnd(id: string, paidPeriodEndAt: Date): Promise<void>;
+	abstract updatePaidPeriodEnd(id: string, paidPeriodEndAt: Date): Promise<void>;
+	abstract cancel(id: string, cancelledAt: Date, guardianPrivilegesUntil: Date | null): Promise<void>;
 	abstract setTelegramReminderSentAt(id: string, at: Date): Promise<void>;
 }

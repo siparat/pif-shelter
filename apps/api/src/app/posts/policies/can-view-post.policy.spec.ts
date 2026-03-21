@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseService } from '@pif/database';
-import { GuardianshipStatusEnum, PostVisibilityEnum, UserRole } from '@pif/shared';
+import { PostVisibilityEnum, UserRole } from '@pif/shared';
 import { NotGuardianException } from '../exceptions/not-guardian.exception';
 import { CanViewPostPolicy, PostViewContext } from './can-view-post.policy';
 
@@ -14,14 +14,19 @@ describe('CanViewPostPolicy', () => {
 	const userId = faker.string.uuid();
 
 	beforeEach(async () => {
-		const mockFindFirst = jest.fn();
+		const mockLimit = jest.fn();
+		const mockWhere = jest.fn().mockReturnValue({ limit: mockLimit });
+		const mockFrom = jest.fn().mockReturnValue({ where: mockWhere });
+		const mockSelect = jest.fn().mockReturnValue({ from: mockFrom });
 		db = createMock<DatabaseService>({
 			client: {
+				select: mockSelect,
 				query: {
-					guardianships: { findFirst: mockFindFirst }
+					guardianships: { findFirst: jest.fn() }
 				}
 			}
 		}) as DeepMocked<DatabaseService>;
+		(db as unknown as { _guardianLimit: jest.Mock })._guardianLimit = mockLimit;
 
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [CanViewPostPolicy, { provide: DatabaseService, useValue: db }]
@@ -34,7 +39,7 @@ describe('CanViewPostPolicy', () => {
 		const post: PostViewContext = { visibility: PostVisibilityEnum.PUBLIC, animalId };
 
 		await expect(policy.assertCanView(post, null, null)).resolves.toBeUndefined();
-		expect(db.client.query.guardianships.findFirst).not.toHaveBeenCalled();
+		expect(db.client.select).not.toHaveBeenCalled();
 	});
 
 	it('allows PUBLIC post with user', async () => {
@@ -53,7 +58,7 @@ describe('CanViewPostPolicy', () => {
 		const post: PostViewContext = { visibility: PostVisibilityEnum.PRIVATE, animalId };
 
 		await expect(policy.assertCanView(post, userId, UserRole.VOLUNTEER)).resolves.toBeUndefined();
-		expect(db.client.query.guardianships.findFirst).not.toHaveBeenCalled();
+		expect(db.client.select).not.toHaveBeenCalled();
 	});
 
 	it('allows PRIVATE post for SENIOR_VOLUNTEER', async () => {
@@ -68,28 +73,19 @@ describe('CanViewPostPolicy', () => {
 		await expect(policy.assertCanView(post, userId, UserRole.ADMIN)).resolves.toBeUndefined();
 	});
 
-	it('allows PRIVATE post for GUARDIAN when active guardianship exists', async () => {
+	it('allows PRIVATE post for GUARDIAN when portal guardianship exists', async () => {
 		const post: PostViewContext = { visibility: PostVisibilityEnum.PRIVATE, animalId };
-		(db.client.query.guardianships.findFirst as jest.Mock).mockResolvedValue({
-			id: faker.string.uuid(),
-			animalId,
-			guardianUserId: userId,
-			status: GuardianshipStatusEnum.ACTIVE
-		});
+		(db as unknown as { _guardianLimit: jest.Mock })._guardianLimit.mockResolvedValue([
+			{ id: faker.string.uuid() }
+		]);
 
 		await expect(policy.assertCanView(post, userId, UserRole.GUARDIAN)).resolves.toBeUndefined();
-		expect(db.client.query.guardianships.findFirst).toHaveBeenCalledWith({
-			where: {
-				animalId,
-				guardianUserId: userId,
-				status: GuardianshipStatusEnum.ACTIVE
-			}
-		});
+		expect(db.client.select).toHaveBeenCalled();
 	});
 
-	it('throws NotGuardianException for PRIVATE post when GUARDIAN has no active guardianship', async () => {
+	it('throws NotGuardianException for PRIVATE post when GUARDIAN has no portal guardianship', async () => {
 		const post: PostViewContext = { visibility: PostVisibilityEnum.PRIVATE, animalId };
-		(db.client.query.guardianships.findFirst as jest.Mock).mockResolvedValue(null);
+		(db as unknown as { _guardianLimit: jest.Mock })._guardianLimit.mockResolvedValue([]);
 
 		await expect(policy.assertCanView(post, userId, UserRole.GUARDIAN)).rejects.toThrow(NotGuardianException);
 	});

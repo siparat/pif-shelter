@@ -28,7 +28,9 @@ describe('ProcessPaymentWebhookHandler', () => {
 		guardianUserId: faker.string.uuid(),
 		startedAt: new Date(),
 		cancelledAt: null,
-		cancellationToken: null
+		cancellationToken: null,
+		paidPeriodEndAt: null as Date | null,
+		guardianPrivilegesUntil: null as Date | null
 	};
 	const guardianship = baseGuardianship as never;
 
@@ -61,27 +63,33 @@ describe('ProcessPaymentWebhookHandler', () => {
 
 	it('returns activated: true and publishes GuardianshipActivatedEvent when subscription.succeeded and status was PENDING_PAYMENT', async () => {
 		repository.findBySubscriptionId.mockResolvedValue(guardianship);
-		repository.activate.mockResolvedValue(undefined);
+		repository.activateWithPaidPeriodEnd.mockResolvedValue(undefined);
 
 		const result = await handler.execute(
 			new ProcessPaymentWebhookCommand(subscriptionId, PaymentWebhookEvent.SUBSCRIPTION_SUCCEEDED)
 		);
 
 		expect(result).toEqual({ guardianshipId, activated: true });
-		expect(repository.activate).toHaveBeenCalledWith(guardianshipId);
+		expect(repository.activateWithPaidPeriodEnd).toHaveBeenCalledWith(guardianshipId, expect.any(Date));
 		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipActivatedEvent(guardianship));
 	});
 
-	it('returns activated: false when subscription.succeeded but status already ACTIVE (idempotent)', async () => {
-		const activeGuardianship = { ...baseGuardianship, status: GuardianshipStatusEnum.ACTIVE } as never;
+	it('returns activated: true and prolongs paid period when subscription.succeeded and status already ACTIVE', async () => {
+		const activeGuardianship = {
+			...baseGuardianship,
+			status: GuardianshipStatusEnum.ACTIVE,
+			paidPeriodEndAt: new Date('2030-01-01')
+		} as never;
 		repository.findBySubscriptionId.mockResolvedValue(activeGuardianship);
+		repository.updatePaidPeriodEnd.mockResolvedValue(undefined);
 
 		const result = await handler.execute(
 			new ProcessPaymentWebhookCommand(subscriptionId, PaymentWebhookEvent.SUBSCRIPTION_SUCCEEDED)
 		);
 
-		expect(result).toEqual({ guardianshipId, activated: false });
-		expect(repository.activate).not.toHaveBeenCalled();
+		expect(result).toEqual({ guardianshipId, activated: true });
+		expect(repository.updatePaidPeriodEnd).toHaveBeenCalledWith(guardianshipId, expect.any(Date));
+		expect(repository.activateWithPaidPeriodEnd).not.toHaveBeenCalled();
 	});
 
 	it('cancels and returns cancelled: true when subscription.failed and status was not CANCELLED', async () => {
@@ -95,7 +103,7 @@ describe('ProcessPaymentWebhookHandler', () => {
 
 		expect(result).toEqual({ guardianshipId, cancelled: true });
 		expect(paymentService.cancelSubscription).toHaveBeenCalledWith(subscriptionId);
-		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date));
+		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date), null);
 		expect(eventBus.publish).toHaveBeenCalledWith(
 			new GuardianshipCancelledEvent(guardianship, false, 'Платёж не прошёл')
 		);
@@ -123,7 +131,7 @@ describe('ProcessPaymentWebhookHandler', () => {
 		);
 
 		expect(result).toEqual({ guardianshipId, cancelled: true });
-		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date));
+		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date), null);
 		expect(eventBus.publish).toHaveBeenCalledWith(
 			new GuardianshipCancelledEvent(guardianship, false, 'Отмена в платежном сервисе вами или сервисом')
 		);

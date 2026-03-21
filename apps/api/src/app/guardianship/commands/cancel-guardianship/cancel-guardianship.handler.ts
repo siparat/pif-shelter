@@ -1,9 +1,11 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { PaymentService } from '@pif/payment';
+import { GuardianshipStatusEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
 import { GuardianshipCancelledEvent } from '../../events/guardianship-cancelled/guardianship-cancelled.event';
 import { PaymentServiceUnavailableException } from '../../exceptions/payment-service-unavailable.exception';
 import { GuardianshipRepository } from '../../repositories/guardianship.repository';
+import { resolveGuardianPrivilegesUntilForCancel } from '../../utils/resolve-guardian-privileges-until-for-cancel';
 import { CancelGuardianshipCommand } from './cancel-guardianship.command';
 import { CancelGuardianshipPolicy } from './cancel-guardianship.policy';
 
@@ -31,7 +33,17 @@ export class CancelGuardianshipHandler implements ICommandHandler<CancelGuardian
 		if (!isSuccess) {
 			throw new PaymentServiceUnavailableException();
 		}
-		await this.repository.cancel(guardianshipId, new Date());
+		const guardianPrivilegesUntil = resolveGuardianPrivilegesUntilForCancel(guardianship, isRefundExpected);
+		if (
+			guardianPrivilegesUntil === null &&
+			!isRefundExpected &&
+			guardianship.status === GuardianshipStatusEnum.ACTIVE
+		) {
+			this.logger.warn('Отмена ACTIVE без возврата без paid_period_end_at — портальный доступ не продлён', {
+				guardianshipId
+			});
+		}
+		await this.repository.cancel(guardianshipId, new Date(), guardianPrivilegesUntil);
 		this.eventBus.publish(new GuardianshipCancelledEvent(guardianship, isRefundExpected, reason));
 		this.logger.log('Опекунство отменено', { guardianshipId, animalId: guardianship.animalId });
 

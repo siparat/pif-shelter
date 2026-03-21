@@ -21,7 +21,9 @@ export const guardianships = pgTable(
 		startedAt: timestamp('started_at').defaultNow().notNull(),
 		cancelledAt: timestamp('cancelled_at'),
 		cancellationToken: uuid('cancellation_token').defaultRandom().unique(),
-		telegramReminderSentAt: timestamp('telegram_reminder_sent_at')
+		telegramReminderSentAt: timestamp('telegram_reminder_sent_at'),
+		paidPeriodEndAt: timestamp('paid_period_end_at'),
+		guardianPrivilegesUntil: timestamp('guardian_privileges_until')
 	},
 	(table) => [
 		index('guardianships_animal_id_idx').on(table.animalId),

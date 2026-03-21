@@ -1,6 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { DatabaseService } from '@pif/database';
-import { GuardianshipStatusEnum } from '@pif/shared';
+import { DatabaseService, guardianshipPortalAccessWhere, guardianships } from '@pif/database';
 import { GuardianshipNotFoundException } from '../../exceptions/guardianship-not-found.exception';
 import { GetAnimalForGuardianCardQuery, IGetAnimalForGuardianCardResult } from './get-animal-for-guardian-card.query';
 
@@ -12,13 +11,11 @@ export class GetAnimalForGuardianCardHandler implements IQueryHandler<GetAnimalF
 		animalId,
 		guardianUserId
 	}: GetAnimalForGuardianCardQuery): Promise<IGetAnimalForGuardianCardResult> {
-		const guardianship = await this.db.client.query.guardianships.findFirst({
-			where: {
-				animalId,
-				guardianUserId,
-				status: GuardianshipStatusEnum.ACTIVE
-			}
-		});
+		const [guardianship] = await this.db.client
+			.select()
+			.from(guardianships)
+			.where(guardianshipPortalAccessWhere(new Date(), { animalId, guardianUserId }))
+			.limit(1);
 
 		if (!guardianship) {
 			throw new GuardianshipNotFoundException();

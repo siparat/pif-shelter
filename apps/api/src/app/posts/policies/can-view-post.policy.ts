@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '@pif/database';
-import { GuardianshipStatusEnum, PostVisibilityEnum, UserRole } from '@pif/shared';
+import { DatabaseService, guardianshipPortalAccessWhere, guardianships } from '@pif/database';
+import { PostVisibilityEnum, UserRole } from '@pif/shared';
 import { NotGuardianException } from '../exceptions/not-guardian.exception';
 
 export type PostViewContext = { visibility: PostVisibilityEnum; animalId: string };
@@ -19,13 +19,16 @@ export class CanViewPostPolicy {
 		if (userRole === UserRole.VOLUNTEER || userRole === UserRole.SENIOR_VOLUNTEER || userRole === UserRole.ADMIN) {
 			return;
 		}
-		const guardianship = await this.db.client.query.guardianships.findFirst({
-			where: {
-				animalId: post.animalId,
-				guardianUserId: userId,
-				status: GuardianshipStatusEnum.ACTIVE
-			}
-		});
+		const [guardianship] = await this.db.client
+			.select({ id: guardianships.id })
+			.from(guardianships)
+			.where(
+				guardianshipPortalAccessWhere(new Date(), {
+					animalId: post.animalId,
+					guardianUserId: userId
+				})
+			)
+			.limit(1);
 		if (!guardianship) {
 			throw new NotGuardianException();
 		}

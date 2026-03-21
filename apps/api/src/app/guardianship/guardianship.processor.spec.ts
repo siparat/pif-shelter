@@ -117,7 +117,7 @@ describe('GuardianshipProcessor', () => {
 
 		await processor.process(job);
 
-		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, cancelledAt);
+		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, cancelledAt, null);
 		const expectedReason = `Оплата не поступила в течение ${Math.floor(dayjs.duration(GUARDIAN_PENDING_PAYMENT_EXPIRE_MS).asMinutes())} минут`;
 		expect(eventBus.publish).toHaveBeenCalledWith(
 			new GuardianshipCancelledEvent(guardianship, false, expectedReason)

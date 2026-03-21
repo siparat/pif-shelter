@@ -58,10 +58,26 @@ export class DrizzleGuardianshipRepository implements GuardianshipRepository {
 			.where(eq(guardianships.id, id));
 	}
 
-	async cancel(id: string, cancelledAt: Date): Promise<void> {
+	async activateWithPaidPeriodEnd(id: string, paidPeriodEndAt: Date): Promise<void> {
 		await this.db.client
 			.update(guardianships)
-			.set({ status: GuardianshipStatusEnum.CANCELLED, cancelledAt, cancellationToken: null })
+			.set({ status: GuardianshipStatusEnum.ACTIVE, paidPeriodEndAt })
+			.where(eq(guardianships.id, id));
+	}
+
+	async updatePaidPeriodEnd(id: string, paidPeriodEndAt: Date): Promise<void> {
+		await this.db.client.update(guardianships).set({ paidPeriodEndAt }).where(eq(guardianships.id, id));
+	}
+
+	async cancel(id: string, cancelledAt: Date, guardianPrivilegesUntil: Date | null): Promise<void> {
+		await this.db.client
+			.update(guardianships)
+			.set({
+				status: GuardianshipStatusEnum.CANCELLED,
+				cancelledAt,
+				cancellationToken: null,
+				guardianPrivilegesUntil
+			})
 			.where(eq(guardianships.id, id));
 	}
 

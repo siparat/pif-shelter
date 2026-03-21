@@ -1,7 +1,8 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { DatabaseService } from '@pif/database';
+import { DatabaseService, guardianshipPortalAccessWhere, guardianships, users } from '@pif/database';
 import { GuardianshipStatusEnum, POSTS_QUEUE_JOBS, POSTS_QUEUE_NAME } from '@pif/shared';
 import { Job } from 'bullmq';
+import { eq, sql } from 'drizzle-orm';
 import { Logger } from 'nestjs-pino';
 import { TelegramBotService } from '../telegram-bot/telegram-bot.service';
 import { TelegramNewPostJob } from './jobs/telegram-new-post.job';
@@ -64,10 +65,16 @@ export class PostsProcessor extends WorkerHost {
 			return;
 		}
 
-		const guardianship = await this.db.client.query.guardianships.findFirst({
-			where: { animalId: post.animalId, status: GuardianshipStatusEnum.ACTIVE },
-			with: { guardian: true }
-		});
+		const now = new Date();
+		const [row] = await this.db.client
+			.select()
+			.from(guardianships)
+			.innerJoin(users, eq(guardianships.guardianUserId, users.id))
+			.where(guardianshipPortalAccessWhere(now, { animalId: post.animalId }))
+			.orderBy(sql`CASE WHEN ${guardianships.status} = ${GuardianshipStatusEnum.ACTIVE} THEN 0 ELSE 1 END`)
+			.limit(1);
+
+		const guardianship = row ? { ...row.guardianships, guardian: row.users } : undefined;
 
 		const chatId = guardianship?.guardian?.telegramChatId;
 		if (!guardianship || chatId == null) {

@@ -105,8 +105,48 @@ describe('CancelGuardianshipHandler', () => {
 
 		expect(policy.assertCanCancel).toHaveBeenCalledWith(guardianshipId);
 		expect(paymentService.cancelSubscription).toHaveBeenCalledWith('sub-1');
-		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date));
+		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date), null);
 		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipCancelledEvent(guardianship, false, reason));
 		expect(result).toEqual({ guardianshipId });
+	});
+
+	it('passes paid_period_end_at as guardianPrivilegesUntil when cancel without refund and ACTIVE', async () => {
+		const paidUntil = new Date('2030-06-01');
+		const guardianship = {
+			id: guardianshipId,
+			animalId,
+			status: GuardianshipStatusEnum.ACTIVE,
+			subscriptionId: 'sub-1',
+			paidPeriodEndAt: paidUntil
+		} as never;
+		policy.assertCanCancel.mockResolvedValue({
+			guardianship,
+			isAlreadyTerminal: false
+		});
+		paymentService.cancelSubscription.mockResolvedValue(true);
+
+		await handler.execute(new CancelGuardianshipCommand(guardianshipId, false, reason));
+
+		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date), paidUntil);
+	});
+
+	it('passes null guardianPrivilegesUntil when refund expected', async () => {
+		const paidUntil = new Date('2030-06-01');
+		const guardianship = {
+			id: guardianshipId,
+			animalId,
+			status: GuardianshipStatusEnum.ACTIVE,
+			subscriptionId: 'sub-1',
+			paidPeriodEndAt: paidUntil
+		} as never;
+		policy.assertCanCancel.mockResolvedValue({
+			guardianship,
+			isAlreadyTerminal: false
+		});
+		paymentService.cancelSubscription.mockResolvedValue(true);
+
+		await handler.execute(new CancelGuardianshipCommand(guardianshipId, true, reason));
+
+		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date), null);
 	});
 });

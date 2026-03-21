@@ -7,6 +7,8 @@ import { GuardianshipActivatedEvent } from '../../events/guardianship-activated/
 import { GuardianshipCancelledEvent } from '../../events/guardianship-cancelled/guardianship-cancelled.event';
 import { GuardianshipNotFoundBySubscriptionException } from '../../exceptions/guardianship-not-found-by-subscription.exception';
 import { GuardianshipRepository } from '../../repositories/guardianship.repository';
+import { computeNextPaidPeriodEnd, computeRenewalPaidPeriodEnd } from '../../utils/compute-next-paid-period-end';
+import { resolveGuardianPrivilegesUntilForCancel } from '../../utils/resolve-guardian-privileges-until-for-cancel';
 import { ProcessPaymentWebhookCommand, ProcessPaymentWebhookResult } from './process-payment-webhook.command';
 
 @CommandHandler(ProcessPaymentWebhookCommand)
@@ -47,20 +49,34 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 	}
 
 	private async handleSubscriptionSucceeded(guardianship: typeof guardianships.$inferSelect): Promise<boolean> {
+		const now = new Date();
 		if (guardianship.status === GuardianshipStatusEnum.ACTIVE) {
-			this.logger.debug('Вебхук subscription.succeeded: опекунство уже активно', {
-				guardianshipId: guardianship.id
+			const paidPeriodEndAt = computeRenewalPaidPeriodEnd(guardianship, now);
+			await this.repository.updatePaidPeriodEnd(guardianship.id, paidPeriodEndAt);
+			this.logger.log('Продлён оплаченный период опекунства', {
+				guardianshipId: guardianship.id,
+				paidPeriodEndAt
 			});
-			return false;
+			return true;
 		}
 
-		await this.repository.activate(guardianship.id);
-		this.eventBus.publish(new GuardianshipActivatedEvent(guardianship));
-		this.logger.log('Оплата подтверждена, опекунство оформлено', {
+		if (guardianship.status === GuardianshipStatusEnum.PENDING_PAYMENT) {
+			const paidPeriodEndAt = computeNextPaidPeriodEnd(now);
+			await this.repository.activateWithPaidPeriodEnd(guardianship.id, paidPeriodEndAt);
+			this.eventBus.publish(new GuardianshipActivatedEvent(guardianship));
+			this.logger.log('Оплата подтверждена, опекунство оформлено', {
+				guardianshipId: guardianship.id,
+				subscriptionId: guardianship.subscriptionId,
+				paidPeriodEndAt
+			});
+			return true;
+		}
+
+		this.logger.debug('Вебхук subscription.succeeded: статус не обрабатывается', {
 			guardianshipId: guardianship.id,
-			subscriptionId: guardianship.subscriptionId
+			status: guardianship.status
 		});
-		return true;
+		return false;
 	}
 
 	private async handleSubscriptionFailed(guardianship: typeof guardianships.$inferSelect): Promise<boolean> {
@@ -74,7 +90,13 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 
 		// При первой просрочке по оплате отменяем подписку
 		await this.paymentService.cancelSubscription(guardianship.subscriptionId);
-		await this.repository.cancel(guardianship.id, new Date());
+		const guardianPrivilegesUntil = resolveGuardianPrivilegesUntilForCancel(guardianship, false);
+		if (guardianPrivilegesUntil === null && guardianship.status === GuardianshipStatusEnum.ACTIVE) {
+			this.logger.warn('Отмена по failed webhook ACTIVE без paid_period_end_at — портальный доступ не продлён', {
+				guardianshipId: guardianship.id
+			});
+		}
+		await this.repository.cancel(guardianship.id, new Date(), guardianPrivilegesUntil);
 		this.logger.log('Просрочен платеж по опекунству, отмена подписки', {
 			guardianshipId: guardianship.id,
 			subscriptionId: guardianship.subscriptionId
@@ -93,7 +115,16 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 			return false;
 		}
 
-		await this.repository.cancel(guardianship.id, new Date());
+		const guardianPrivilegesUntil = resolveGuardianPrivilegesUntilForCancel(guardianship, false);
+		if (guardianPrivilegesUntil === null && guardianship.status === GuardianshipStatusEnum.ACTIVE) {
+			this.logger.warn(
+				'Отмена по canceled webhook ACTIVE без paid_period_end_at — портальный доступ не продлён',
+				{
+					guardianshipId: guardianship.id
+				}
+			);
+		}
+		await this.repository.cancel(guardianship.id, new Date(), guardianPrivilegesUntil);
 		this.eventBus.publish(
 			new GuardianshipCancelledEvent(guardianship, false, 'Отмена в платежном сервисе вами или сервисом')
 		);
