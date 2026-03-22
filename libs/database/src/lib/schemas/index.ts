@@ -11,6 +11,15 @@ import {
 	animalSpeciesEnum,
 	animalStatusEnum
 } from './animals.schema';
+import {
+	donationOneTimeIntentStatusEnum,
+	donationOneTimeIntents,
+	donationSubscriptionStatusEnum,
+	donationSubscriptions,
+	ledgerEntries,
+	ledgerEntryDirectionEnum,
+	ledgerEntrySourceEnum
+} from './finance.schema';
 import { guardianshipStatusEnum, guardianships } from './guardianships.schema';
 import { postMedia, postMediaTypeEnum, postReactions, postVisibilityEnum, posts } from './posts.schema';
 
@@ -19,7 +28,10 @@ export const relations = defineRelations(
 		animals,
 		animalLabels,
 		animalsToAnimalLabels,
+		donationOneTimeIntents,
+		donationSubscriptions,
 		guardianships,
+		ledgerEntries,
 		postMedia,
 		postReactions,
 		posts,
@@ -50,6 +62,18 @@ export const relations = defineRelations(
 				to: r.animals.id.through(r.animalsToAnimalLabels.animalId)
 			})
 		},
+		donationOneTimeIntents: {
+			ledgerEntries: r.many.ledgerEntries({
+				from: r.donationOneTimeIntents.id,
+				to: r.ledgerEntries.donationOneTimeIntentId
+			})
+		},
+		donationSubscriptions: {
+			ledgerEntries: r.many.ledgerEntries({
+				from: r.donationSubscriptions.id,
+				to: r.ledgerEntries.donationSubscriptionId
+			})
+		},
 		guardianships: {
 			animal: r.one.animals({
 				from: r.guardianships.animalId,
@@ -57,6 +81,28 @@ export const relations = defineRelations(
 			}),
 			guardian: r.one.users({
 				from: r.guardianships.guardianUserId,
+				to: r.users.id
+			}),
+			ledgerEntries: r.many.ledgerEntries({
+				from: r.guardianships.id,
+				to: r.ledgerEntries.guardianshipId
+			})
+		},
+		ledgerEntries: {
+			donationOneTimeIntent: r.one.donationOneTimeIntents({
+				from: r.ledgerEntries.donationOneTimeIntentId,
+				to: r.donationOneTimeIntents.id
+			}),
+			donationSubscription: r.one.donationSubscriptions({
+				from: r.ledgerEntries.donationSubscriptionId,
+				to: r.donationSubscriptions.id
+			}),
+			guardianship: r.one.guardianships({
+				from: r.ledgerEntries.guardianshipId,
+				to: r.guardianships.id
+			}),
+			createdByUser: r.one.users({
+				from: r.ledgerEntries.createdByUserId,
 				to: r.users.id
 			})
 		},
@@ -100,6 +146,10 @@ export const relations = defineRelations(
 			curatedAnimals: r.many.animals({
 				from: r.users.id,
 				to: r.animals.curatorId
+			}),
+			ledgerEntriesCreated: r.many.ledgerEntries({
+				from: r.users.id,
+				to: r.ledgerEntries.createdByUserId
 			})
 		},
 		sessions: {
@@ -133,8 +183,15 @@ export const schema = {
 	animalLabels,
 	animalsToAnimalLabels,
 	botHelpConfig,
+	donationOneTimeIntentStatusEnum,
+	donationOneTimeIntents,
+	donationSubscriptionStatusEnum,
+	donationSubscriptions,
 	guardianshipStatusEnum,
 	guardianships,
+	ledgerEntries,
+	ledgerEntryDirectionEnum,
+	ledgerEntrySourceEnum,
 	postMedia,
 	postMediaTypeEnum,
 	postReactions,
@@ -150,6 +207,7 @@ export const schema = {
 
 export * from './animals.schema';
 export * from './bot-help-config.schema';
+export * from './finance.schema';
 export * from './guardianships.schema';
 export * from './posts.schema';
 export * from './users.schema';
