@@ -1,17 +1,8 @@
 import { Command } from '@nestjs/cqrs';
-import { PaymentWebhookEvent } from '@pif/payment';
+import type { PaymentWebhookPayload, PaymentWebhookResponse } from '@pif/contracts';
 
-export type ProcessPaymentWebhookResult = {
-	guardianshipId: string;
-	activated?: boolean;
-	cancelled?: boolean;
-};
-
-export class ProcessPaymentWebhookCommand extends Command<ProcessPaymentWebhookResult> {
-	constructor(
-		public readonly subscriptionId: string,
-		public readonly event: PaymentWebhookEvent
-	) {
+export class ProcessPaymentWebhookCommand extends Command<PaymentWebhookResponse> {
+	constructor(public readonly payload: PaymentWebhookPayload) {
 		super();
 	}
 }

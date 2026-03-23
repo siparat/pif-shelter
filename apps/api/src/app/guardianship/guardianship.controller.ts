@@ -111,12 +111,12 @@ export class GuardianshipController {
 	@ApiOperation({
 		summary: 'Мок вебхука платёжного провайдера',
 		description:
-			'Имитирует вызов от платёжного сервиса. Тело: { subscriptionId, event }. События: subscription.succeeded — оплата прошла, опекунство → ACTIVE; subscription.failed — первый платёж не прошёл, при PENDING_PAYMENT → CANCELLED; subscription.canceled — отмена подписки вручную в сервисе → CANCELLED. Идемпотентно при повторных вызовах.'
+			'Имитирует вызов от платёжного сервиса. Для subscription.* обязателен subscriptionId; для payment.* — transactionId. Для subscription.succeeded и payment.succeeded дополнительно: providerPaymentId, grossAmount, feeAmount, netAmount (gross = fee + net), paidAt. События subscription: succeeded / failed / canceled. События разового платежа: payment.succeeded / payment.failed (маршрутизация донатов — в следующих задачах). Идемпотентно при повторных вызовах там, где реализовано.'
 	})
 	@ApiOkResponse({ description: 'Вебхук обработан' })
 	@Post('webhooks/payment')
 	async paymentWebhook(@Body() dto: PaymentWebhookRequestDto): Promise<ProcessPaymentWebhookResult> {
-		return this.commandBus.execute(new ProcessPaymentWebhookCommand(dto.subscriptionId, dto.event));
+		return this.commandBus.execute(new ProcessPaymentWebhookCommand(dto));
 	}
 
 	@ApiOperation({

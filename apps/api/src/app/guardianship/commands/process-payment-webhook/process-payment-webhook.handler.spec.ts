@@ -34,6 +34,16 @@ describe('ProcessPaymentWebhookHandler', () => {
 	};
 	const guardianship = baseGuardianship as never;
 
+	const subscriptionSucceededPayload = {
+		subscriptionId,
+		event: PaymentWebhookEvent.SUBSCRIPTION_SUCCEEDED,
+		providerPaymentId: 'mock-provider-payment-id',
+		grossAmount: 10_000,
+		feeAmount: 250,
+		netAmount: 9_750,
+		paidAt: new Date().toISOString()
+	};
+
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
@@ -54,22 +64,18 @@ describe('ProcessPaymentWebhookHandler', () => {
 	it('throws GuardianshipNotFoundBySubscriptionException when guardianship not found', async () => {
 		repository.findBySubscriptionId.mockResolvedValue(undefined);
 
-		await expect(
-			handler.execute(
-				new ProcessPaymentWebhookCommand(subscriptionId, PaymentWebhookEvent.SUBSCRIPTION_SUCCEEDED)
-			)
-		).rejects.toThrow(GuardianshipNotFoundBySubscriptionException);
+		await expect(handler.execute(new ProcessPaymentWebhookCommand(subscriptionSucceededPayload))).rejects.toThrow(
+			GuardianshipNotFoundBySubscriptionException
+		);
 	});
 
 	it('returns activated: true and publishes GuardianshipActivatedEvent when subscription.succeeded and status was PENDING_PAYMENT', async () => {
 		repository.findBySubscriptionId.mockResolvedValue(guardianship);
 		repository.activateWithPaidPeriodEnd.mockResolvedValue(undefined);
 
-		const result = await handler.execute(
-			new ProcessPaymentWebhookCommand(subscriptionId, PaymentWebhookEvent.SUBSCRIPTION_SUCCEEDED)
-		);
+		const result = await handler.execute(new ProcessPaymentWebhookCommand(subscriptionSucceededPayload));
 
-		expect(result).toEqual({ guardianshipId, activated: true });
+		expect(result).toEqual({ guardianshipId, activated: true, handledBy: 'guardianship' });
 		expect(repository.activateWithPaidPeriodEnd).toHaveBeenCalledWith(guardianshipId, expect.any(Date));
 		expect(eventBus.publish).toHaveBeenCalledWith(new GuardianshipActivatedEvent(guardianship));
 	});
@@ -83,11 +89,9 @@ describe('ProcessPaymentWebhookHandler', () => {
 		repository.findBySubscriptionId.mockResolvedValue(activeGuardianship);
 		repository.updatePaidPeriodEnd.mockResolvedValue(undefined);
 
-		const result = await handler.execute(
-			new ProcessPaymentWebhookCommand(subscriptionId, PaymentWebhookEvent.SUBSCRIPTION_SUCCEEDED)
-		);
+		const result = await handler.execute(new ProcessPaymentWebhookCommand(subscriptionSucceededPayload));
 
-		expect(result).toEqual({ guardianshipId, activated: true });
+		expect(result).toEqual({ guardianshipId, activated: true, handledBy: 'guardianship' });
 		expect(repository.updatePaidPeriodEnd).toHaveBeenCalledWith(guardianshipId, expect.any(Date));
 		expect(repository.activateWithPaidPeriodEnd).not.toHaveBeenCalled();
 	});
@@ -98,10 +102,13 @@ describe('ProcessPaymentWebhookHandler', () => {
 		repository.cancel.mockResolvedValue(undefined);
 
 		const result = await handler.execute(
-			new ProcessPaymentWebhookCommand(subscriptionId, PaymentWebhookEvent.SUBSCRIPTION_FAILED)
+			new ProcessPaymentWebhookCommand({
+				subscriptionId,
+				event: PaymentWebhookEvent.SUBSCRIPTION_FAILED
+			})
 		);
 
-		expect(result).toEqual({ guardianshipId, cancelled: true });
+		expect(result).toEqual({ guardianshipId, cancelled: true, handledBy: 'guardianship' });
 		expect(paymentService.cancelSubscription).toHaveBeenCalledWith(subscriptionId);
 		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date), null);
 		expect(eventBus.publish).toHaveBeenCalledWith(
@@ -114,10 +121,13 @@ describe('ProcessPaymentWebhookHandler', () => {
 		repository.findBySubscriptionId.mockResolvedValue(cancelledGuardianship);
 
 		const result = await handler.execute(
-			new ProcessPaymentWebhookCommand(subscriptionId, PaymentWebhookEvent.SUBSCRIPTION_FAILED)
+			new ProcessPaymentWebhookCommand({
+				subscriptionId,
+				event: PaymentWebhookEvent.SUBSCRIPTION_FAILED
+			})
 		);
 
-		expect(result).toEqual({ guardianshipId, cancelled: false });
+		expect(result).toEqual({ guardianshipId, cancelled: false, handledBy: 'guardianship' });
 		expect(paymentService.cancelSubscription).not.toHaveBeenCalled();
 		expect(repository.cancel).not.toHaveBeenCalled();
 	});
@@ -127,10 +137,13 @@ describe('ProcessPaymentWebhookHandler', () => {
 		repository.cancel.mockResolvedValue(undefined);
 
 		const result = await handler.execute(
-			new ProcessPaymentWebhookCommand(subscriptionId, PaymentWebhookEvent.SUBSCRIPTION_CANCELED)
+			new ProcessPaymentWebhookCommand({
+				subscriptionId,
+				event: PaymentWebhookEvent.SUBSCRIPTION_CANCELED
+			})
 		);
 
-		expect(result).toEqual({ guardianshipId, cancelled: true });
+		expect(result).toEqual({ guardianshipId, cancelled: true, handledBy: 'guardianship' });
 		expect(repository.cancel).toHaveBeenCalledWith(guardianshipId, expect.any(Date), null);
 		expect(eventBus.publish).toHaveBeenCalledWith(
 			new GuardianshipCancelledEvent(guardianship, false, 'Отмена в платежном сервисе вами или сервисом')
@@ -142,10 +155,13 @@ describe('ProcessPaymentWebhookHandler', () => {
 		repository.findBySubscriptionId.mockResolvedValue(cancelledGuardianship);
 
 		const result = await handler.execute(
-			new ProcessPaymentWebhookCommand(subscriptionId, PaymentWebhookEvent.SUBSCRIPTION_CANCELED)
+			new ProcessPaymentWebhookCommand({
+				subscriptionId,
+				event: PaymentWebhookEvent.SUBSCRIPTION_CANCELED
+			})
 		);
 
-		expect(result).toEqual({ guardianshipId, cancelled: false });
+		expect(result).toEqual({ guardianshipId, cancelled: false, handledBy: 'guardianship' });
 		expect(repository.cancel).not.toHaveBeenCalled();
 	});
 });

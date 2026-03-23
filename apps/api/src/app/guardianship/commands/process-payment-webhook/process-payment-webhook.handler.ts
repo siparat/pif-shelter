@@ -1,3 +1,4 @@
+import { InternalServerErrorException, NotImplementedException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { guardianships } from '@pif/database';
 import { PaymentService, PaymentWebhookEvent } from '@pif/payment';
@@ -9,7 +10,13 @@ import { GuardianshipNotFoundBySubscriptionException } from '../../exceptions/gu
 import { GuardianshipRepository } from '../../repositories/guardianship.repository';
 import { computeNextPaidPeriodEnd, computeRenewalPaidPeriodEnd } from '../../utils/compute-next-paid-period-end';
 import { resolveGuardianPrivilegesUntilForCancel } from '../../utils/resolve-guardian-privileges-until-for-cancel';
-import { ProcessPaymentWebhookCommand, ProcessPaymentWebhookResult } from './process-payment-webhook.command';
+import { ProcessPaymentWebhookCommand } from './process-payment-webhook.command';
+import { PaymentWebhookResponse } from '@pif/contracts';
+
+const donationPaymentWebhookEvents = new Set<PaymentWebhookEvent>([
+	PaymentWebhookEvent.PAYMENT_SUCCEEDED,
+	PaymentWebhookEvent.PAYMENT_FAILED
+]);
 
 @CommandHandler(ProcessPaymentWebhookCommand)
 export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaymentWebhookCommand> {
@@ -20,8 +27,16 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 		private readonly paymentService: PaymentService
 	) {}
 
-	async execute(command: ProcessPaymentWebhookCommand): Promise<ProcessPaymentWebhookResult> {
-		const { subscriptionId, event } = command;
+	async execute(command: ProcessPaymentWebhookCommand): Promise<PaymentWebhookResponse> {
+		const { subscriptionId, event } = command.payload;
+
+		if (donationPaymentWebhookEvents.has(event)) {
+			throw new NotImplementedException();
+		}
+
+		if (!subscriptionId) {
+			throw new InternalServerErrorException();
+		}
 
 		const guardianship = await this.repository.findBySubscriptionId(subscriptionId);
 		if (!guardianship) {
@@ -31,19 +46,18 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 		switch (event) {
 			case PaymentWebhookEvent.SUBSCRIPTION_SUCCEEDED: {
 				const isActivated = await this.handleSubscriptionSucceeded(guardianship);
-				return { guardianshipId: guardianship.id, activated: isActivated };
+				return { guardianshipId: guardianship.id, activated: isActivated, handledBy: 'guardianship' };
 			}
 			case PaymentWebhookEvent.SUBSCRIPTION_FAILED: {
 				const isCancelled = await this.handleSubscriptionFailed(guardianship);
-				return { guardianshipId: guardianship.id, cancelled: isCancelled };
+				return { guardianshipId: guardianship.id, cancelled: isCancelled, handledBy: 'guardianship' };
 			}
 			case PaymentWebhookEvent.SUBSCRIPTION_CANCELED: {
 				const isCancelled = await this.handleSubscriptionCanceled(guardianship);
-				return { guardianshipId: guardianship.id, cancelled: isCancelled };
+				return { guardianshipId: guardianship.id, cancelled: isCancelled, handledBy: 'guardianship' };
 			}
 			default: {
-				const exhaustive: never = event;
-				throw new Error(`Неизвестный тип вебхука: ${exhaustive}`);
+				throw new InternalServerErrorException();
 			}
 		}
 	}
