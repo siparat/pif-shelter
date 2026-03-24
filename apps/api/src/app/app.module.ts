@@ -31,6 +31,7 @@ import { ZodValidationExceptionFilter } from './core/filters/zod-exception.filte
 import { HttpOnlyThrottlerGuard } from './core/guards/http-only-throttler.guard';
 import { HealthModule } from './core/health/health.module';
 import { SeedModule } from './core/seed/seed.module';
+import { FinanceModule } from './finance/finance.module';
 import { GuardianshipModule } from './guardianship/guardianship.module';
 import { MediaModule } from './media/media.module';
 import { PostsModule } from './posts/posts.module';
@@ -52,6 +53,7 @@ import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
 		ConfigModule,
 		CoreModule,
 		AnimalsModule,
+		FinanceModule,
 		GuardianshipModule,
 		AdminUsersModule,
 		MediaModule,
