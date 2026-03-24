@@ -27,7 +27,7 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 		private readonly paymentService: PaymentService
 	) {}
 
-	async execute(command: ProcessPaymentWebhookCommand): Promise<PaymentWebhookResponse> {
+	async execute(command: ProcessPaymentWebhookCommand): Promise<PaymentWebhookResponse['data']> {
 		const { subscriptionId, event } = command.payload;
 
 		if (donationPaymentWebhookEvents.has(event)) {

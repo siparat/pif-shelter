@@ -6,9 +6,25 @@ export enum PaymentWebhookEvent {
 	PAYMENT_FAILED = 'payment.failed'
 }
 
+export type DonationOneTimeParams = {
+	transactionId: string;
+	amount: number;
+};
+
+export type DonationSubscriptionParams = {
+	subscriptionId: string;
+	amountPerMonth: number;
+};
+
 export interface IGeneratedPayment {
 	url: string;
 	amount: number;
+}
+
+export interface IGeneratedDonationSubscriptionPayment {
+	url: string;
+	subscriptionId: string;
+	amountPerMonth: number;
 }
 
 export interface IOneTimePayment {

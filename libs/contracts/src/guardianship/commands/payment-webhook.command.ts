@@ -1,6 +1,7 @@
 import { PaymentWebhookEvent } from '@pif/payment';
 import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
+import { createApiSuccessResponseSchema } from '../../common';
 
 const subscriptionEvents = new Set<PaymentWebhookEvent>([
 	PaymentWebhookEvent.SUBSCRIPTION_SUCCEEDED,
@@ -124,14 +125,18 @@ export class PaymentWebhookRequestDto extends createZodDto(paymentWebhookRequest
 
 const paymentWebhookHandledBySchema = z.enum(['guardianship', 'donation_one_time', 'donation_subscription']);
 
-export const paymentWebhookResponseSchema = z.object({
-	guardianshipId: z.uuid().optional(),
-	activated: z.boolean().optional(),
-	cancelled: z.boolean().optional(),
-	donationOneTimeIntentId: z.uuid().optional(),
-	donationSubscriptionId: z.uuid().optional(),
-	ledgerEntryId: z.uuid().optional(),
-	handledBy: paymentWebhookHandledBySchema.optional()
-});
+export const paymentWebhookResponseSchema = createApiSuccessResponseSchema(
+	z.object({
+		guardianshipId: z.uuid().optional(),
+		activated: z.boolean().optional(),
+		cancelled: z.boolean().optional(),
+		donationOneTimeIntentId: z.uuid().optional(),
+		donationSubscriptionId: z.uuid().optional(),
+		ledgerEntryId: z.uuid().optional(),
+		handledBy: paymentWebhookHandledBySchema.optional()
+	})
+);
+
+export class PaymentWebhookResponseDto extends createZodDto(paymentWebhookResponseSchema) {}
 
 export type PaymentWebhookResponse = z.infer<typeof paymentWebhookResponseSchema>;

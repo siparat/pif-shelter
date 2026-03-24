@@ -10,6 +10,7 @@ import {
 	GetGuardianshipByAnimalResponseDto,
 	GetMyGaurdianshipsResponseDto,
 	PaymentWebhookRequestDto,
+	PaymentWebhookResponseDto,
 	ReturnDto,
 	StartGuardianshipAuthenticatedRequestDto,
 	StartGuardianshipRequestDto,
@@ -23,7 +24,6 @@ import { RoleGuard } from '../core/guards/role.guard';
 import { TelegramUrlMapper } from '../core/mappers/telegram-url.mapper';
 import { CancelGuardianshipByTokenCommand } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.command';
 import { CancelGuardianshipCommand } from './commands/cancel-guardianship/cancel-guardianship.command';
-import type { ProcessPaymentWebhookResult } from './commands/process-payment-webhook/process-payment-webhook.command';
 import { ProcessPaymentWebhookCommand } from './commands/process-payment-webhook/process-payment-webhook.command';
 import { StartGuardianshipAsGuestCommand } from './commands/start-guardianship-as-guest/start-guardianship-as-guest.command';
 import { StartGuardianshipCommand } from './commands/start-guardianship/start-guardianship.command';
@@ -115,7 +115,7 @@ export class GuardianshipController {
 	})
 	@ApiOkResponse({ description: 'Вебхук обработан' })
 	@Post('webhooks/payment')
-	async paymentWebhook(@Body() dto: PaymentWebhookRequestDto): Promise<ProcessPaymentWebhookResult> {
+	async paymentWebhook(@Body() dto: PaymentWebhookRequestDto): Promise<ReturnDto<typeof PaymentWebhookResponseDto>> {
 		return this.commandBus.execute(new ProcessPaymentWebhookCommand(dto));
 	}
 
