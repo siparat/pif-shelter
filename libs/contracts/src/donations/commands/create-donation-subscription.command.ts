@@ -1,6 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
-import { donationAmountKopecksSchema } from './donation-amount.schema';
+import { donationAmountKopecksSchema } from '../donation-amount.schema';
 
 export const createDonationSubscriptionRequestSchema = z.object({
 	displayName: z.string().describe('Имя для публичного отчёта; при анонимности UI передаёт пустую строку'),

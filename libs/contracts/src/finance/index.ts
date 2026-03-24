@@ -1,1 +1,2 @@
-export * from './manual-expense.commands';
+export * from './commands';
+export * from './queries';
