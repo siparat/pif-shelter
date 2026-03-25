@@ -11,6 +11,7 @@ import { GetMonthlyLedgerHandler } from './queries/get-monthly-ledger/get-monthl
 import { GetPublicMonthlyLedgerHandler } from './queries/get-public-monthly-ledger/get-public-monthly-ledger.handler';
 import { AbstractLedgerRepository } from './repositories/abstract-ledger.repository';
 import { DrizzleLedgerRepository } from './repositories/drizzle-ledger.repository';
+import { InvalidateMonthlyLedgerCacheHandler } from './events/invalidate-monthly-ledger-cache/invalidate-monthly-ledger-cache.handler';
 
 @Module({
 	imports: [CqrsModule],
@@ -22,6 +23,7 @@ import { DrizzleLedgerRepository } from './repositories/drizzle-ledger.repositor
 		RecordLedgerIncomeHandler,
 		GetMonthlyLedgerHandler,
 		GetPublicMonthlyLedgerHandler,
+		InvalidateMonthlyLedgerCacheHandler,
 		CanManageManualExpensePolicy,
 		RecordLedgerIncomePolicy,
 		{
