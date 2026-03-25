@@ -13,12 +13,15 @@ import {
 import { render } from '@react-email/render';
 import { Job } from 'bullmq';
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 import { Logger } from 'nestjs-pino';
 import { TelegramUrlMapper } from '../core/mappers/telegram-url.mapper';
 import { GuardianshipCancelledEvent } from './events/guardianship-cancelled/guardianship-cancelled.event';
 import { RemoveFromReservationJob } from './jobs/remove-from-reservation.job';
 import { TelegramReminderJob } from './jobs/telegram-reminder.job';
 import { GuardianshipRepository } from './repositories/guardianship.repository';
+
+dayjs.extend(duration);
 
 @Processor(GUARDIANSHIP_QUEUE_NAME)
 export class GuardianshipProcessor extends WorkerHost {

@@ -1,4 +1,4 @@
-import { InternalServerErrorException, NotImplementedException } from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { guardianships } from '@pif/database';
 import { PaymentService, PaymentWebhookEvent } from '@pif/payment';
@@ -13,11 +13,6 @@ import { resolveGuardianPrivilegesUntilForCancel } from '../../utils/resolve-gua
 import { ProcessPaymentWebhookCommand } from './process-payment-webhook.command';
 import { PaymentWebhookResponse } from '@pif/contracts';
 
-const donationPaymentWebhookEvents = new Set<PaymentWebhookEvent>([
-	PaymentWebhookEvent.PAYMENT_SUCCEEDED,
-	PaymentWebhookEvent.PAYMENT_FAILED
-]);
-
 @CommandHandler(ProcessPaymentWebhookCommand)
 export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaymentWebhookCommand> {
 	constructor(
@@ -29,10 +24,6 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 
 	async execute(command: ProcessPaymentWebhookCommand): Promise<PaymentWebhookResponse['data']> {
 		const { subscriptionId, event } = command.payload;
-
-		if (donationPaymentWebhookEvents.has(event)) {
-			throw new NotImplementedException();
-		}
 
 		if (!subscriptionId) {
 			throw new InternalServerErrorException();

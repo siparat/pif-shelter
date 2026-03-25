@@ -9,8 +9,6 @@ import {
 	CancelGuardianshipResponseDto,
 	GetGuardianshipByAnimalResponseDto,
 	GetMyGaurdianshipsResponseDto,
-	PaymentWebhookRequestDto,
-	PaymentWebhookResponseDto,
 	ReturnDto,
 	StartGuardianshipAuthenticatedRequestDto,
 	StartGuardianshipRequestDto,
@@ -24,7 +22,6 @@ import { RoleGuard } from '../core/guards/role.guard';
 import { TelegramUrlMapper } from '../core/mappers/telegram-url.mapper';
 import { CancelGuardianshipByTokenCommand } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.command';
 import { CancelGuardianshipCommand } from './commands/cancel-guardianship/cancel-guardianship.command';
-import { ProcessPaymentWebhookCommand } from './commands/process-payment-webhook/process-payment-webhook.command';
 import { StartGuardianshipAsGuestCommand } from './commands/start-guardianship-as-guest/start-guardianship-as-guest.command';
 import { StartGuardianshipCommand } from './commands/start-guardianship/start-guardianship.command';
 import { GuardianshipNotFoundException } from './exceptions/guardianship-not-found.exception';
@@ -106,17 +103,6 @@ export class GuardianshipController {
 		@Body() dto: CancelGuardianshipByTokenRequestDto
 	): Promise<ReturnDto<typeof CancelGuardianshipByTokenResponseDto>> {
 		return this.commandBus.execute(new CancelGuardianshipByTokenCommand(dto.token));
-	}
-
-	@ApiOperation({
-		summary: 'Мок вебхука платёжного провайдера',
-		description:
-			'Имитирует вызов от платёжного сервиса. Для subscription.* обязателен subscriptionId; для payment.* — transactionId. Для subscription.succeeded и payment.succeeded дополнительно: providerPaymentId, grossAmount, feeAmount, netAmount (gross = fee + net), paidAt. События subscription: succeeded / failed / canceled. События разового платежа: payment.succeeded / payment.failed (маршрутизация донатов — в следующих задачах). Идемпотентно при повторных вызовах там, где реализовано.'
-	})
-	@ApiOkResponse({ description: 'Вебхук обработан' })
-	@Post('webhooks/payment')
-	async paymentWebhook(@Body() dto: PaymentWebhookRequestDto): Promise<ReturnDto<typeof PaymentWebhookResponseDto>> {
-		return this.commandBus.execute(new ProcessPaymentWebhookCommand(dto));
 	}
 
 	@ApiOperation({
