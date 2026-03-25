@@ -14,7 +14,7 @@ export const getUploadUrlRequestSchema = z
 			error: () => ({ message: 'Тип загрузки должен быть image или video' })
 		}),
 		space: z.enum(UPLOAD_SPACE, {
-			error: () => ({ message: 'Пространство загрузки должно быть posts, users или animals' })
+			error: () => ({ message: 'Пространство загрузки должно быть posts, users, animals или ledger_receipts' })
 		})
 	})
 	.refine(
