@@ -1,3 +1,4 @@
+import { guardianshipViewSchema } from '@pif/database';
 import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
@@ -8,20 +9,8 @@ export const getGuardianshipByAnimalRequestSchema = z.object({
 
 export class GetGuardianshipByAnimalRequestDto extends createZodDto(getGuardianshipByAnimalRequestSchema) {}
 
-const guardianshipViewResponseSchema = z
-	.object({
-		id: z.uuid(),
-		animalId: z.uuid(),
-		guardianUserId: z.string(),
-		subscriptionId: z.string(),
-		status: z.string(),
-		animal: z.object({}).catchall(z.any()).nullable(),
-		guardian: z.object({}).catchall(z.any()).nullable()
-	})
-	.catchall(z.any());
-
 export const getGuardianshipByAnimalResponseSchema = createApiSuccessResponseSchema(
-	guardianshipViewResponseSchema
+	guardianshipViewSchema
 		.extend({
 			telegramBotLink: z
 				.url()

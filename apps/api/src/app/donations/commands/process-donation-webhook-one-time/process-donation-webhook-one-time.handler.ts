@@ -1,0 +1,83 @@
+import { CommandBus, CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { InternalServerErrorException } from '@nestjs/common';
+import { PaymentWebhookEvent } from '@pif/payment';
+import { DonationOneTimeIntentStatusEnum, LedgerEntrySourceEnum } from '@pif/shared';
+import { Logger } from 'nestjs-pino';
+import { RecordLedgerIncomeCommand } from '../../../finance/commands/record-ledger-income/record-ledger-income.command';
+import { DonationPaymentSucceededEvent } from '../../events/donation-payment-succeeded.event';
+import { DonationIntentNotFoundException } from '../../exceptions/donation-intent-not-found.exception';
+import { AbstractDonationIntentsRepository } from '../../repositories/abstract-donation-intents.repository';
+import { ProcessDonationWebhookOneTimeCommand } from './process-donation-webhook-one-time.command';
+
+@CommandHandler(ProcessDonationWebhookOneTimeCommand)
+export class ProcessDonationWebhookOneTimeHandler implements ICommandHandler<ProcessDonationWebhookOneTimeCommand> {
+	constructor(
+		private readonly repository: AbstractDonationIntentsRepository,
+		private readonly commandBus: CommandBus,
+		private readonly eventBus: EventBus,
+		private readonly logger: Logger
+	) {}
+
+	async execute({ payload }: ProcessDonationWebhookOneTimeCommand): Promise<{ [x: string]: unknown }> {
+		if (!payload.transactionId) {
+			throw new InternalServerErrorException();
+		}
+		const transactionId = payload.transactionId;
+		const intent = await this.repository.findOneTimeByTransactionId(transactionId);
+		if (!intent) {
+			throw new DonationIntentNotFoundException(transactionId);
+		}
+
+		if (payload.event === PaymentWebhookEvent.PAYMENT_FAILED) {
+			await this.repository.updateOneTimeStatus(intent.id, DonationOneTimeIntentStatusEnum.FAILED);
+			this.logger.log('Разовый донат помечен как FAILED', { intentId: intent.id, transactionId });
+			return { donationOneTimeIntentId: intent.id, handledBy: 'donation_one_time' };
+		}
+
+		if (
+			!payload.providerPaymentId ||
+			payload.grossAmount === undefined ||
+			payload.feeAmount === undefined ||
+			payload.netAmount === undefined ||
+			!payload.paidAt
+		) {
+			throw new InternalServerErrorException();
+		}
+		const providerPaymentId = payload.providerPaymentId;
+		const duplicate = await this.repository.findOneTimeByProviderPaymentId(providerPaymentId);
+		if (duplicate) {
+			this.logger.warn('Повторный webhook разового доната с тем же providerPaymentId', {
+				intentId: duplicate.id,
+				providerPaymentId
+			});
+			return { donationOneTimeIntentId: duplicate.id, handledBy: 'donation_one_time' };
+		}
+
+		await this.repository.updateOneTimeStatus(
+			intent.id,
+			DonationOneTimeIntentStatusEnum.SUCCEEDED,
+			providerPaymentId
+		);
+		const income = await this.commandBus.execute(
+			new RecordLedgerIncomeCommand({
+				source: LedgerEntrySourceEnum.DONATION_ONE_OFF,
+				grossAmount: payload.grossAmount,
+				feeAmount: payload.feeAmount,
+				netAmount: payload.netAmount,
+				occurredAt: new Date(payload.paidAt),
+				title: 'Пожертвование',
+				providerPaymentId,
+				donorDisplayName: intent.hidePublicName ? null : intent.displayName,
+				donationOneTimeIntentId: intent.id
+			})
+		);
+
+		this.eventBus.publish(new DonationPaymentSucceededEvent(intent, providerPaymentId));
+		this.logger.log('Разовый донат обработан и записан в ledger', {
+			intentId: intent.id,
+			ledgerEntryId: income.id
+		});
+
+		return { donationOneTimeIntentId: intent.id, ledgerEntryId: income.id, handledBy: 'donation_one_time' };
+	}
+}

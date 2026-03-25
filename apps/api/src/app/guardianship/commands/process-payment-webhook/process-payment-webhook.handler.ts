@@ -1,5 +1,5 @@
-import { InternalServerErrorException, NotImplementedException } from '@nestjs/common';
-import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { InternalServerErrorException } from '@nestjs/common';
+import { CommandBus, CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { guardianships } from '@pif/database';
 import { PaymentService, PaymentWebhookEvent } from '@pif/payment';
 import { GuardianshipStatusEnum } from '@pif/shared';
@@ -12,6 +12,8 @@ import { computeNextPaidPeriodEnd, computeRenewalPaidPeriodEnd } from '../../uti
 import { resolveGuardianPrivilegesUntilForCancel } from '../../utils/resolve-guardian-privileges-until-for-cancel';
 import { ProcessPaymentWebhookCommand } from './process-payment-webhook.command';
 import { PaymentWebhookResponse } from '@pif/contracts';
+import { ProcessDonationWebhookOneTimeCommand } from '../../../donations/commands/process-donation-webhook-one-time/process-donation-webhook-one-time.command';
+import { ProcessDonationWebhookSubscriptionCommand } from '../../../donations/commands/process-donation-webhook-subscription/process-donation-webhook-subscription.command';
 
 const donationPaymentWebhookEvents = new Set<PaymentWebhookEvent>([
 	PaymentWebhookEvent.PAYMENT_SUCCEEDED,
@@ -22,6 +24,7 @@ const donationPaymentWebhookEvents = new Set<PaymentWebhookEvent>([
 export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaymentWebhookCommand> {
 	constructor(
 		private readonly repository: GuardianshipRepository,
+		private readonly commandBus: CommandBus,
 		private readonly eventBus: EventBus,
 		private readonly logger: Logger,
 		private readonly paymentService: PaymentService
@@ -31,7 +34,7 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 		const { subscriptionId, event } = command.payload;
 
 		if (donationPaymentWebhookEvents.has(event)) {
-			throw new NotImplementedException();
+			return this.commandBus.execute(new ProcessDonationWebhookOneTimeCommand(command.payload));
 		}
 
 		if (!subscriptionId) {
@@ -40,6 +43,12 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 
 		const guardianship = await this.repository.findBySubscriptionId(subscriptionId);
 		if (!guardianship) {
+			if (
+				event === PaymentWebhookEvent.SUBSCRIPTION_SUCCEEDED ||
+				event === PaymentWebhookEvent.SUBSCRIPTION_FAILED
+			) {
+				return this.commandBus.execute(new ProcessDonationWebhookSubscriptionCommand(command.payload));
+			}
 			throw new GuardianshipNotFoundBySubscriptionException();
 		}
 
