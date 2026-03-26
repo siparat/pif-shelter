@@ -1,5 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
+import { createApiSuccessResponseSchema } from '../../common';
 import { donationAmountKopecksSchema } from '../donation-amount.schema';
 
 export const createOneTimeDonationRequestSchema = z.object({
@@ -10,9 +11,11 @@ export const createOneTimeDonationRequestSchema = z.object({
 
 export class CreateOneTimeDonationRequestDto extends createZodDto(createOneTimeDonationRequestSchema) {}
 
-export const createOneTimeDonationResponseSchema = z.object({
-	paymentUrl: z.url().describe('URL мок-оплаты'),
-	transactionId: z.string().min(1).describe('Идентификатор намерения для transaction-id в URL')
-});
+export const createOneTimeDonationResponseSchema = createApiSuccessResponseSchema(
+	z.object({
+		paymentUrl: z.url().describe('URL мок-оплаты'),
+		transactionId: z.string().min(1).describe('Идентификатор намерения для transaction-id в URL')
+	})
+);
 
 export class CreateOneTimeDonationResponseDto extends createZodDto(createOneTimeDonationResponseSchema) {}

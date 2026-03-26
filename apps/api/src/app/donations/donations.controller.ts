@@ -1,13 +1,16 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
-	CancelDonationSubscriptionRequestDto,
+	CancelDonationSubscriptionByTokenRequestDto,
+	CancelDonationSubscriptionByTokenResponseDto,
 	CreateDonationSubscriptionRequestDto,
-	CreateOneTimeDonationRequestDto
+	CreateDonationSubscriptionResponseDto,
+	CreateOneTimeDonationRequestDto,
+	CreateOneTimeDonationResponseDto,
+	ReturnDto
 } from '@pif/contracts';
-import { AuthGuard } from '@thallesp/nestjs-better-auth';
-import { CancelDonationSubscriptionCommand } from './commands/cancel-donation-subscription/cancel-donation-subscription.command';
+import { CancelDonationSubscriptionByTokenCommand } from './commands/cancel-donation-subscription-by-token/cancel-donation-subscription-by-token.command';
 import { CreateDonationOneTimeCommand } from './commands/create-donation-one-time/create-donation-one-time.command';
 import { CreateDonationSubscriptionCommand } from './commands/create-donation-subscription/create-donation-subscription.command';
 
@@ -17,25 +20,35 @@ export class DonationsController {
 	constructor(private readonly commandBus: CommandBus) {}
 
 	@ApiOperation({ summary: 'Создать разовый донат' })
+	@ApiCreatedResponse({ description: 'Разовый донат создан', type: CreateOneTimeDonationResponseDto })
 	@Post('one-time')
 	async createOneTime(
 		@Body() dto: CreateOneTimeDonationRequestDto
-	): Promise<{ paymentUrl: string; transactionId: string }> {
+	): Promise<ReturnDto<typeof CreateOneTimeDonationResponseDto>> {
 		return this.commandBus.execute(new CreateDonationOneTimeCommand(dto));
 	}
 
 	@ApiOperation({ summary: 'Создать донат-подписку' })
+	@ApiCreatedResponse({
+		description: 'Донат-подписка создана',
+		type: CreateDonationSubscriptionResponseDto
+	})
 	@Post('subscription')
 	async createSubscription(
 		@Body() dto: CreateDonationSubscriptionRequestDto
-	): Promise<{ paymentUrl: string; subscriptionId: string }> {
+	): Promise<ReturnDto<typeof CreateDonationSubscriptionResponseDto>> {
 		return this.commandBus.execute(new CreateDonationSubscriptionCommand(dto));
 	}
 
-	@ApiOperation({ summary: 'Отменить донат-подписку' })
-	@UseGuards(AuthGuard)
-	@Post('subscription/cancel')
-	async cancelSubscription(@Body() dto: CancelDonationSubscriptionRequestDto): Promise<{ cancelled: boolean }> {
-		return this.commandBus.execute(new CancelDonationSubscriptionCommand(dto));
+	@ApiOperation({ summary: 'Отменить донат-подписку по токену' })
+	@ApiOkResponse({
+		description: 'Донат-подписка отменена',
+		type: CancelDonationSubscriptionByTokenResponseDto
+	})
+	@Post('subscription/cancel-by-token')
+	async cancelSubscriptionByToken(
+		@Body() dto: CancelDonationSubscriptionByTokenRequestDto
+	): Promise<ReturnDto<typeof CancelDonationSubscriptionByTokenResponseDto>> {
+		return this.commandBus.execute(new CancelDonationSubscriptionByTokenCommand(dto.token));
 	}
 }

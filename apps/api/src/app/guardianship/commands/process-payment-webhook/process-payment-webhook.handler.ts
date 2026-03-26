@@ -12,13 +12,7 @@ import { computeNextPaidPeriodEnd, computeRenewalPaidPeriodEnd } from '../../uti
 import { resolveGuardianPrivilegesUntilForCancel } from '../../utils/resolve-guardian-privileges-until-for-cancel';
 import { ProcessPaymentWebhookCommand } from './process-payment-webhook.command';
 import { PaymentWebhookResponse } from '@pif/contracts';
-import { ProcessDonationWebhookOneTimeCommand } from '../../../donations/commands/process-donation-webhook-one-time/process-donation-webhook-one-time.command';
 import { ProcessDonationWebhookSubscriptionCommand } from '../../../donations/commands/process-donation-webhook-subscription/process-donation-webhook-subscription.command';
-
-const donationPaymentWebhookEvents = new Set<PaymentWebhookEvent>([
-	PaymentWebhookEvent.PAYMENT_SUCCEEDED,
-	PaymentWebhookEvent.PAYMENT_FAILED
-]);
 
 @CommandHandler(ProcessPaymentWebhookCommand)
 export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaymentWebhookCommand> {
@@ -32,10 +26,6 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 
 	async execute(command: ProcessPaymentWebhookCommand): Promise<PaymentWebhookResponse['data']> {
 		const { subscriptionId, event } = command.payload;
-
-		if (donationPaymentWebhookEvents.has(event)) {
-			return this.commandBus.execute(new ProcessDonationWebhookOneTimeCommand(command.payload));
-		}
 
 		if (!subscriptionId) {
 			throw new InternalServerErrorException();

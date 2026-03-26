@@ -22,6 +22,7 @@ import { DrizzleLedgerRepository } from './repositories/drizzle-ledger.repositor
 import { DrizzleMonthlyFinanceReportsRepository } from './repositories/drizzle-monthly-finance-reports.repository';
 import { LedgerRepository } from './repositories/ledger.repository';
 import { MonthlyFinanceReportsRepository } from './repositories/monthly-finance-reports.repository';
+import { InvalidateMonthlyLedgerCacheHandler } from './events/invalidate-monthly-ledger-cache/invalidate-monthly-ledger-cache.handler';
 
 @Module({
 	imports: [BullModule.registerQueue({ name: FINANCE_REPORTS_QUEUE_NAME }), CqrsModule],
@@ -37,6 +38,7 @@ import { MonthlyFinanceReportsRepository } from './repositories/monthly-finance-
 		GetPublicMonthlyLedgerExcelUrlHandler,
 		GetPublicLedgerReceiptRedirectHandler,
 		GetMonthlyExcelReportDataHandler,
+		InvalidateMonthlyLedgerCacheHandler,
 		CanManageManualExpensePolicy,
 		RecordLedgerIncomePolicy,
 		MonthlyExcelReportGenerator,

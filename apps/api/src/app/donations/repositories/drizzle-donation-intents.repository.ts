@@ -3,13 +3,13 @@ import { DatabaseService, donationOneTimeIntents, donationSubscriptions } from '
 import { DonationOneTimeIntentStatusEnum, DonationSubscriptionStatusEnum } from '@pif/shared';
 import { and, eq } from 'drizzle-orm';
 import {
-	AbstractDonationIntentsRepository,
 	CreateDonationOneTimeIntentPayload,
-	CreateDonationSubscriptionPayload
-} from './abstract-donation-intents.repository';
+	CreateDonationSubscriptionPayload,
+	DonationIntentsRepository
+} from './donation-intents.repository';
 
 @Injectable()
-export class DrizzleDonationIntentsRepository implements AbstractDonationIntentsRepository {
+export class DrizzleDonationIntentsRepository implements DonationIntentsRepository {
 	constructor(private readonly db: DatabaseService) {}
 
 	async createOneTimePending(
@@ -76,13 +76,42 @@ export class DrizzleDonationIntentsRepository implements AbstractDonationIntents
 		return this.db.client.query.donationSubscriptions.findFirst({ where: { subscriptionId } });
 	}
 
+	findSubscriptionByCancellationToken(token: string): Promise<typeof donationSubscriptions.$inferSelect | undefined> {
+		return this.db.client.query.donationSubscriptions.findFirst({ where: { cancellationToken: token } });
+	}
+
 	async updateSubscriptionStatus(
 		id: string,
 		status: DonationSubscriptionStatusEnum
 	): Promise<typeof donationSubscriptions.$inferSelect | undefined> {
+		const patch =
+			status === DonationSubscriptionStatusEnum.FAILED ? { status, cancellationToken: null } : { status };
 		const [updated] = await this.db.client
 			.update(donationSubscriptions)
-			.set({ status })
+			.set(patch)
+			.where(eq(donationSubscriptions.id, id))
+			.returning();
+		return updated;
+	}
+
+	async setSubscriptionCancellationToken(
+		id: string,
+		token: string
+	): Promise<typeof donationSubscriptions.$inferSelect | undefined> {
+		const [updated] = await this.db.client
+			.update(donationSubscriptions)
+			.set({ cancellationToken: token })
+			.where(eq(donationSubscriptions.id, id))
+			.returning();
+		return updated;
+	}
+
+	async clearSubscriptionCancellationToken(
+		id: string
+	): Promise<typeof donationSubscriptions.$inferSelect | undefined> {
+		const [updated] = await this.db.client
+			.update(donationSubscriptions)
+			.set({ cancellationToken: null })
 			.where(eq(donationSubscriptions.id, id))
 			.returning();
 		return updated;
@@ -94,7 +123,7 @@ export class DrizzleDonationIntentsRepository implements AbstractDonationIntents
 	): Promise<typeof donationSubscriptions.$inferSelect | undefined> {
 		const [updated] = await this.db.client
 			.update(donationSubscriptions)
-			.set({ status: DonationSubscriptionStatusEnum.CANCELLED, cancelledAt })
+			.set({ status: DonationSubscriptionStatusEnum.CANCELLED, cancelledAt, cancellationToken: null })
 			.where(and(eq(donationSubscriptions.id, id)))
 			.returning();
 		return updated;

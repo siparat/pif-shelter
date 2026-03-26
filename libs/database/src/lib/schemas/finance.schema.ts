@@ -47,6 +47,7 @@ export const donationSubscriptions = pgTable('donation_subscriptions', {
 	hidePublicName: boolean('hide_public_name').default(false).notNull(),
 	amountPerPeriod: integer('amount_per_period').notNull(),
 	status: donationSubscriptionStatusEnum('status').notNull(),
+	cancellationToken: uuid('cancellation_token').unique(),
 	cancelledAt: timestamp('cancelled_at'),
 	...timestamps
 });
