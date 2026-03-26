@@ -2,9 +2,11 @@ import {
 	DonationOneTimeIntentStatusEnum,
 	DonationSubscriptionStatusEnum,
 	LedgerEntryDirectionEnum,
-	LedgerEntrySourceEnum
+	LedgerEntrySourceEnum,
+	MonthlyFinanceReportStatusEnum,
+	MonthlyFinanceReportTypeEnum
 } from '@pif/shared';
-import { boolean, index, integer, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, index, integer, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { timestamps } from './timestamps';
 import { guardianships } from './guardianships.schema';
 import { users } from './users.schema';
@@ -19,6 +21,9 @@ export const donationSubscriptionStatusEnum = pgEnum('donation_subscription_stat
 export const ledgerEntryDirectionEnum = pgEnum('ledger_entry_direction', LedgerEntryDirectionEnum);
 
 export const ledgerEntrySourceEnum = pgEnum('ledger_entry_source', LedgerEntrySourceEnum);
+
+export const monthlyFinanceReportTypeEnum = pgEnum('monthly_finance_report_type', MonthlyFinanceReportTypeEnum);
+export const monthlyFinanceReportStatusEnum = pgEnum('monthly_finance_report_status', MonthlyFinanceReportStatusEnum);
 
 export const donationOneTimeIntents = pgTable(
 	'donation_one_time_intents',
@@ -75,5 +80,28 @@ export const ledgerEntries = pgTable(
 	(table) => [
 		index('ledger_entries_occurred_at_idx').on(table.occurredAt),
 		index('ledger_entries_source_idx').on(table.source)
+	]
+);
+
+export const monthlyFinanceReports = pgTable(
+	'monthly_finance_reports',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		year: integer('year').notNull(),
+		month: integer('month').notNull(),
+		reportType: monthlyFinanceReportTypeEnum('report_type').notNull(),
+		status: monthlyFinanceReportStatusEnum('status').notNull(),
+		storageKey: text('storage_key'),
+		checksumSha256: text('checksum_sha256'),
+		generatedAt: timestamp('generated_at'),
+		errorMessage: text('error_message'),
+		...timestamps
+	},
+	(table) => [
+		index('monthly_finance_reports_period_idx').on(table.year, table.month),
+		index('monthly_finance_reports_generated_at_idx').on(table.generatedAt),
+		index('monthly_finance_reports_status_idx').on(table.status),
+		index('monthly_finance_reports_type_idx').on(table.reportType),
+		uniqueIndex('monthly_finance_reports_period_type_uk').on(table.year, table.month, table.reportType)
 	]
 );

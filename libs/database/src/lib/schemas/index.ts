@@ -1,16 +1,15 @@
 import { defineRelations } from 'drizzle-orm';
-import { accounts, invitations, roleEnum, sessions, users, verifications } from './users.schema';
-import { botHelpConfig } from './bot-help-config.schema';
 import {
 	animalCoatEnum,
 	animalGenderEnum,
 	animalLabels,
-	animals,
-	animalsToAnimalLabels,
 	animalSizeEnum,
 	animalSpeciesEnum,
-	animalStatusEnum
+	animalStatusEnum,
+	animals,
+	animalsToAnimalLabels
 } from './animals.schema';
+import { botHelpConfig } from './bot-help-config.schema';
 import {
 	donationOneTimeIntentStatusEnum,
 	donationOneTimeIntents,
@@ -18,10 +17,14 @@ import {
 	donationSubscriptions,
 	ledgerEntries,
 	ledgerEntryDirectionEnum,
-	ledgerEntrySourceEnum
+	ledgerEntrySourceEnum,
+	monthlyFinanceReportStatusEnum,
+	monthlyFinanceReportTypeEnum,
+	monthlyFinanceReports
 } from './finance.schema';
 import { guardianshipStatusEnum, guardianships } from './guardianships.schema';
 import { postMedia, postMediaTypeEnum, postReactions, postVisibilityEnum, posts } from './posts.schema';
+import { accounts, invitations, roleEnum, sessions, users, verifications } from './users.schema';
 
 export const relations = defineRelations(
 	{
@@ -32,6 +35,7 @@ export const relations = defineRelations(
 		donationSubscriptions,
 		guardianships,
 		ledgerEntries,
+		monthlyFinanceReports,
 		postMedia,
 		postReactions,
 		posts,
@@ -192,6 +196,9 @@ export const schema = {
 	ledgerEntries,
 	ledgerEntryDirectionEnum,
 	ledgerEntrySourceEnum,
+	monthlyFinanceReports,
+	monthlyFinanceReportStatusEnum,
+	monthlyFinanceReportTypeEnum,
 	postMedia,
 	postMediaTypeEnum,
 	postReactions,

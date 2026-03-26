@@ -4,3 +4,13 @@ export enum LedgerEntrySourceEnum {
 	GUARDIANSHIP = 'GUARDIANSHIP',
 	MANUAL_EXPENSE = 'MANUAL_EXPENSE'
 }
+
+export enum MonthlyFinanceReportTypeEnum {
+	PUBLIC_XLSX = 'PUBLIC_XLSX'
+}
+
+export enum MonthlyFinanceReportStatusEnum {
+	PENDING = 'PENDING',
+	SUCCEEDED = 'SUCCEEDED',
+	FAILED = 'FAILED'
+}
