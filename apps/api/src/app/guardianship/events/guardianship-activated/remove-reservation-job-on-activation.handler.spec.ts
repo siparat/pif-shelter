@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { getQueueToken } from '@nestjs/bullmq';
 import { Test, TestingModule } from '@nestjs/testing';
-import { GUARDIANSHIP_QUEUE_JOBS, GUARDIANSHIP_QUEUE_NAME, GuardianshipStatusEnum } from '@pif/shared';
+import { GuardianshipQueueJobs, GUARDIANSHIP_QUEUE_NAME, GuardianshipStatusEnum } from '@pif/shared';
 import { Queue } from 'bullmq';
 import { Logger } from 'nestjs-pino';
 import { GuardianshipActivatedEvent } from './guardianship-activated.event';
@@ -50,7 +50,7 @@ describe('RemoveReservationJobOnActivationHandler', () => {
 	it('removes job by jobId when handle is called', async () => {
 		await handler.handle(new GuardianshipActivatedEvent(mockGuardianship as never));
 
-		const expectedJobId = `${GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION}:${guardianshipId}`;
+		const expectedJobId = `${GuardianshipQueueJobs.REMOVE_FROM_RESERVATION}:${guardianshipId}`;
 		expect(queue.getJob).toHaveBeenCalledWith(expectedJobId);
 		expect(mockJob.remove).toHaveBeenCalled();
 	});
@@ -62,7 +62,7 @@ describe('RemoveReservationJobOnActivationHandler', () => {
 
 		expect(logger.debug).toHaveBeenCalledWith('Задача бронирования уже удалена или не найдена', {
 			guardianshipId,
-			jobId: `${GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION}:${guardianshipId}`
+			jobId: `${GuardianshipQueueJobs.REMOVE_FROM_RESERVATION}:${guardianshipId}`
 		});
 	});
 

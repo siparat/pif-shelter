@@ -1,13 +1,12 @@
 import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
-import { EventBus } from '@nestjs/cqrs';
+import { CommandBus, EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PaymentService, PaymentWebhookEvent } from '@pif/payment';
 import { GuardianshipStatusEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
 import { GuardianshipActivatedEvent } from '../../events/guardianship-activated/guardianship-activated.event';
 import { GuardianshipCancelledEvent } from '../../events/guardianship-cancelled/guardianship-cancelled.event';
-import { GuardianshipNotFoundBySubscriptionException } from '../../exceptions/guardianship-not-found-by-subscription.exception';
 import { GuardianshipRepository } from '../../repositories/guardianship.repository';
 import { ProcessPaymentWebhookCommand } from './process-payment-webhook.command';
 import { ProcessPaymentWebhookHandler } from './process-payment-webhook.handler';
@@ -16,6 +15,7 @@ describe('ProcessPaymentWebhookHandler', () => {
 	let handler: ProcessPaymentWebhookHandler;
 	let repository: DeepMocked<GuardianshipRepository>;
 	let eventBus: DeepMocked<EventBus>;
+	let commandBus: DeepMocked<CommandBus>;
 	let paymentService: DeepMocked<PaymentService>;
 
 	const subscriptionId = faker.string.uuid();
@@ -49,6 +49,7 @@ describe('ProcessPaymentWebhookHandler', () => {
 			providers: [
 				ProcessPaymentWebhookHandler,
 				{ provide: GuardianshipRepository, useValue: createMock<GuardianshipRepository>() },
+				{ provide: CommandBus, useValue: createMock<CommandBus>() },
 				{ provide: EventBus, useValue: createMock<EventBus>() },
 				{ provide: Logger, useValue: createMock<Logger>() },
 				{ provide: PaymentService, useValue: createMock<PaymentService>() }
@@ -57,21 +58,24 @@ describe('ProcessPaymentWebhookHandler', () => {
 
 		handler = module.get<ProcessPaymentWebhookHandler>(ProcessPaymentWebhookHandler);
 		repository = module.get(GuardianshipRepository);
+		commandBus = module.get(CommandBus);
 		eventBus = module.get(EventBus);
 		paymentService = module.get(PaymentService);
 	});
 
-	it('throws GuardianshipNotFoundBySubscriptionException when guardianship not found', async () => {
+	it('routes to donation subscription handler when guardianship not found', async () => {
 		repository.findBySubscriptionId.mockResolvedValue(undefined);
+		commandBus.execute.mockResolvedValue({ handledBy: 'donation_subscription' } as never);
 
-		await expect(handler.execute(new ProcessPaymentWebhookCommand(subscriptionSucceededPayload))).rejects.toThrow(
-			GuardianshipNotFoundBySubscriptionException
-		);
+		await expect(handler.execute(new ProcessPaymentWebhookCommand(subscriptionSucceededPayload))).resolves.toEqual({
+			handledBy: 'donation_subscription'
+		});
 	});
 
 	it('returns activated: true and publishes GuardianshipActivatedEvent when subscription.succeeded and status was PENDING_PAYMENT', async () => {
 		repository.findBySubscriptionId.mockResolvedValue(guardianship);
 		repository.activateWithPaidPeriodEnd.mockResolvedValue(undefined);
+		commandBus.execute.mockResolvedValue(undefined);
 
 		const result = await handler.execute(new ProcessPaymentWebhookCommand(subscriptionSucceededPayload));
 
@@ -88,6 +92,7 @@ describe('ProcessPaymentWebhookHandler', () => {
 		} as never;
 		repository.findBySubscriptionId.mockResolvedValue(activeGuardianship);
 		repository.updatePaidPeriodEnd.mockResolvedValue(undefined);
+		commandBus.execute.mockResolvedValue(undefined);
 
 		const result = await handler.execute(new ProcessPaymentWebhookCommand(subscriptionSucceededPayload));
 
@@ -100,6 +105,7 @@ describe('ProcessPaymentWebhookHandler', () => {
 		repository.findBySubscriptionId.mockResolvedValue(guardianship);
 		paymentService.cancelSubscription.mockResolvedValue(true);
 		repository.cancel.mockResolvedValue(undefined);
+		commandBus.execute.mockResolvedValue(undefined);
 
 		const result = await handler.execute(
 			new ProcessPaymentWebhookCommand({
@@ -119,6 +125,7 @@ describe('ProcessPaymentWebhookHandler', () => {
 	it('returns cancelled: false when subscription.failed but status already CANCELLED (idempotent)', async () => {
 		const cancelledGuardianship = { ...baseGuardianship, status: GuardianshipStatusEnum.CANCELLED } as never;
 		repository.findBySubscriptionId.mockResolvedValue(cancelledGuardianship);
+		commandBus.execute.mockResolvedValue(undefined);
 
 		const result = await handler.execute(
 			new ProcessPaymentWebhookCommand({
@@ -135,6 +142,7 @@ describe('ProcessPaymentWebhookHandler', () => {
 	it('cancels and returns cancelled: true when subscription.canceled and status was not CANCELLED', async () => {
 		repository.findBySubscriptionId.mockResolvedValue(guardianship);
 		repository.cancel.mockResolvedValue(undefined);
+		commandBus.execute.mockResolvedValue(undefined);
 
 		const result = await handler.execute(
 			new ProcessPaymentWebhookCommand({
@@ -153,6 +161,7 @@ describe('ProcessPaymentWebhookHandler', () => {
 	it('returns cancelled: false when subscription.canceled but status already CANCELLED (idempotent)', async () => {
 		const cancelledGuardianship = { ...baseGuardianship, status: GuardianshipStatusEnum.CANCELLED } as never;
 		repository.findBySubscriptionId.mockResolvedValue(cancelledGuardianship);
+		commandBus.execute.mockResolvedValue(undefined);
 
 		const result = await handler.execute(
 			new ProcessPaymentWebhookCommand({

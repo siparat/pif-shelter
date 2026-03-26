@@ -7,7 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseService } from '@pif/database';
 import {
 	GUARDIAN_PENDING_PAYMENT_EXPIRE_MS,
-	GUARDIANSHIP_QUEUE_JOBS,
+	GuardianshipQueueJobs,
 	GUARDIANSHIP_QUEUE_NAME,
 	GuardianshipStatusEnum
 } from '@pif/shared';
@@ -28,7 +28,7 @@ describe('GuardianshipProcessor', () => {
 	let logger: DeepMocked<Logger>;
 
 	const guardianshipId = faker.string.uuid();
-	const jobId = `${GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION}:${guardianshipId}`;
+	const jobId = `${GuardianshipQueueJobs.REMOVE_FROM_RESERVATION}:${guardianshipId}`;
 	const cancelledAt = new Date('2026-03-06T12:00:00.000Z');
 
 	beforeEach(async () => {
@@ -61,7 +61,7 @@ describe('GuardianshipProcessor', () => {
 		repository.findById.mockResolvedValue(undefined);
 
 		const job = {
-			name: GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION,
+			name: GuardianshipQueueJobs.REMOVE_FROM_RESERVATION,
 			data: { guardianshipId },
 			id: jobId
 		} as Job;
@@ -84,7 +84,7 @@ describe('GuardianshipProcessor', () => {
 		repository.findById.mockResolvedValue(guardianship);
 
 		const job = {
-			name: GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION,
+			name: GuardianshipQueueJobs.REMOVE_FROM_RESERVATION,
 			data: { guardianshipId },
 			id: jobId
 		} as Job;
@@ -110,7 +110,7 @@ describe('GuardianshipProcessor', () => {
 		repository.cancel.mockResolvedValue(undefined);
 
 		const job = {
-			name: GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION,
+			name: GuardianshipQueueJobs.REMOVE_FROM_RESERVATION,
 			data: { guardianshipId },
 			id: jobId
 		} as Job;
