@@ -48,7 +48,6 @@ async function bootstrap(): Promise<void> {
 	const document = SwaggerModule.createDocument(app, config, {
 		extraModels: [ApiErrorResponseDto]
 	});
-
 	const authDocument = await app.get(AuthService).api.generateOpenAPISchema({ path: AUTH_PREFIX });
 
 	SwaggerModule.setup('openapi', app, document);

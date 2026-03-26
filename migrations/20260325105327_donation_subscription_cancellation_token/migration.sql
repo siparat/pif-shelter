@@ -1,0 +1,2 @@
+ALTER TABLE "donation_subscriptions" ADD COLUMN "cancellation_token" uuid;--> statement-breakpoint
+ALTER TABLE "donation_subscriptions" ADD CONSTRAINT "donation_subscriptions_cancellation_token_key" UNIQUE("cancellation_token");

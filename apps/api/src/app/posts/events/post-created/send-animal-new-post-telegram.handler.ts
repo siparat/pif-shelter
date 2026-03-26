@@ -1,6 +1,6 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { POSTS_QUEUE_JOBS, POSTS_QUEUE_NAME } from '@pif/shared';
+import { POSTS_QUEUE_NAME, PostsQueueJobs } from '@pif/shared';
 import { Queue } from 'bullmq';
 import { Logger } from 'nestjs-pino';
 import { TelegramNewPostJob } from '../../jobs/telegram-new-post.job';
@@ -14,7 +14,7 @@ export class SendAnimalNewPostTelegramHandler implements IEventHandler<PostCreat
 	) {}
 
 	async handle({ post }: PostCreatedEvent): Promise<void> {
-		const name = POSTS_QUEUE_JOBS.TELEGRAM_NEW_POST;
+		const name = PostsQueueJobs.TELEGRAM_NEW_POST;
 		const jobId = `${name}:${post.id}`;
 
 		await this.queue.add(

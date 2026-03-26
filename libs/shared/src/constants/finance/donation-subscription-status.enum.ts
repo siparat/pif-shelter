@@ -1,0 +1,6 @@
+export enum DonationSubscriptionStatusEnum {
+	PENDING_FIRST_PAYMENT = 'PENDING_FIRST_PAYMENT',
+	ACTIVE = 'ACTIVE',
+	CANCELLED = 'CANCELLED',
+	FAILED = 'FAILED'
+}

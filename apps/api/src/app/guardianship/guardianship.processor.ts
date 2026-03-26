@@ -6,19 +6,22 @@ import { DatabaseService } from '@pif/database';
 import { guardianshipTelegramReminderEmail } from '@pif/email-templates';
 import {
 	GUARDIAN_PENDING_PAYMENT_EXPIRE_MS,
-	GUARDIANSHIP_QUEUE_JOBS,
 	GUARDIANSHIP_QUEUE_NAME,
+	GuardianshipQueueJobs,
 	GuardianshipStatusEnum
 } from '@pif/shared';
 import { render } from '@react-email/render';
 import { Job } from 'bullmq';
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 import { Logger } from 'nestjs-pino';
 import { TelegramUrlMapper } from '../core/mappers/telegram-url.mapper';
 import { GuardianshipCancelledEvent } from './events/guardianship-cancelled/guardianship-cancelled.event';
 import { RemoveFromReservationJob } from './jobs/remove-from-reservation.job';
 import { TelegramReminderJob } from './jobs/telegram-reminder.job';
 import { GuardianshipRepository } from './repositories/guardianship.repository';
+
+dayjs.extend(duration);
 
 @Processor(GUARDIANSHIP_QUEUE_NAME)
 export class GuardianshipProcessor extends WorkerHost {
@@ -35,9 +38,9 @@ export class GuardianshipProcessor extends WorkerHost {
 
 	async process(job: Job): Promise<void> {
 		switch (job.name) {
-			case GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION:
+			case GuardianshipQueueJobs.REMOVE_FROM_RESERVATION:
 				return this.removeFromReservation(job);
-			case GUARDIANSHIP_QUEUE_JOBS.TELEGRAM_REMINDER:
+			case GuardianshipQueueJobs.TELEGRAM_REMINDER:
 				return this.sendTelegramReminder(job);
 			default:
 				this.logger.error('Неизвестная задача', { job, queueName: GUARDIANSHIP_QUEUE_NAME });

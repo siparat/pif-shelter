@@ -7,6 +7,10 @@ export class AppUrlMapper {
 		return `${baseUrl}/cancel-guardianship?token=${token}`;
 	}
 
+	static getCancelDonationSubscriptionUrl(baseUrl: string, token: string): string {
+		return `${baseUrl}/cancel-subscription?token=${token}`;
+	}
+
 	static getHomeUrl(baseUrl: string): string {
 		return `${baseUrl}/`;
 	}

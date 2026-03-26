@@ -1,6 +1,6 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { DatabaseService, guardianshipPortalAccessWhere, guardianships, users } from '@pif/database';
-import { GuardianshipStatusEnum, POSTS_QUEUE_JOBS, POSTS_QUEUE_NAME } from '@pif/shared';
+import { GuardianshipStatusEnum, POSTS_QUEUE_NAME, PostsQueueJobs } from '@pif/shared';
 import { Job } from 'bullmq';
 import { eq, sql } from 'drizzle-orm';
 import { Logger } from 'nestjs-pino';
@@ -23,7 +23,7 @@ export class PostsProcessor extends WorkerHost {
 
 		try {
 			switch (job.name) {
-				case POSTS_QUEUE_JOBS.TELEGRAM_NEW_POST:
+				case PostsQueueJobs.TELEGRAM_NEW_POST:
 					return await this.sendTelegramNewPost(job);
 				default:
 					this.logger.error('Неизвестная задача', {

@@ -9,7 +9,6 @@ import {
 	CancelGuardianshipResponseDto,
 	GetGuardianshipByAnimalResponseDto,
 	GetMyGaurdianshipsResponseDto,
-	PaymentWebhookRequestDto,
 	ReturnDto,
 	StartGuardianshipAuthenticatedRequestDto,
 	StartGuardianshipRequestDto,
@@ -23,8 +22,6 @@ import { RoleGuard } from '../core/guards/role.guard';
 import { TelegramUrlMapper } from '../core/mappers/telegram-url.mapper';
 import { CancelGuardianshipByTokenCommand } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.command';
 import { CancelGuardianshipCommand } from './commands/cancel-guardianship/cancel-guardianship.command';
-import type { ProcessPaymentWebhookResult } from './commands/process-payment-webhook/process-payment-webhook.command';
-import { ProcessPaymentWebhookCommand } from './commands/process-payment-webhook/process-payment-webhook.command';
 import { StartGuardianshipAsGuestCommand } from './commands/start-guardianship-as-guest/start-guardianship-as-guest.command';
 import { StartGuardianshipCommand } from './commands/start-guardianship/start-guardianship.command';
 import { GuardianshipNotFoundException } from './exceptions/guardianship-not-found.exception';
@@ -106,17 +103,6 @@ export class GuardianshipController {
 		@Body() dto: CancelGuardianshipByTokenRequestDto
 	): Promise<ReturnDto<typeof CancelGuardianshipByTokenResponseDto>> {
 		return this.commandBus.execute(new CancelGuardianshipByTokenCommand(dto.token));
-	}
-
-	@ApiOperation({
-		summary: 'Мок вебхука платёжного провайдера',
-		description:
-			'Имитирует вызов от платёжного сервиса. Тело: { subscriptionId, event }. События: subscription.succeeded — оплата прошла, опекунство → ACTIVE; subscription.failed — первый платёж не прошёл, при PENDING_PAYMENT → CANCELLED; subscription.canceled — отмена подписки вручную в сервисе → CANCELLED. Идемпотентно при повторных вызовах.'
-	})
-	@ApiOkResponse({ description: 'Вебхук обработан' })
-	@Post('webhooks/payment')
-	async paymentWebhook(@Body() dto: PaymentWebhookRequestDto): Promise<ProcessPaymentWebhookResult> {
-		return this.commandBus.execute(new ProcessPaymentWebhookCommand(dto.subscriptionId, dto.event));
 	}
 
 	@ApiOperation({

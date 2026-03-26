@@ -1,0 +1,16 @@
+export enum LedgerEntrySourceEnum {
+	DONATION_ONE_OFF = 'DONATION_ONE_OFF',
+	DONATION_SUBSCRIPTION = 'DONATION_SUBSCRIPTION',
+	GUARDIANSHIP = 'GUARDIANSHIP',
+	MANUAL_EXPENSE = 'MANUAL_EXPENSE'
+}
+
+export enum MonthlyFinanceReportTypeEnum {
+	PUBLIC_XLSX = 'PUBLIC_XLSX'
+}
+
+export enum MonthlyFinanceReportStatusEnum {
+	PENDING = 'PENDING',
+	SUCCEEDED = 'SUCCEEDED',
+	FAILED = 'FAILED'
+}

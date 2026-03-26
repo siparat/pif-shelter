@@ -1,4 +1,5 @@
-import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { InternalServerErrorException } from '@nestjs/common';
+import { CommandBus, CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { guardianships } from '@pif/database';
 import { PaymentService, PaymentWebhookEvent } from '@pif/payment';
 import { GuardianshipStatusEnum } from '@pif/shared';
@@ -9,41 +10,53 @@ import { GuardianshipNotFoundBySubscriptionException } from '../../exceptions/gu
 import { GuardianshipRepository } from '../../repositories/guardianship.repository';
 import { computeNextPaidPeriodEnd, computeRenewalPaidPeriodEnd } from '../../utils/compute-next-paid-period-end';
 import { resolveGuardianPrivilegesUntilForCancel } from '../../utils/resolve-guardian-privileges-until-for-cancel';
-import { ProcessPaymentWebhookCommand, ProcessPaymentWebhookResult } from './process-payment-webhook.command';
+import { ProcessPaymentWebhookCommand } from './process-payment-webhook.command';
+import { PaymentWebhookResponse } from '@pif/contracts';
+import { ProcessDonationWebhookSubscriptionCommand } from '../../../donations/commands/process-donation-webhook-subscription/process-donation-webhook-subscription.command';
 
 @CommandHandler(ProcessPaymentWebhookCommand)
 export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaymentWebhookCommand> {
 	constructor(
 		private readonly repository: GuardianshipRepository,
+		private readonly commandBus: CommandBus,
 		private readonly eventBus: EventBus,
 		private readonly logger: Logger,
 		private readonly paymentService: PaymentService
 	) {}
 
-	async execute(command: ProcessPaymentWebhookCommand): Promise<ProcessPaymentWebhookResult> {
-		const { subscriptionId, event } = command;
+	async execute(command: ProcessPaymentWebhookCommand): Promise<PaymentWebhookResponse['data']> {
+		const { subscriptionId, event } = command.payload;
+
+		if (!subscriptionId) {
+			throw new InternalServerErrorException();
+		}
 
 		const guardianship = await this.repository.findBySubscriptionId(subscriptionId);
 		if (!guardianship) {
+			if (
+				event === PaymentWebhookEvent.SUBSCRIPTION_SUCCEEDED ||
+				event === PaymentWebhookEvent.SUBSCRIPTION_FAILED
+			) {
+				return this.commandBus.execute(new ProcessDonationWebhookSubscriptionCommand(command.payload));
+			}
 			throw new GuardianshipNotFoundBySubscriptionException();
 		}
 
 		switch (event) {
 			case PaymentWebhookEvent.SUBSCRIPTION_SUCCEEDED: {
 				const isActivated = await this.handleSubscriptionSucceeded(guardianship);
-				return { guardianshipId: guardianship.id, activated: isActivated };
+				return { guardianshipId: guardianship.id, activated: isActivated, handledBy: 'guardianship' };
 			}
 			case PaymentWebhookEvent.SUBSCRIPTION_FAILED: {
 				const isCancelled = await this.handleSubscriptionFailed(guardianship);
-				return { guardianshipId: guardianship.id, cancelled: isCancelled };
+				return { guardianshipId: guardianship.id, cancelled: isCancelled, handledBy: 'guardianship' };
 			}
 			case PaymentWebhookEvent.SUBSCRIPTION_CANCELED: {
 				const isCancelled = await this.handleSubscriptionCanceled(guardianship);
-				return { guardianshipId: guardianship.id, cancelled: isCancelled };
+				return { guardianshipId: guardianship.id, cancelled: isCancelled, handledBy: 'guardianship' };
 			}
 			default: {
-				const exhaustive: never = event;
-				throw new Error(`Неизвестный тип вебхука: ${exhaustive}`);
+				throw new InternalServerErrorException();
 			}
 		}
 	}

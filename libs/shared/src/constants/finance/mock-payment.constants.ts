@@ -1,0 +1,1 @@
+export const MOCK_PAYMENT_FEE_BASIS_POINTS = 250;

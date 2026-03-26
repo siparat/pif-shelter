@@ -4,7 +4,11 @@ import { guardianships } from '../schemas';
 import { animalSchema } from './animal.entity';
 import { userSchema } from './user.entity';
 
-export const guardianshipSchema = createSelectSchema(guardianships).omit({ telegramReminderSentAt: true });
+export const guardianshipSchema = createSelectSchema(guardianships).omit({
+	telegramReminderSentAt: true,
+	paidPeriodEndAt: true,
+	guardianPrivilegesUntil: true
+});
 export type Guardianship = z.infer<typeof guardianshipSchema>;
 
 export const guardianshipViewSchema = guardianshipSchema.omit({ cancelledAt: true, startedAt: true }).extend({

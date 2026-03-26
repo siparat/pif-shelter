@@ -1,6 +1,6 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { GUARDIANSHIP_QUEUE_JOBS, GUARDIANSHIP_QUEUE_NAME } from '@pif/shared';
+import { GUARDIANSHIP_QUEUE_NAME, GuardianshipQueueJobs } from '@pif/shared';
 import { Queue } from 'bullmq';
 import { Logger } from 'nestjs-pino';
 import { GuardianshipActivatedEvent } from './guardianship-activated.event';
@@ -13,7 +13,7 @@ export class RemoveReservationJobOnActivationHandler implements IEventHandler<Gu
 	) {}
 
 	async handle({ guardianship }: GuardianshipActivatedEvent): Promise<void> {
-		const jobId = `${GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION}:${guardianship.id}`;
+		const jobId = `${GuardianshipQueueJobs.REMOVE_FROM_RESERVATION}:${guardianship.id}`;
 		try {
 			const job = await this.queue.getJob(jobId);
 			if (job != null) {

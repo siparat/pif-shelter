@@ -4,7 +4,7 @@ import { getQueueToken } from '@nestjs/bullmq';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
 	GUARDIAN_PENDING_PAYMENT_EXPIRE_MS,
-	GUARDIANSHIP_QUEUE_JOBS,
+	GuardianshipQueueJobs,
 	GUARDIANSHIP_QUEUE_NAME,
 	GuardianshipStatusEnum
 } from '@pif/shared';
@@ -53,9 +53,9 @@ describe('GuardianshipReservationHandler', () => {
 	it('adds delayed job to queue with correct name, data, jobId and delay', async () => {
 		await handler.handle(new GuardianshipCreatedEvent(mockGuardianship as never));
 
-		const expectedJobId = `${GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION}:${guardianshipId}`;
+		const expectedJobId = `${GuardianshipQueueJobs.REMOVE_FROM_RESERVATION}:${guardianshipId}`;
 		expect(queue.add).toHaveBeenCalledWith(
-			GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION,
+			GuardianshipQueueJobs.REMOVE_FROM_RESERVATION,
 			{ guardianshipId },
 			{ jobId: expectedJobId, delay: GUARDIAN_PENDING_PAYMENT_EXPIRE_MS }
 		);
@@ -66,7 +66,7 @@ describe('GuardianshipReservationHandler', () => {
 
 		expect(logger.log).toHaveBeenCalledWith('Задача удаления из бронирования добавлена', {
 			guardianshipId,
-			jobId: `${GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION}:${guardianshipId}`
+			jobId: `${GuardianshipQueueJobs.REMOVE_FROM_RESERVATION}:${guardianshipId}`
 		});
 	});
 });
