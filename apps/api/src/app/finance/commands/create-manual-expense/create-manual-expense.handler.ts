@@ -2,13 +2,13 @@ import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { Logger } from 'nestjs-pino';
 import { FileStoragePolicy } from '../../../core/policies/file-storage.policy';
 import { ManualExpenseCreatedEvent } from '../../events/manual-expense-created/manual-expense-created.event';
-import { AbstractLedgerRepository } from '../../repositories/abstract-ledger.repository';
+import { LedgerRepository } from '../../repositories/ledger.repository';
 import { CreateManualExpenseCommand } from './create-manual-expense.command';
 
 @CommandHandler(CreateManualExpenseCommand)
 export class CreateManualExpenseHandler implements ICommandHandler<CreateManualExpenseCommand> {
 	constructor(
-		private readonly repository: AbstractLedgerRepository,
+		private readonly repository: LedgerRepository,
 		private readonly fileStoragePolicy: FileStoragePolicy,
 		private readonly eventBus: EventBus,
 		private readonly logger: Logger

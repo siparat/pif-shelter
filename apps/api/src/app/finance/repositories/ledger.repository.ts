@@ -34,7 +34,7 @@ export type UpdateManualExpensePayload = {
 	receiptStorageKey?: string;
 };
 
-export abstract class AbstractLedgerRepository {
+export abstract class LedgerRepository {
 	abstract insertIncome(payload: RecordIncomePayload): Promise<typeof ledgerEntries.$inferSelect>;
 	abstract insertExpense(payload: CreateManualExpensePayload): Promise<typeof ledgerEntries.$inferSelect>;
 	abstract findByProviderPaymentId(providerPaymentId: string): Promise<typeof ledgerEntries.$inferSelect | undefined>;

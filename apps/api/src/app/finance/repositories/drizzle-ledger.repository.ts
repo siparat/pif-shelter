@@ -4,14 +4,14 @@ import { LedgerEntryDirectionEnum } from '@pif/shared';
 import { and, asc, eq, gte, lt } from 'drizzle-orm';
 import { LedgerMapper } from '../mappers/ledger.mapper';
 import {
-	AbstractLedgerRepository,
 	CreateManualExpensePayload,
+	LedgerRepository,
 	RecordIncomePayload,
 	UpdateManualExpensePayload
-} from './abstract-ledger.repository';
+} from './ledger.repository';
 
 @Injectable()
-export class DrizzleLedgerRepository implements AbstractLedgerRepository {
+export class DrizzleLedgerRepository implements LedgerRepository {
 	constructor(private readonly db: DatabaseService) {}
 
 	async insertIncome(payload: RecordIncomePayload): Promise<typeof ledgerEntries.$inferSelect> {

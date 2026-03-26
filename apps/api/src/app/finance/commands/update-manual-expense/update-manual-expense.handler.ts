@@ -5,13 +5,13 @@ import { FileStoragePolicy } from '../../../core/policies/file-storage.policy';
 import { ManualExpenseUpdatedEvent } from '../../events/manual-expense-updated/manual-expense-updated.event';
 import { LedgerEntryNotFoundException } from '../../exceptions/ledger-entry-not-found.exception';
 import { CanManageManualExpensePolicy } from '../../policies/can-manage-manual-expense.policy';
-import { AbstractLedgerRepository } from '../../repositories/abstract-ledger.repository';
+import { LedgerRepository } from '../../repositories/ledger.repository';
 import { UpdateManualExpenseCommand } from './update-manual-expense.command';
 
 @CommandHandler(UpdateManualExpenseCommand)
 export class UpdateManualExpenseHandler implements ICommandHandler<UpdateManualExpenseCommand> {
 	constructor(
-		private readonly repository: AbstractLedgerRepository,
+		private readonly repository: LedgerRepository,
 		private readonly policy: CanManageManualExpensePolicy,
 		private readonly fileStoragePolicy: FileStoragePolicy,
 		private readonly eventBus: EventBus,

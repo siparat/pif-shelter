@@ -5,7 +5,7 @@ import {
 	CreateManualExpensePayload,
 	RecordIncomePayload,
 	UpdateManualExpensePayload
-} from '../repositories/abstract-ledger.repository';
+} from '../repositories/ledger.repository';
 
 type LedgerEntryInsertModel = InferInsertModel<typeof ledgerEntries>;
 type LedgerEntryUpdateModel = Partial<typeof ledgerEntries.$inferInsert>;

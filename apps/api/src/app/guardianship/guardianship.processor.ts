@@ -6,8 +6,8 @@ import { DatabaseService } from '@pif/database';
 import { guardianshipTelegramReminderEmail } from '@pif/email-templates';
 import {
 	GUARDIAN_PENDING_PAYMENT_EXPIRE_MS,
-	GUARDIANSHIP_QUEUE_JOBS,
 	GUARDIANSHIP_QUEUE_NAME,
+	GuardianshipQueueJobs,
 	GuardianshipStatusEnum
 } from '@pif/shared';
 import { render } from '@react-email/render';
@@ -35,9 +35,9 @@ export class GuardianshipProcessor extends WorkerHost {
 
 	async process(job: Job): Promise<void> {
 		switch (job.name) {
-			case GUARDIANSHIP_QUEUE_JOBS.REMOVE_FROM_RESERVATION:
+			case GuardianshipQueueJobs.REMOVE_FROM_RESERVATION:
 				return this.removeFromReservation(job);
-			case GUARDIANSHIP_QUEUE_JOBS.TELEGRAM_REMINDER:
+			case GuardianshipQueueJobs.TELEGRAM_REMINDER:
 				return this.sendTelegramReminder(job);
 			default:
 				this.logger.error('Неизвестная задача', { job, queueName: GUARDIANSHIP_QUEUE_NAME });

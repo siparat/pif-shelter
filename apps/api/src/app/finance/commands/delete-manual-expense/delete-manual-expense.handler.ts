@@ -1,16 +1,16 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { LedgerEntryDirectionEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
-import { LedgerEntryNotFoundException } from '../../exceptions/ledger-entry-not-found.exception';
 import { ManualExpenseDeletedEvent } from '../../events/manual-expense-deleted/manual-expense-deleted.event';
+import { LedgerEntryNotFoundException } from '../../exceptions/ledger-entry-not-found.exception';
 import { CanManageManualExpensePolicy } from '../../policies/can-manage-manual-expense.policy';
-import { AbstractLedgerRepository } from '../../repositories/abstract-ledger.repository';
+import { LedgerRepository } from '../../repositories/ledger.repository';
 import { DeleteManualExpenseCommand } from './delete-manual-expense.command';
 
 @CommandHandler(DeleteManualExpenseCommand)
 export class DeleteManualExpenseHandler implements ICommandHandler<DeleteManualExpenseCommand> {
 	constructor(
-		private readonly repository: AbstractLedgerRepository,
+		private readonly repository: LedgerRepository,
 		private readonly policy: CanManageManualExpensePolicy,
 		private readonly eventBus: EventBus,
 		private readonly logger: Logger

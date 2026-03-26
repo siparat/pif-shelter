@@ -48,6 +48,16 @@ export class S3Adapter implements StorageService {
 		);
 	}
 
+	async getObjectBuffer(key: string): Promise<Buffer> {
+		const response = await this.s3.client.send(new GetObjectCommand({ Bucket: this.s3.bucket, Key: key }));
+		const body = response.Body;
+		if (!body) {
+			return Buffer.alloc(0);
+		}
+		const bytes = await body.transformToByteArray();
+		return Buffer.from(bytes);
+	}
+
 	async delete(key: string): Promise<void> {
 		await this.s3.client.send(new DeleteObjectCommand({ Bucket: this.s3.bucket, Key: key }));
 	}

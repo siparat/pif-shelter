@@ -1,15 +1,15 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { Logger } from 'nestjs-pino';
-import { DuplicateProviderPaymentException } from '../../exceptions/duplicate-provider-payment.exception';
 import { LedgerIncomeRecordedEvent } from '../../events/ledger-income-recorded/ledger-income-recorded.event';
+import { DuplicateProviderPaymentException } from '../../exceptions/duplicate-provider-payment.exception';
 import { RecordLedgerIncomePolicy } from '../../policies/record-ledger-income.policy';
-import { AbstractLedgerRepository } from '../../repositories/abstract-ledger.repository';
+import { LedgerRepository } from '../../repositories/ledger.repository';
 import { RecordLedgerIncomeCommand } from './record-ledger-income.command';
 
 @CommandHandler(RecordLedgerIncomeCommand)
 export class RecordLedgerIncomeHandler implements ICommandHandler<RecordLedgerIncomeCommand> {
 	constructor(
-		private readonly repository: AbstractLedgerRepository,
+		private readonly repository: LedgerRepository,
 		private readonly policy: RecordLedgerIncomePolicy,
 		private readonly eventBus: EventBus,
 		private readonly logger: Logger
