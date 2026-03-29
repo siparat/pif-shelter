@@ -14,7 +14,7 @@ export const campaigns = pgTable(
 		description: text('description'),
 		collected: integer('collected').notNull().default(0),
 		goal: integer('goal').notNull(),
-		order: smallint('order').notNull().default(1),
+		order: smallint('order').notNull().generatedByDefaultAsIdentity(),
 		previewImage: text('preview_image'),
 		status: campaignStatusEnum('status').notNull().default(CampaignStatus.DRAFT),
 		animalId: uuid('animal_id').references(() => animals.id, { onDelete: 'set null' }),

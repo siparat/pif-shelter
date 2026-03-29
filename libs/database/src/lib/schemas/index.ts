@@ -62,8 +62,8 @@ export const relations = defineRelations(
 				to: r.guardianships.animalId
 			}),
 			campaigns: r.many.campaigns({
-				to: r.animals.id,
-				from: r.campaigns.animalId
+				from: r.animals.id,
+				to: r.campaigns.animalId
 			})
 		},
 		animalLabels: {
