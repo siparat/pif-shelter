@@ -25,6 +25,7 @@ import {
 import { guardianshipStatusEnum, guardianships } from './guardianships.schema';
 import { postMedia, postMediaTypeEnum, postReactions, postVisibilityEnum, posts } from './posts.schema';
 import { accounts, invitations, roleEnum, sessions, users, verifications } from './users.schema';
+import { campaigns } from './campaign.schema';
 
 export const relations = defineRelations(
 	{
@@ -43,7 +44,8 @@ export const relations = defineRelations(
 		sessions,
 		accounts,
 		verifications,
-		invitations
+		invitations,
+		campaigns
 	},
 	(r) => ({
 		animals: {
@@ -58,6 +60,10 @@ export const relations = defineRelations(
 			guardianship: r.one.guardianships({
 				from: r.animals.id,
 				to: r.guardianships.animalId
+			}),
+			campaigns: r.many.campaigns({
+				to: r.animals.id,
+				from: r.campaigns.animalId
 			})
 		},
 		animalLabels: {
@@ -138,6 +144,10 @@ export const relations = defineRelations(
 			reactions: r.many.postReactions({
 				from: r.posts.id,
 				to: r.postReactions.postId
+			}),
+			campaign: r.one.campaigns({
+				from: r.posts.campaignId,
+				to: r.campaigns.id
 			})
 		},
 		users: {
@@ -172,6 +182,16 @@ export const relations = defineRelations(
 			user: r.one.users({
 				from: r.invitations.userId,
 				to: r.users.id
+			})
+		},
+		campaigns: {
+			posts: r.many.posts({
+				from: r.campaigns.id,
+				to: r.posts.campaignId
+			}),
+			animal: r.one.animals({
+				from: r.campaigns.animalId,
+				to: r.animals.id
 			})
 		}
 	})

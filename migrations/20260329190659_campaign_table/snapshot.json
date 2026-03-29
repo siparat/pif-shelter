@@ -1,8 +1,8 @@
 {
 	"version": "8",
 	"dialect": "postgres",
-	"id": "1e3a8bfa-f6e9-49ad-9822-6a2d7b7a3e9f",
-	"prevIds": ["6ba010d0-328b-46ba-bd71-d6f7772a5985"],
+	"id": "889c1d30-0f2e-4a48-9f8b-f216fd8e7617",
+	"prevIds": ["1e3a8bfa-f6e9-49ad-9822-6a2d7b7a3e9f"],
 	"ddl": [
 		{
 			"values": ["SHORT", "MEDIUM", "LONG", "WIRE", "CURLY", "HAIRLESS"],
@@ -31,6 +31,12 @@
 		{
 			"values": ["DRAFT", "PUBLISHED", "ON_TREATMENT", "ON_PROBATION", "ADOPTED", "RAINBOW"],
 			"name": "animal_status",
+			"entityType": "enums",
+			"schema": "public"
+		},
+		{
+			"values": ["DRAFT", "PUBLISHED", "CANCELLED", "SUCCESS", "FAILED"],
+			"name": "campaign_status",
 			"entityType": "enums",
 			"schema": "public"
 		},
@@ -115,6 +121,12 @@
 		{
 			"isRlsEnabled": false,
 			"name": "bot_help_config",
+			"entityType": "tables",
+			"schema": "public"
+		},
+		{
+			"isRlsEnabled": false,
+			"name": "campaigns",
 			"entityType": "tables",
 			"schema": "public"
 		},
@@ -598,6 +610,188 @@
 			"entityType": "columns",
 			"schema": "public",
 			"table": "bot_help_config"
+		},
+		{
+			"type": "uuid",
+			"typeSchema": null,
+			"notNull": true,
+			"dimensions": 0,
+			"default": "gen_random_uuid()",
+			"generated": null,
+			"identity": null,
+			"name": "id",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"type": "text",
+			"typeSchema": null,
+			"notNull": true,
+			"dimensions": 0,
+			"default": null,
+			"generated": null,
+			"identity": null,
+			"name": "title",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"type": "text",
+			"typeSchema": null,
+			"notNull": false,
+			"dimensions": 0,
+			"default": null,
+			"generated": null,
+			"identity": null,
+			"name": "description",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"type": "integer",
+			"typeSchema": null,
+			"notNull": true,
+			"dimensions": 0,
+			"default": "0",
+			"generated": null,
+			"identity": null,
+			"name": "collected",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"type": "integer",
+			"typeSchema": null,
+			"notNull": true,
+			"dimensions": 0,
+			"default": null,
+			"generated": null,
+			"identity": null,
+			"name": "goal",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"type": "smallint",
+			"typeSchema": null,
+			"notNull": true,
+			"dimensions": 0,
+			"default": "1",
+			"generated": null,
+			"identity": null,
+			"name": "order",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"type": "text",
+			"typeSchema": null,
+			"notNull": false,
+			"dimensions": 0,
+			"default": null,
+			"generated": null,
+			"identity": null,
+			"name": "preview_image",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"type": "campaign_status",
+			"typeSchema": "public",
+			"notNull": true,
+			"dimensions": 0,
+			"default": "'DRAFT'",
+			"generated": null,
+			"identity": null,
+			"name": "status",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"type": "uuid",
+			"typeSchema": null,
+			"notNull": false,
+			"dimensions": 0,
+			"default": null,
+			"generated": null,
+			"identity": null,
+			"name": "animal_id",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"type": "timestamp",
+			"typeSchema": null,
+			"notNull": true,
+			"dimensions": 0,
+			"default": "now()",
+			"generated": null,
+			"identity": null,
+			"name": "starts_at",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"type": "timestamp",
+			"typeSchema": null,
+			"notNull": true,
+			"dimensions": 0,
+			"default": null,
+			"generated": null,
+			"identity": null,
+			"name": "ends_at",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"type": "timestamp",
+			"typeSchema": null,
+			"notNull": true,
+			"dimensions": 0,
+			"default": "now()",
+			"generated": null,
+			"identity": null,
+			"name": "created_at",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"type": "timestamp",
+			"typeSchema": null,
+			"notNull": false,
+			"dimensions": 0,
+			"default": "now()",
+			"generated": null,
+			"identity": null,
+			"name": "updated_at",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"type": "timestamp",
+			"typeSchema": null,
+			"notNull": false,
+			"dimensions": 0,
+			"default": null,
+			"generated": null,
+			"identity": null,
+			"name": "deleted_at",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "campaigns"
 		},
 		{
 			"type": "uuid",
@@ -2551,6 +2745,55 @@
 			"nameExplicit": true,
 			"columns": [
 				{
+					"value": "animal_id",
+					"isExpression": false,
+					"asc": true,
+					"nullsFirst": false,
+					"opclass": null
+				}
+			],
+			"isUnique": false,
+			"where": null,
+			"with": "",
+			"method": "btree",
+			"concurrently": false,
+			"name": "campaigns_animal_id_idx",
+			"entityType": "indexes",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"nameExplicit": true,
+			"columns": [
+				{
+					"value": "status",
+					"isExpression": false,
+					"asc": true,
+					"nullsFirst": false,
+					"opclass": null
+				},
+				{
+					"value": "ends_at",
+					"isExpression": false,
+					"asc": true,
+					"nullsFirst": false,
+					"opclass": null
+				}
+			],
+			"isUnique": false,
+			"where": null,
+			"with": "",
+			"method": "btree",
+			"concurrently": false,
+			"name": "campaigns_status_ends_at_idx",
+			"entityType": "indexes",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"nameExplicit": true,
+			"columns": [
+				{
 					"value": "status",
 					"isExpression": false,
 					"asc": true,
@@ -3057,6 +3300,19 @@
 		},
 		{
 			"nameExplicit": false,
+			"columns": ["animal_id"],
+			"schemaTo": "public",
+			"tableTo": "animals",
+			"columnsTo": ["id"],
+			"onUpdate": "NO ACTION",
+			"onDelete": "SET NULL",
+			"name": "campaigns_animal_id_animals_id_fkey",
+			"entityType": "fks",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"nameExplicit": false,
 			"columns": ["donation_one_time_intent_id"],
 			"schemaTo": "public",
 			"tableTo": "donation_one_time_intents",
@@ -3187,6 +3443,19 @@
 		},
 		{
 			"nameExplicit": false,
+			"columns": ["campaign_id"],
+			"schemaTo": "public",
+			"tableTo": "campaigns",
+			"columnsTo": ["id"],
+			"onUpdate": "NO ACTION",
+			"onDelete": "NO ACTION",
+			"name": "posts_campaign_id_campaigns_id_fkey",
+			"entityType": "fks",
+			"schema": "public",
+			"table": "posts"
+		},
+		{
+			"nameExplicit": false,
 			"columns": ["user_id"],
 			"schemaTo": "public",
 			"tableTo": "users",
@@ -3254,6 +3523,14 @@
 			"name": "bot_help_config_pkey",
 			"schema": "public",
 			"table": "bot_help_config",
+			"entityType": "pks"
+		},
+		{
+			"columns": ["id"],
+			"nameExplicit": false,
+			"name": "campaigns_pkey",
+			"schema": "public",
+			"table": "campaigns",
 			"entityType": "pks"
 		},
 		{
@@ -3458,6 +3735,20 @@
 			"schema": "public",
 			"table": "users",
 			"entityType": "uniques"
+		},
+		{
+			"value": "\"collected\" >= 0 ",
+			"name": "campaigns_positive_collected_check",
+			"entityType": "checks",
+			"schema": "public",
+			"table": "campaigns"
+		},
+		{
+			"value": "\"goal\" >= 0 ",
+			"name": "campaigns_positive_goal_check",
+			"entityType": "checks",
+			"schema": "public",
+			"table": "campaigns"
 		}
 	],
 	"renames": []
