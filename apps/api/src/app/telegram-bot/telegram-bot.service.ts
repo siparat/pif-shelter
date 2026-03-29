@@ -60,7 +60,6 @@ export class TelegramBotService {
 			});
 		}
 	}
-
 	async constructMediaGroup(
 		isCutText: boolean,
 		text: string,

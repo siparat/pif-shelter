@@ -31,5 +31,9 @@ export const GuardianshipBotCommands = {
 	UNSUBSCRIBE: {
 		command: 'unsubscribe',
 		description: 'Управление подпиской'
+	},
+	REPORT: {
+		command: 'report',
+		description: 'Задать вопрос волонтерам'
 	}
 } as const;

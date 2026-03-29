@@ -7,12 +7,13 @@ import {
 	GUARDIANSHIP_BOT_LINK_PREFIX,
 	GuardianshipBotCallback,
 	GuardianshipBotCommands,
+	LIMIT_MESSAGE_LENGTH,
 	MY_ANIMALS_BOT_PAGE_SIZE
 } from '@pif/shared';
 import { StorageService } from '@pif/storage';
 import { Logger } from 'nestjs-pino';
 import { Command, Ctx, InjectBot, On, Start, Update } from 'nestjs-telegraf';
-import { Telegraf, TelegramError } from 'telegraf';
+import { Format, Telegraf, TelegramError } from 'telegraf';
 import { AppUrlMapper } from '../core/mappers/app-url.mapper';
 import { CancelGuardianshipAsGuardianCommand } from '../guardianship/commands/cancel-guardianship-as-guardian/cancel-guardianship-as-guardian.command';
 import { GetAnimalForGuardianCardQuery } from '../guardianship/queries/get-animal-for-guardian-card/get-animal-for-guardian-card.query';
@@ -25,6 +26,7 @@ import { sendHelpMessage } from './messages/help.message';
 import { sendMyAnimalCardMessage } from './messages/my-animal-card.message';
 import { buildMyAnimalPostPageMessage } from './messages/my-animal-post-page.message';
 import { buildMyAnimalsListContent, sendMyAnimalsListMessage } from './messages/my-animals-list.message';
+import { sendReportMessageToChat } from './messages/report.message';
 import { sendShelterPhotoMessage } from './messages/shelter-photo.message';
 import { sendStartLinkAlreadyUsedMessage } from './messages/start-link-already-used.message';
 import { sendStartLinkMismatchMessage } from './messages/start-link-mismatch.message';
@@ -123,6 +125,63 @@ export class TelegramBotUpdate implements OnModuleInit {
 		}));
 		ctx.session.unsubscribe = { guardianships: list };
 		await sendUnsubscribeListMessage(ctx, { list });
+	}
+
+	@Command(GuardianshipBotCommands.REPORT.command)
+	async onReport(@Ctx() ctx: BotContext): Promise<void> {
+		const chatId = ctx.chat?.id;
+		if (!chatId) return;
+
+		const text = ctx.text?.slice(GuardianshipBotCommands.REPORT.command.length + 1) ?? '';
+		if (!text) {
+			await ctx.reply('Пожалуйста, напишите ваш вопрос в формате: /report <ваш вопрос>');
+			return;
+		}
+
+		const maxLengthReport = LIMIT_MESSAGE_LENGTH - 512;
+
+		if (text.length > maxLengthReport) {
+			await ctx.reply(
+				`Текст обращения не должен превышать ${Format.code(maxLengthReport.toString())} символов. Вы превысили на ${Format.code(text.length - maxLengthReport)} символов.`
+			);
+			return;
+		}
+
+		const user = await this.usersService.findByTelegramChatId(String(chatId));
+		const myGuardianships = user ? await this.queryBus.execute(new GetMyGaurdianshipsQuery(user.id)) : undefined;
+
+		const chatTopicId = this.config.get<number>('TELEGRAM_CHAT_ID');
+		const topicId = this.config.get<number>('TELEGRAM_CHAT_REPORT_TOPIC');
+
+		if (!chatTopicId || !topicId) {
+			await ctx.reply(
+				'Не удалось отправить вопрос. Напишите пожалуйста администратору: @' +
+					this.config.getOrThrow<string>('TELEGRAM_ADMIN_USERNAME')
+			);
+			return;
+		}
+
+		try {
+			await sendReportMessageToChat(
+				ctx,
+				{
+					chat: ctx.from,
+					user,
+					guardianships: myGuardianships?.guardianships,
+					text
+				},
+				{ chatId: chatTopicId, threadId: topicId }
+			);
+			await ctx.reply(
+				'Вопрос отправлен, волонтеры ответят при первой возможности. Проверьте что у вас открыт лс'
+			);
+		} catch (error) {
+			this.logger.error('Ошибка при отправке вопроса в чат от опекуна', {
+				err: error instanceof Error ? error.message : error,
+				chatId
+			});
+			await ctx.reply('Не удалось отправить вопрос. Попробуйте позже.');
+		}
 	}
 
 	@On('callback_query')

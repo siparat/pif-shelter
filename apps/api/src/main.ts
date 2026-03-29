@@ -5,6 +5,7 @@ import { ApiErrorResponseDto } from '@pif/contracts';
 import { AUTH_PREFIX } from '@pif/shared';
 import { AuthService } from '@thallesp/nestjs-better-auth';
 import dayjs from 'dayjs';
+import 'dayjs/locale/ru';
 import duration from 'dayjs/plugin/duration';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { Logger } from 'nestjs-pino';
@@ -14,6 +15,7 @@ import type { AppAuth } from './app/configs/auth.config';
 import { handleBetterAuthRequest } from './app/core/auth/better-auth-fastify.handler';
 import { GlobalDeserializerInterceptor } from './app/core/interceptors/global-deserializer.interceptor';
 
+dayjs.locale('ru');
 dayjs.extend(duration);
 
 const PORT = 3000;
