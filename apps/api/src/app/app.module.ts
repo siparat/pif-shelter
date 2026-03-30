@@ -13,6 +13,7 @@ import { ClsModule } from 'nestjs-cls';
 import { LoggerModule } from 'nestjs-pino';
 import { AdminUsersModule } from './admin/users/users.module';
 import { AnimalsModule } from './animals/animals.module';
+import { CampaignsModule } from './campaigns/campaigns.module';
 import { getAuthConfig } from './configs/auth.config';
 import { getCacheConfig } from './configs/cache.config';
 import { getClsConfig } from './configs/cls.config';
@@ -31,8 +32,8 @@ import { ZodValidationExceptionFilter } from './core/filters/zod-exception.filte
 import { HttpOnlyThrottlerGuard } from './core/guards/http-only-throttler.guard';
 import { HealthModule } from './core/health/health.module';
 import { SeedModule } from './core/seed/seed.module';
-import { FinanceModule } from './finance/finance.module';
 import { DonationsModule } from './donations/donations.module';
+import { FinanceModule } from './finance/finance.module';
 import { GuardianshipModule } from './guardianship/guardianship.module';
 import { MediaModule } from './media/media.module';
 import { PaymentsModule } from './payments/payments.module';
@@ -62,6 +63,7 @@ import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
 		MediaModule,
 		PaymentsModule,
 		PostsModule,
+		CampaignsModule,
 		HealthModule,
 		SeedModule
 	],

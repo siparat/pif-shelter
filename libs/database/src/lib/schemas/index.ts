@@ -10,6 +10,7 @@ import {
 	animalsToAnimalLabels
 } from './animals.schema';
 import { botHelpConfig } from './bot-help-config.schema';
+import { campaigns } from './campaign.schema';
 import {
 	donationOneTimeIntentStatusEnum,
 	donationOneTimeIntents,
@@ -25,7 +26,6 @@ import {
 import { guardianshipStatusEnum, guardianships } from './guardianships.schema';
 import { postMedia, postMediaTypeEnum, postReactions, postVisibilityEnum, posts } from './posts.schema';
 import { accounts, invitations, roleEnum, sessions, users, verifications } from './users.schema';
-import { campaigns } from './campaign.schema';
 
 export const relations = defineRelations(
 	{
@@ -229,11 +229,13 @@ export const schema = {
 	sessions,
 	accounts,
 	verifications,
-	invitations
+	invitations,
+	campaigns
 };
 
 export * from './animals.schema';
 export * from './bot-help-config.schema';
+export * from './campaign.schema';
 export * from './finance.schema';
 export * from './guardianships.schema';
 export * from './posts.schema';
