@@ -1,10 +1,10 @@
+import { Injectable } from '@nestjs/common';
 import { CreateCampaignRequestDto, UpdateCampaignRequestDto } from '@pif/contracts';
 import { campaigns, DatabaseService } from '@pif/database';
+import { CampaignStatus } from '@pif/shared';
+import { and, eq, isNull } from 'drizzle-orm';
 import { CampaignMapper } from '../mappers/campaign.mapper';
 import { CampaignsRepository } from './campaigns.repository';
-import { Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
-import { CampaignStatus } from '@pif/shared';
 
 @Injectable()
 export class DrizzleCampaignsRepository extends CampaignsRepository {
@@ -38,7 +38,20 @@ export class DrizzleCampaignsRepository extends CampaignsRepository {
 		return campaign;
 	}
 
+	async delete(id: string): Promise<boolean> {
+		const [deleted] = await this.database.client
+			.update(campaigns)
+			.set({ deletedAt: new Date() })
+			.where(eq(campaigns.id, id))
+			.returning({ id: campaigns.id });
+		return Boolean(deleted);
+	}
+
 	async findById(id: string): Promise<typeof campaigns.$inferSelect | undefined> {
-		return this.database.client.query.campaigns.findFirst({ where: { id } });
+		const [campaign] = await this.database.client
+			.select()
+			.from(campaigns)
+			.where(and(eq(campaigns.id, id), isNull(campaigns.deletedAt)));
+		return campaign;
 	}
 }

@@ -21,9 +21,7 @@ export class GetCampaignByIdHandler implements IQueryHandler<GetCampaignByIdQuer
 		}
 
 		const result = await this.database.client.query.campaigns.findFirst({
-			where: {
-				id
-			},
+			where: { id, deletedAt: { isNull: true } },
 			with: {
 				animal: {
 					columns: { id: true, name: true, avatarUrl: true, gender: true, status: true, species: true }

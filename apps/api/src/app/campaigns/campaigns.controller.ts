@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
@@ -16,6 +16,7 @@ import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
 import { CreateCampaignCommand } from './commands/create-campaign/create-campaign.command';
 import { ChangeCampaignStatusCommand } from './commands/change-campaign-status/change-campaign-status.command';
+import { DeleteCampaignCommand } from './commands/delete-campaign/delete-campaign.command';
 import { UpdateCampaignCommand } from './commands/update-campaign/update-campaign.command';
 import { CampaignDetails, GetCampaignByIdQuery } from './queries/get-campaign-by-id/get-campaign-by-id.query';
 
@@ -126,5 +127,17 @@ export class CampaignsController {
 		@Session() { user }: ISession
 	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
 		return this.commandBus.execute(new ChangeCampaignStatusCommand(id, CampaignStatus.FAILED, user.id));
+	}
+
+	@ApiOperation({
+		summary: 'Удаление срочного сбора',
+		description: 'Удаляет срочный сбор. Идемпотентно. Доступно старшему волонтёру и администратору'
+	})
+	@ApiOkResponse({ description: 'Срочный сбор удалён' })
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@UseGuards(AuthGuard, RoleGuard)
+	@Delete(':id')
+	async delete(@Param('id', ParseUUIDPipe) id: string, @Session() { user }: ISession): Promise<void> {
+		await this.commandBus.execute(new DeleteCampaignCommand(id, user.id));
 	}
 }

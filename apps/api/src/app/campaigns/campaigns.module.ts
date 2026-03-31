@@ -4,7 +4,9 @@ import { AnimalsModule } from '../animals/animals.module';
 import { CampaignsController } from './campaigns.controller';
 import { ChangeCampaignStatusHandler } from './commands/change-campaign-status/change-campaign-status.handler';
 import { CreateCampaignHandler } from './commands/create-campaign/create-campaign.handler';
+import { DeleteCampaignHandler } from './commands/delete-campaign/delete-campaign.handler';
 import { UpdateCampaignHandler } from './commands/update-campaign/update-campaign.handler';
+import { CampaignDeletedHandler } from './events/campaign-deleted/campaign-deleted.handler';
 import { CanCreateCampaignPolicy } from './policies/can-create-campaign.policy';
 import { CampaignsRepository } from './repositories/campaigns.repository';
 import { DrizzleCampaignsRepository } from './repositories/drizzle-campaigns.repository';
@@ -20,9 +22,11 @@ import { CampaignUpdatedHandler } from './events/campaign-updated/campaign-updat
 		CreateCampaignHandler,
 		ChangeCampaignStatusHandler,
 		UpdateCampaignHandler,
+		DeleteCampaignHandler,
 		GetCampaignByIdHandler,
 		CampaignCreatedHandler,
 		CampaignUpdatedHandler,
+		CampaignDeletedHandler,
 		{
 			provide: CampaignsRepository,
 			useClass: DrizzleCampaignsRepository
