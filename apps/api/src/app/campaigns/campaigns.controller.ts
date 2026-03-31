@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
 	CreateCampaignRequestDto,
 	CreateCampaignResponseDto,
 	GetCampaignByIdResponseDto,
+	UpdateCampaignRequestDto,
+	UpdateCampaignResponseDto,
 	ReturnDto
 } from '@pif/contracts';
 import { UserRole } from '@pif/shared';
@@ -13,6 +15,7 @@ import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
 import { CreateCampaignCommand } from './commands/create-campaign/create-campaign.command';
+import { UpdateCampaignCommand } from './commands/update-campaign/update-campaign.command';
 import { CampaignDetails, GetCampaignByIdQuery } from './queries/get-campaign-by-id/get-campaign-by-id.query';
 
 @ApiTags('Campaigns | Срочные сборы')
@@ -46,5 +49,21 @@ export class CampaignsController {
 	@Get(':id')
 	async getById(@Param('id', ParseUUIDPipe) id: string): Promise<CampaignDetails> {
 		return this.queryBus.execute(new GetCampaignByIdQuery(id));
+	}
+
+	@ApiOperation({
+		summary: 'Обновление срочного сбора',
+		description: 'Обновляет срочный сбор. Доступно старшему волонтёру и администратору'
+	})
+	@ApiOkResponse({ type: UpdateCampaignResponseDto })
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@UseGuards(AuthGuard, RoleGuard)
+	@Patch(':id')
+	async update(
+		@Param('id', ParseUUIDPipe) id: string,
+		@Body() dto: UpdateCampaignRequestDto,
+		@Session() { user }: ISession
+	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
+		return this.commandBus.execute(new UpdateCampaignCommand(id, dto, user.id));
 	}
 }

@@ -1,8 +1,9 @@
-import { CreateCampaignRequestDto } from '@pif/contracts';
+import { CreateCampaignRequestDto, UpdateCampaignRequestDto } from '@pif/contracts';
 import { campaigns, DatabaseService } from '@pif/database';
 import { CampaignMapper } from '../mappers/campaign.mapper';
 import { CampaignsRepository } from './campaigns.repository';
 import { Injectable } from '@nestjs/common';
+import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class DrizzleCampaignsRepository extends CampaignsRepository {
@@ -14,6 +15,15 @@ export class DrizzleCampaignsRepository extends CampaignsRepository {
 		const [campaign] = await this.database.client
 			.insert(campaigns)
 			.values(CampaignMapper.toInsert(dto))
+			.returning();
+		return campaign;
+	}
+
+	async update(id: string, dto: UpdateCampaignRequestDto): Promise<typeof campaigns.$inferSelect | undefined> {
+		const [campaign] = await this.database.client
+			.update(campaigns)
+			.set(CampaignMapper.toUpdate(dto))
+			.where(eq(campaigns.id, id))
 			.returning();
 		return campaign;
 	}
