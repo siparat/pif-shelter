@@ -9,12 +9,13 @@ import {
 	UpdateCampaignResponseDto,
 	ReturnDto
 } from '@pif/contracts';
-import { UserRole } from '@pif/shared';
+import { CampaignStatus, UserRole } from '@pif/shared';
 import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
 import { CreateCampaignCommand } from './commands/create-campaign/create-campaign.command';
+import { ChangeCampaignStatusCommand } from './commands/change-campaign-status/change-campaign-status.command';
 import { UpdateCampaignCommand } from './commands/update-campaign/update-campaign.command';
 import { CampaignDetails, GetCampaignByIdQuery } from './queries/get-campaign-by-id/get-campaign-by-id.query';
 
@@ -65,5 +66,65 @@ export class CampaignsController {
 		@Session() { user }: ISession
 	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
 		return this.commandBus.execute(new UpdateCampaignCommand(id, dto, user.id));
+	}
+
+	@ApiOperation({
+		summary: 'Публикация срочного сбора',
+		description: 'Переводит статус сбора в PUBLISHED'
+	})
+	@ApiOkResponse({ type: UpdateCampaignResponseDto })
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@UseGuards(AuthGuard, RoleGuard)
+	@Patch(':id/publish')
+	async publish(
+		@Param('id', ParseUUIDPipe) id: string,
+		@Session() { user }: ISession
+	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
+		return this.commandBus.execute(new ChangeCampaignStatusCommand(id, CampaignStatus.PUBLISHED, user.id));
+	}
+
+	@ApiOperation({
+		summary: 'Отмена срочного сбора',
+		description: 'Переводит статус сбора в CANCELLED'
+	})
+	@ApiOkResponse({ type: UpdateCampaignResponseDto })
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@UseGuards(AuthGuard, RoleGuard)
+	@Patch(':id/cancel')
+	async cancel(
+		@Param('id', ParseUUIDPipe) id: string,
+		@Session() { user }: ISession
+	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
+		return this.commandBus.execute(new ChangeCampaignStatusCommand(id, CampaignStatus.CANCELLED, user.id));
+	}
+
+	@ApiOperation({
+		summary: 'Закрытие сбора как успешного',
+		description: 'Переводит статус сбора в SUCCESS'
+	})
+	@ApiOkResponse({ type: UpdateCampaignResponseDto })
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@UseGuards(AuthGuard, RoleGuard)
+	@Patch(':id/success')
+	async markSuccess(
+		@Param('id', ParseUUIDPipe) id: string,
+		@Session() { user }: ISession
+	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
+		return this.commandBus.execute(new ChangeCampaignStatusCommand(id, CampaignStatus.SUCCESS, user.id));
+	}
+
+	@ApiOperation({
+		summary: 'Закрытие сбора как неуспешного',
+		description: 'Переводит статус сбора в FAILED'
+	})
+	@ApiOkResponse({ type: UpdateCampaignResponseDto })
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@UseGuards(AuthGuard, RoleGuard)
+	@Patch(':id/fail')
+	async markFailed(
+		@Param('id', ParseUUIDPipe) id: string,
+		@Session() { user }: ISession
+	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
+		return this.commandBus.execute(new ChangeCampaignStatusCommand(id, CampaignStatus.FAILED, user.id));
 	}
 }

@@ -4,6 +4,7 @@ import { CampaignMapper } from '../mappers/campaign.mapper';
 import { CampaignsRepository } from './campaigns.repository';
 import { Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
+import { CampaignStatus } from '@pif/shared';
 
 @Injectable()
 export class DrizzleCampaignsRepository extends CampaignsRepository {
@@ -23,6 +24,15 @@ export class DrizzleCampaignsRepository extends CampaignsRepository {
 		const [campaign] = await this.database.client
 			.update(campaigns)
 			.set(CampaignMapper.toUpdate(dto))
+			.where(eq(campaigns.id, id))
+			.returning();
+		return campaign;
+	}
+
+	async updateStatus(id: string, status: CampaignStatus): Promise<typeof campaigns.$inferSelect | undefined> {
+		const [campaign] = await this.database.client
+			.update(campaigns)
+			.set({ status })
 			.where(eq(campaigns.id, id))
 			.returning();
 		return campaign;
