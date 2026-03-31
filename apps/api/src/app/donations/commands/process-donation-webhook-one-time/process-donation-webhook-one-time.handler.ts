@@ -1,8 +1,9 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { CommandBus, CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { PaymentWebhookEvent } from '@pif/payment';
-import { DonationOneTimeIntentStatusEnum, LedgerEntrySourceEnum } from '@pif/shared';
+import { CampaignStatus, DonationOneTimeIntentStatusEnum, LedgerEntrySourceEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
+import { CampaignsService } from '../../../campaigns/campaigns.service';
 import { RecordLedgerIncomeCommand } from '../../../finance/commands/record-ledger-income/record-ledger-income.command';
 import { DonationPaymentSucceededEvent } from '../../events/donation-payment-succeeded/donation-payment-succeeded.event';
 import { DonationIntentNotFoundException } from '../../exceptions/donation-intent-not-found.exception';
@@ -16,6 +17,7 @@ export class ProcessDonationWebhookOneTimeHandler implements ICommandHandler<Pro
 
 	constructor(
 		private readonly repository: DonationIntentsRepository,
+		private readonly campaignsService: CampaignsService,
 		private readonly commandBus: CommandBus,
 		private readonly eventBus: EventBus,
 		private readonly logger: Logger
@@ -74,6 +76,24 @@ export class ProcessDonationWebhookOneTimeHandler implements ICommandHandler<Pro
 				donationOneTimeIntentId: intent.id
 			})
 		);
+
+		if (intent.campaignId) {
+			const campaign = await this.campaignsService.findById(intent.campaignId);
+			if (campaign) {
+				if (campaign.endsAt.getTime() <= Date.now()) {
+					await this.campaignsService.updateStatus(campaign.id, CampaignStatus.FAILED);
+				} else {
+					const updatedCampaign = await this.campaignsService.applyDonation(campaign.id, payload.netAmount);
+					if (updatedCampaign?.status === CampaignStatus.SUCCESS) {
+						this.logger.log('Сбор закрыт как SUCCESS после пополнения', {
+							campaignId: updatedCampaign.id,
+							collected: updatedCampaign.collected,
+							goal: updatedCampaign.goal
+						});
+					}
+				}
+			}
+		}
 
 		this.eventBus.publish(new DonationPaymentSucceededEvent(intent, providerPaymentId));
 		this.logger.log('Разовый донат обработан и записан в ledger', {

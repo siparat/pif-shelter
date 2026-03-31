@@ -1,5 +1,12 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { animals, DatabaseService, guardianships, ledgerEntries } from '@pif/database';
+import {
+	animals,
+	campaigns,
+	DatabaseService,
+	donationOneTimeIntents,
+	guardianships,
+	ledgerEntries
+} from '@pif/database';
 import { LedgerEntryDirectionEnum, LedgerEntrySourceEnum } from '@pif/shared';
 import { and, asc, eq, gte, lt, lte } from 'drizzle-orm';
 import {
@@ -18,8 +25,30 @@ export class GetMonthlyExcelReportDataHandler implements IQueryHandler<GetMonthl
 		const end = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
 
 		const monthRows = await this.db.client
-			.select()
+			.select({
+				id: ledgerEntries.id,
+				direction: ledgerEntries.direction,
+				source: ledgerEntries.source,
+				grossAmount: ledgerEntries.grossAmount,
+				feeAmount: ledgerEntries.feeAmount,
+				netAmount: ledgerEntries.netAmount,
+				currency: ledgerEntries.currency,
+				occurredAt: ledgerEntries.occurredAt,
+				title: ledgerEntries.title,
+				note: ledgerEntries.note,
+				donorDisplayName: ledgerEntries.donorDisplayName,
+				providerPaymentId: ledgerEntries.providerPaymentId,
+				donationOneTimeIntentId: ledgerEntries.donationOneTimeIntentId,
+				donationSubscriptionId: ledgerEntries.donationSubscriptionId,
+				guardianshipId: ledgerEntries.guardianshipId,
+				receiptStorageKey: ledgerEntries.receiptStorageKey,
+				createdByUserId: ledgerEntries.createdByUserId,
+				campaignId: campaigns.id,
+				campaignTitle: campaigns.title
+			})
 			.from(ledgerEntries)
+			.leftJoin(donationOneTimeIntents, eq(ledgerEntries.donationOneTimeIntentId, donationOneTimeIntents.id))
+			.leftJoin(campaigns, eq(donationOneTimeIntents.campaignId, campaigns.id))
 			.where(and(gte(ledgerEntries.occurredAt, start), lt(ledgerEntries.occurredAt, end)))
 			.orderBy(asc(ledgerEntries.occurredAt));
 
@@ -65,6 +94,8 @@ export class GetMonthlyExcelReportDataHandler implements IQueryHandler<GetMonthl
 					occurredAt: row.occurredAt,
 					source: row.source,
 					donorDisplayName: row.donorDisplayName ?? null,
+					campaignId: row.campaignId ?? null,
+					campaignTitle: row.campaignTitle ?? null,
 					title: row.title,
 					grossAmount: row.grossAmount,
 					feeAmount: row.feeAmount,

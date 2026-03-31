@@ -76,6 +76,10 @@ export const relations = defineRelations(
 			ledgerEntries: r.many.ledgerEntries({
 				from: r.donationOneTimeIntents.id,
 				to: r.ledgerEntries.donationOneTimeIntentId
+			}),
+			campaign: r.one.campaigns({
+				from: r.donationOneTimeIntents.campaignId,
+				to: r.campaigns.id
 			})
 		},
 		donationSubscriptions: {
@@ -188,6 +192,10 @@ export const relations = defineRelations(
 			posts: r.many.posts({
 				from: r.campaigns.id,
 				to: r.posts.campaignId
+			}),
+			donationOneTimeIntents: r.many.donationOneTimeIntents({
+				from: r.campaigns.id,
+				to: r.donationOneTimeIntents.campaignId
 			}),
 			animal: r.one.animals({
 				from: r.campaigns.animalId,

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { AnimalsModule } from '../animals/animals.module';
 import { CampaignsController } from './campaigns.controller';
+import { CampaignsService } from './campaigns.service';
 import { ChangeCampaignStatusHandler } from './commands/change-campaign-status/change-campaign-status.handler';
 import { CreateCampaignHandler } from './commands/create-campaign/create-campaign.handler';
 import { DeleteCampaignHandler } from './commands/delete-campaign/delete-campaign.handler';
@@ -17,7 +18,9 @@ import { CampaignUpdatedHandler } from './events/campaign-updated/campaign-updat
 @Module({
 	imports: [CqrsModule, AnimalsModule],
 	controllers: [CampaignsController],
+	exports: [CampaignsService],
 	providers: [
+		CampaignsService,
 		CanCreateCampaignPolicy,
 		CreateCampaignHandler,
 		ChangeCampaignStatusHandler,

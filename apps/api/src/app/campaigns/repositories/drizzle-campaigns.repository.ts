@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateCampaignRequestDto, UpdateCampaignRequestDto } from '@pif/contracts';
 import { campaigns, DatabaseService } from '@pif/database';
 import { CampaignStatus } from '@pif/shared';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import { CampaignMapper } from '../mappers/campaign.mapper';
 import { CampaignsRepository } from './campaigns.repository';
 
@@ -34,6 +34,21 @@ export class DrizzleCampaignsRepository extends CampaignsRepository {
 			.update(campaigns)
 			.set({ status })
 			.where(eq(campaigns.id, id))
+			.returning();
+		return campaign;
+	}
+
+	async applyDonation(id: string, amount: number): Promise<typeof campaigns.$inferSelect | undefined> {
+		const [campaign] = await this.database.client
+			.update(campaigns)
+			.set({
+				collected: sql`${campaigns.collected} + ${amount}`,
+				status: sql`case when ${campaigns.goal} > 0 and ${campaigns.collected} + ${amount} >= ${campaigns.goal}
+					then ${CampaignStatus.SUCCESS}::campaign_status
+					else ${campaigns.status}
+				end`
+			})
+			.where(and(eq(campaigns.id, id), isNull(campaigns.deletedAt)))
 			.returning();
 		return campaign;
 	}

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { PaymentModule } from '@pif/payment';
+import { CampaignsModule } from '../campaigns/campaigns.module';
 import { CancelDonationSubscriptionByTokenHandler } from './commands/cancel-donation-subscription-by-token/cancel-donation-subscription-by-token.handler';
 import { CreateDonationOneTimeHandler } from './commands/create-donation-one-time/create-donation-one-time.handler';
 import { CreateDonationSubscriptionHandler } from './commands/create-donation-subscription/create-donation-subscription.handler';
@@ -12,7 +13,7 @@ import { DrizzleDonationIntentsRepository } from './repositories/drizzle-donatio
 import { SendDonationSubscriptionCancelLinkEmailHandler } from './events/donation-subscription-initiated/send-donation-subscription-cancel-link-email.handler';
 
 @Module({
-	imports: [CqrsModule, PaymentModule],
+	imports: [CqrsModule, PaymentModule, CampaignsModule],
 	controllers: [DonationsController],
 	providers: [
 		CreateDonationOneTimeHandler,

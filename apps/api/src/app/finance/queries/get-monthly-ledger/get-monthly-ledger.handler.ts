@@ -2,8 +2,8 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { ListLedgerForMonthResponseDto, ReturnDto } from '@pif/contracts';
 import { CacheService } from '@pif/cache';
 import { LedgerCacheKeys } from '@pif/shared';
-import { DatabaseService, ledgerEntries } from '@pif/database';
-import { and, asc, gte, lt } from 'drizzle-orm';
+import { campaigns, DatabaseService, donationOneTimeIntents, ledgerEntries } from '@pif/database';
+import { and, asc, eq, gte, lt } from 'drizzle-orm';
 import { GetMonthlyLedgerQuery } from './get-monthly-ledger.query';
 
 @QueryHandler(GetMonthlyLedgerQuery)
@@ -25,8 +25,30 @@ export class GetMonthlyLedgerHandler implements IQueryHandler<GetMonthlyLedgerQu
 		const start = new Date(Date.UTC(dto.year, dto.month - 1, 1, 0, 0, 0, 0));
 		const end = new Date(Date.UTC(dto.year, dto.month, 1, 0, 0, 0, 0));
 		const rows = await this.db.client
-			.select()
+			.select({
+				id: ledgerEntries.id,
+				direction: ledgerEntries.direction,
+				source: ledgerEntries.source,
+				grossAmount: ledgerEntries.grossAmount,
+				feeAmount: ledgerEntries.feeAmount,
+				netAmount: ledgerEntries.netAmount,
+				currency: ledgerEntries.currency,
+				occurredAt: ledgerEntries.occurredAt,
+				title: ledgerEntries.title,
+				note: ledgerEntries.note,
+				donorDisplayName: ledgerEntries.donorDisplayName,
+				providerPaymentId: ledgerEntries.providerPaymentId,
+				donationOneTimeIntentId: ledgerEntries.donationOneTimeIntentId,
+				donationSubscriptionId: ledgerEntries.donationSubscriptionId,
+				guardianshipId: ledgerEntries.guardianshipId,
+				receiptStorageKey: ledgerEntries.receiptStorageKey,
+				createdByUserId: ledgerEntries.createdByUserId,
+				campaignId: campaigns.id,
+				campaignTitle: campaigns.title
+			})
 			.from(ledgerEntries)
+			.leftJoin(donationOneTimeIntents, eq(ledgerEntries.donationOneTimeIntentId, donationOneTimeIntents.id))
+			.leftJoin(campaigns, eq(donationOneTimeIntents.campaignId, campaigns.id))
 			.where(and(gte(ledgerEntries.occurredAt, start), lt(ledgerEntries.occurredAt, end)))
 			.orderBy(asc(ledgerEntries.occurredAt));
 
@@ -44,6 +66,8 @@ export class GetMonthlyLedgerHandler implements IQueryHandler<GetMonthlyLedgerQu
 			donorDisplayName: row.donorDisplayName ?? null,
 			providerPaymentId: row.providerPaymentId ?? null,
 			donationOneTimeIntentId: row.donationOneTimeIntentId ?? null,
+			campaignId: row.campaignId ?? null,
+			campaignTitle: row.campaignTitle ?? null,
 			donationSubscriptionId: row.donationSubscriptionId ?? null,
 			guardianshipId: row.guardianshipId ?? null,
 			receiptStorageKey: row.receiptStorageKey ?? null,

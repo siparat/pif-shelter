@@ -6,6 +6,7 @@ export type CreateDonationOneTimeIntentPayload = {
 	displayName: string;
 	hidePublicName: boolean;
 	expectedAmount: number;
+	campaignId?: string;
 };
 
 export type CreateDonationSubscriptionPayload = {

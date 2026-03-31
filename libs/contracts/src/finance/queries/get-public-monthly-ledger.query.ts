@@ -22,6 +22,8 @@ export const publicLedgerReportEntrySchema = z.object({
 		.describe(
 			'Имя донора для публичного отчёта: отсутствует или null, если скрыто флагом hide_public_name у источника'
 		),
+	campaignId: z.uuid().nullable(),
+	campaignTitle: z.string().nullable(),
 	receiptStorageKey: z.string().nullable()
 });
 
