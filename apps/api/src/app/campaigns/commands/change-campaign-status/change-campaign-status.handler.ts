@@ -1,6 +1,9 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { CampaignStatus } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
+import { FileStoragePolicy } from '../../../core/policies/file-storage.policy';
 import { CampaignUpdatedEvent } from '../../events/campaign-updated/campaign-updated.event';
+import { AbsentPreviewImage } from '../../exceptions/absent-preview-image.exception';
 import { CampaignNotFoundException } from '../../exceptions/campaign-not-found.exception';
 import { CanCreateCampaignPolicy } from '../../policies/can-create-campaign.policy';
 import { CampaignsRepository } from '../../repositories/campaigns.repository';
@@ -11,6 +14,7 @@ export class ChangeCampaignStatusHandler implements ICommandHandler<ChangeCampai
 	constructor(
 		private readonly repository: CampaignsRepository,
 		private readonly policy: CanCreateCampaignPolicy,
+		private readonly storagePolicy: FileStoragePolicy,
 		private readonly eventBus: EventBus,
 		private readonly logger: Logger
 	) {}
@@ -23,6 +27,12 @@ export class ChangeCampaignStatusHandler implements ICommandHandler<ChangeCampai
 		this.policy.assertCanChangeStatus(campaign, status);
 		if (campaign.status === status) {
 			return { id };
+		}
+		if (status == CampaignStatus.PUBLISHED) {
+			if (!campaign.previewImage) {
+				throw new AbsentPreviewImage();
+			}
+			await this.storagePolicy.assertExists(campaign.previewImage);
 		}
 		const updated = await this.repository.updateStatus(id, status);
 		if (!updated) {

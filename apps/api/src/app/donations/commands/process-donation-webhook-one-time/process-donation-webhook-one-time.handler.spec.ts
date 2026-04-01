@@ -56,7 +56,7 @@ describe('ProcessDonationWebhookOneTimeHandler', () => {
 		commandBus = module.get(CommandBus);
 	});
 
-	it('marks campaign FAILED when payment arrives after campaign end', async () => {
+	it('does not apply donation when payment arrives after campaign end', async () => {
 		donationRepository.findOneTimeByTransactionId.mockResolvedValue(intent);
 		donationRepository.findOneTimeByProviderPaymentId.mockResolvedValue(undefined);
 		donationRepository.updateOneTimeStatus.mockResolvedValue({
@@ -72,7 +72,7 @@ describe('ProcessDonationWebhookOneTimeHandler', () => {
 
 		await handler.execute(new ProcessDonationWebhookOneTimeCommand(payload));
 
-		expect(campaignsService.updateStatus).toHaveBeenCalledWith(campaignId, CampaignStatus.FAILED);
+		expect(campaignsService.updateStatus).not.toHaveBeenCalled();
 		expect(campaignsService.applyDonation).not.toHaveBeenCalled();
 	});
 

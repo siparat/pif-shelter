@@ -18,4 +18,8 @@ export class CampaignsService {
 	applyDonation(id: string, amount: number): Promise<typeof campaigns.$inferSelect | undefined> {
 		return this.repository.applyDonation(id, amount);
 	}
+
+	markExpiredAsFailed(now: Date): Promise<string[]> {
+		return this.repository.markExpiredAsFailed(now);
+	}
 }

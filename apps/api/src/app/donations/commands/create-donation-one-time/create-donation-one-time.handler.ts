@@ -27,7 +27,6 @@ export class CreateDonationOneTimeHandler implements ICommandHandler<CreateDonat
 			}
 			const now = Date.now();
 			if (campaign.endsAt.getTime() <= now) {
-				await this.campaignsService.updateStatus(campaign.id, CampaignStatus.FAILED);
 				throw new BadRequestException('Сбор завершен по времени');
 			}
 			if (campaign.status === CampaignStatus.DRAFT) {
@@ -37,7 +36,6 @@ export class CreateDonationOneTimeHandler implements ICommandHandler<CreateDonat
 				throw new BadRequestException('Сбор закрыт');
 			}
 			if (campaign.goal > 0 && campaign.collected >= campaign.goal) {
-				await this.campaignsService.updateStatus(campaign.id, CampaignStatus.SUCCESS);
 				throw new BadRequestException('Цель сбора уже достигнута');
 			}
 			if (campaign.status === CampaignStatus.SUCCESS) {

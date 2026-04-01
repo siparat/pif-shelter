@@ -39,7 +39,12 @@ export class CanCreateCampaignPolicy {
 
 		const allowedTransitions: Record<CampaignStatus, CampaignStatus[]> = {
 			[CampaignStatus.DRAFT]: [CampaignStatus.PUBLISHED, CampaignStatus.CANCELLED],
-			[CampaignStatus.PUBLISHED]: [CampaignStatus.CANCELLED, CampaignStatus.SUCCESS, CampaignStatus.FAILED],
+			[CampaignStatus.PUBLISHED]: [
+				CampaignStatus.CANCELLED,
+				CampaignStatus.SUCCESS,
+				CampaignStatus.FAILED,
+				CampaignStatus.DRAFT
+			],
 			[CampaignStatus.CANCELLED]: [],
 			[CampaignStatus.SUCCESS]: [],
 			[CampaignStatus.FAILED]: []

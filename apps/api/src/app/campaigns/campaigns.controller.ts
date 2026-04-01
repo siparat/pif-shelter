@@ -5,17 +5,17 @@ import {
 	CreateCampaignRequestDto,
 	CreateCampaignResponseDto,
 	GetCampaignByIdResponseDto,
+	ReturnDto,
 	UpdateCampaignRequestDto,
-	UpdateCampaignResponseDto,
-	ReturnDto
+	UpdateCampaignResponseDto
 } from '@pif/contracts';
 import { CampaignStatus, UserRole } from '@pif/shared';
 import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
-import { CreateCampaignCommand } from './commands/create-campaign/create-campaign.command';
 import { ChangeCampaignStatusCommand } from './commands/change-campaign-status/change-campaign-status.command';
+import { CreateCampaignCommand } from './commands/create-campaign/create-campaign.command';
 import { DeleteCampaignCommand } from './commands/delete-campaign/delete-campaign.command';
 import { UpdateCampaignCommand } from './commands/update-campaign/update-campaign.command';
 import { CampaignDetails, GetCampaignByIdQuery } from './queries/get-campaign-by-id/get-campaign-by-id.query';
@@ -67,6 +67,21 @@ export class CampaignsController {
 		@Session() { user }: ISession
 	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
 		return this.commandBus.execute(new UpdateCampaignCommand(id, dto, user.id));
+	}
+
+	@ApiOperation({
+		summary: 'Черновик срочного сбора',
+		description: 'Переводит статус сбора в DRAFT'
+	})
+	@ApiOkResponse({ type: UpdateCampaignResponseDto })
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@UseGuards(AuthGuard, RoleGuard)
+	@Patch(':id/draft')
+	async draft(
+		@Param('id', ParseUUIDPipe) id: string,
+		@Session() { user }: ISession
+	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
+		return this.commandBus.execute(new ChangeCampaignStatusCommand(id, CampaignStatus.DRAFT, user.id));
 	}
 
 	@ApiOperation({

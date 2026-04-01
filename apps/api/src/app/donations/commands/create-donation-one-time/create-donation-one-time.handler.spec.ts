@@ -54,25 +54,25 @@ describe('CreateDonationOneTimeHandler', () => {
 		paymentService = module.get(PaymentService);
 	});
 
-	it('throws and marks FAILED when campaign is expired', async () => {
+	it('throws when campaign is expired', async () => {
 		campaignsService.findById.mockResolvedValue({
 			...campaign,
 			endsAt: new Date(Date.now() - 1_000)
 		} as typeof campaigns.$inferSelect);
 
 		await expect(handler.execute(new CreateDonationOneTimeCommand(dto))).rejects.toThrow(BadRequestException);
-		expect(campaignsService.updateStatus).toHaveBeenCalledWith(campaignId, CampaignStatus.FAILED);
+		expect(campaignsService.updateStatus).not.toHaveBeenCalled();
 		expect(donationRepository.createOneTimePending).not.toHaveBeenCalled();
 	});
 
-	it('throws and marks SUCCESS when campaign goal is reached', async () => {
+	it('throws when campaign goal is reached', async () => {
 		campaignsService.findById.mockResolvedValue({
 			...campaign,
 			collected: 100_000
 		} as typeof campaigns.$inferSelect);
 
 		await expect(handler.execute(new CreateDonationOneTimeCommand(dto))).rejects.toThrow(BadRequestException);
-		expect(campaignsService.updateStatus).toHaveBeenCalledWith(campaignId, CampaignStatus.SUCCESS);
+		expect(campaignsService.updateStatus).not.toHaveBeenCalled();
 		expect(donationRepository.createOneTimePending).not.toHaveBeenCalled();
 	});
 

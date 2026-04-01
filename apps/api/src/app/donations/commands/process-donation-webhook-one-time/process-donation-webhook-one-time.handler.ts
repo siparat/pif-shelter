@@ -79,18 +79,14 @@ export class ProcessDonationWebhookOneTimeHandler implements ICommandHandler<Pro
 
 		if (intent.campaignId) {
 			const campaign = await this.campaignsService.findById(intent.campaignId);
-			if (campaign) {
-				if (campaign.endsAt.getTime() <= Date.now()) {
-					await this.campaignsService.updateStatus(campaign.id, CampaignStatus.FAILED);
-				} else {
-					const updatedCampaign = await this.campaignsService.applyDonation(campaign.id, payload.netAmount);
-					if (updatedCampaign?.status === CampaignStatus.SUCCESS) {
-						this.logger.log('Сбор закрыт как SUCCESS после пополнения', {
-							campaignId: updatedCampaign.id,
-							collected: updatedCampaign.collected,
-							goal: updatedCampaign.goal
-						});
-					}
+			if (campaign && campaign.endsAt.getTime() > Date.now()) {
+				const updatedCampaign = await this.campaignsService.applyDonation(campaign.id, payload.netAmount);
+				if (updatedCampaign?.status === CampaignStatus.SUCCESS) {
+					this.logger.log('Сбор закрыт как SUCCESS после пополнения', {
+						campaignId: updatedCampaign.id,
+						collected: updatedCampaign.collected,
+						goal: updatedCampaign.goal
+					});
 				}
 			}
 		}

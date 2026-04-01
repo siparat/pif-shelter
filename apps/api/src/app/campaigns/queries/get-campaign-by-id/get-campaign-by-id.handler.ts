@@ -1,15 +1,17 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
 import { DatabaseService } from '@pif/database';
-import { CampaignsCacheKeys } from '@pif/shared';
+import { CampaignsCacheKeys, CampaignStatus } from '@pif/shared';
 import { CampaignNotFoundException } from '../../exceptions/campaign-not-found.exception';
+import { CampaignsService } from '../../campaigns.service';
 import { CampaignDetails, GetCampaignByIdQuery } from './get-campaign-by-id.query';
 
 @QueryHandler(GetCampaignByIdQuery)
 export class GetCampaignByIdHandler implements IQueryHandler<GetCampaignByIdQuery> {
 	constructor(
 		private readonly database: DatabaseService,
-		private readonly cache: CacheService
+		private readonly cache: CacheService,
+		private readonly campaignsService: CampaignsService
 	) {}
 
 	async execute({ id }: GetCampaignByIdQuery): Promise<CampaignDetails> {
@@ -31,6 +33,10 @@ export class GetCampaignByIdHandler implements IQueryHandler<GetCampaignByIdQuer
 
 		if (!result) {
 			throw new CampaignNotFoundException();
+		}
+		if (result.status === CampaignStatus.PUBLISHED && result.endsAt.getTime() <= Date.now()) {
+			await this.campaignsService.updateStatus(result.id, CampaignStatus.FAILED);
+			result.status = CampaignStatus.FAILED;
 		}
 
 		await this.cache.set(cacheKey, result).catch(() => null);

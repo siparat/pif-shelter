@@ -1,4 +1,4 @@
-export const UPLOAD_SPACE = ['posts', 'users', 'animals', 'ledger_receipts'] as const;
+export const UPLOAD_SPACE = ['posts', 'users', 'animals', 'ledger_receipts', 'campaigns'] as const;
 export type UploadSpace = (typeof UPLOAD_SPACE)[number];
 
 export const UPLOAD_TYPE = ['image', 'video'] as const;
@@ -12,6 +12,7 @@ export const UPLOAD_MAX_BYTES: Record<UploadSpace, Partial<Record<UploadType, nu
 	posts: { image: 5 * MB, video: 512 * MB },
 	users: { image: 2 * MB },
 	animals: { image: 5 * MB },
+	campaigns: { image: 3 * MB },
 	ledger_receipts: { image: 5 * MB }
 };
 

@@ -53,6 +53,22 @@ export class DrizzleCampaignsRepository extends CampaignsRepository {
 		return campaign;
 	}
 
+	async markExpiredAsFailed(now: Date): Promise<string[]> {
+		const rows = await this.database.client
+			.update(campaigns)
+			.set({ status: CampaignStatus.FAILED })
+			.where(
+				and(
+					eq(campaigns.status, CampaignStatus.PUBLISHED),
+					isNull(campaigns.deletedAt),
+					sql`${campaigns.endsAt} <= ${now}`
+				)
+			)
+			.returning({ id: campaigns.id });
+
+		return rows.map((row) => row.id);
+	}
+
 	async delete(id: string): Promise<boolean> {
 		const [deleted] = await this.database.client
 			.update(campaigns)
