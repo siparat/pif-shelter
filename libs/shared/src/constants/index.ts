@@ -5,3 +5,4 @@ export * from './finance';
 export * from './guardianship';
 export * from './posts';
 export * from './users';
+export * from './campaign';

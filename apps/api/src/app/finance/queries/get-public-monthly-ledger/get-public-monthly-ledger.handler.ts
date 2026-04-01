@@ -2,8 +2,8 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PublicLedgerReportResponseDto, ReturnDto } from '@pif/contracts';
 import { CacheService } from '@pif/cache';
 import { LedgerCacheKeys } from '@pif/shared';
-import { DatabaseService, ledgerEntries } from '@pif/database';
-import { and, asc, gte, lt } from 'drizzle-orm';
+import { campaigns, DatabaseService, donationOneTimeIntents, ledgerEntries } from '@pif/database';
+import { and, asc, eq, gte, lt } from 'drizzle-orm';
 import { GetPublicMonthlyLedgerQuery } from './get-public-monthly-ledger.query';
 
 @QueryHandler(GetPublicMonthlyLedgerQuery)
@@ -25,8 +25,25 @@ export class GetPublicMonthlyLedgerHandler implements IQueryHandler<GetPublicMon
 		const start = new Date(Date.UTC(dto.year, dto.month - 1, 1, 0, 0, 0, 0));
 		const end = new Date(Date.UTC(dto.year, dto.month, 1, 0, 0, 0, 0));
 		const rows = await this.db.client
-			.select()
+			.select({
+				id: ledgerEntries.id,
+				direction: ledgerEntries.direction,
+				source: ledgerEntries.source,
+				grossAmount: ledgerEntries.grossAmount,
+				feeAmount: ledgerEntries.feeAmount,
+				netAmount: ledgerEntries.netAmount,
+				currency: ledgerEntries.currency,
+				occurredAt: ledgerEntries.occurredAt,
+				title: ledgerEntries.title,
+				note: ledgerEntries.note,
+				donorDisplayName: ledgerEntries.donorDisplayName,
+				receiptStorageKey: ledgerEntries.receiptStorageKey,
+				campaignId: campaigns.id,
+				campaignTitle: campaigns.title
+			})
 			.from(ledgerEntries)
+			.leftJoin(donationOneTimeIntents, eq(ledgerEntries.donationOneTimeIntentId, donationOneTimeIntents.id))
+			.leftJoin(campaigns, eq(donationOneTimeIntents.campaignId, campaigns.id))
 			.where(and(gte(ledgerEntries.occurredAt, start), lt(ledgerEntries.occurredAt, end)))
 			.orderBy(asc(ledgerEntries.occurredAt));
 
@@ -42,6 +59,8 @@ export class GetPublicMonthlyLedgerHandler implements IQueryHandler<GetPublicMon
 			title: row.title,
 			note: row.note ?? null,
 			donorDisplayName: row.donorDisplayName ?? null,
+			campaignId: row.campaignId ?? null,
+			campaignTitle: row.campaignTitle ?? null,
 			receiptStorageKey: row.receiptStorageKey ?? null
 		}));
 

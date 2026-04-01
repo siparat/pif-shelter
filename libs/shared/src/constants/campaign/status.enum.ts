@@ -1,0 +1,7 @@
+export enum CampaignStatus {
+	DRAFT = 'DRAFT',
+	PUBLISHED = 'PUBLISHED',
+	CANCELLED = 'CANCELLED',
+	SUCCESS = 'SUCCESS',
+	FAILED = 'FAILED'
+}

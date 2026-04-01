@@ -1,4 +1,5 @@
 module.exports = {
+	maxWorkers: 2,
 	displayName: 'api',
 	preset: '../../jest.preset.js',
 	testEnvironment: 'node',

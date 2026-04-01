@@ -2,7 +2,7 @@
 	"version": "8",
 	"dialect": "postgres",
 	"id": "1e3a8bfa-f6e9-49ad-9822-6a2d7b7a3e9f",
-	"prevIds": ["4cd5f0c6-e546-4b3c-95aa-0d0674b72443"],
+	"prevIds": ["6ba010d0-328b-46ba-bd71-d6f7772a5985"],
 	"ddl": [
 		{
 			"values": ["SHORT", "MEDIUM", "LONG", "WIRE", "CURLY", "HAIRLESS"],
@@ -803,6 +803,19 @@
 			"generated": null,
 			"identity": null,
 			"name": "status",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "donation_subscriptions"
+		},
+		{
+			"type": "uuid",
+			"typeSchema": null,
+			"notNull": false,
+			"dimensions": 0,
+			"default": null,
+			"generated": null,
+			"identity": null,
+			"name": "cancellation_token",
 			"entityType": "columns",
 			"schema": "public",
 			"table": "donation_subscriptions"
@@ -3379,6 +3392,15 @@
 			"columns": ["subscription_id"],
 			"nullsNotDistinct": false,
 			"name": "donation_subscriptions_subscription_id_key",
+			"schema": "public",
+			"table": "donation_subscriptions",
+			"entityType": "uniques"
+		},
+		{
+			"nameExplicit": false,
+			"columns": ["cancellation_token"],
+			"nullsNotDistinct": false,
+			"name": "donation_subscriptions_cancellation_token_key",
 			"schema": "public",
 			"table": "donation_subscriptions",
 			"entityType": "uniques"

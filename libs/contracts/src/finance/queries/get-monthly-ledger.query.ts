@@ -17,6 +17,8 @@ export const adminLedgerEntryRowSchema = z.object({
 	donorDisplayName: z.string().nullable(),
 	providerPaymentId: z.string().nullable(),
 	donationOneTimeIntentId: z.uuid().nullable(),
+	campaignId: z.uuid().nullable(),
+	campaignTitle: z.string().nullable(),
 	donationSubscriptionId: z.uuid().nullable(),
 	guardianshipId: z.uuid().nullable(),
 	receiptStorageKey: z.string().nullable(),

@@ -22,6 +22,7 @@ export class DrizzleDonationIntentsRepository implements DonationIntentsReposito
 				displayName: payload.displayName,
 				hidePublicName: payload.hidePublicName,
 				expectedAmount: payload.expectedAmount,
+				campaignId: payload.campaignId,
 				status: DonationOneTimeIntentStatusEnum.PENDING
 			})
 			.returning();

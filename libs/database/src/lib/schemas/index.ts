@@ -10,6 +10,7 @@ import {
 	animalsToAnimalLabels
 } from './animals.schema';
 import { botHelpConfig } from './bot-help-config.schema';
+import { campaigns } from './campaign.schema';
 import {
 	donationOneTimeIntentStatusEnum,
 	donationOneTimeIntents,
@@ -43,7 +44,8 @@ export const relations = defineRelations(
 		sessions,
 		accounts,
 		verifications,
-		invitations
+		invitations,
+		campaigns
 	},
 	(r) => ({
 		animals: {
@@ -58,6 +60,10 @@ export const relations = defineRelations(
 			guardianship: r.one.guardianships({
 				from: r.animals.id,
 				to: r.guardianships.animalId
+			}),
+			campaigns: r.many.campaigns({
+				from: r.animals.id,
+				to: r.campaigns.animalId
 			})
 		},
 		animalLabels: {
@@ -70,6 +76,10 @@ export const relations = defineRelations(
 			ledgerEntries: r.many.ledgerEntries({
 				from: r.donationOneTimeIntents.id,
 				to: r.ledgerEntries.donationOneTimeIntentId
+			}),
+			campaign: r.one.campaigns({
+				from: r.donationOneTimeIntents.campaignId,
+				to: r.campaigns.id
 			})
 		},
 		donationSubscriptions: {
@@ -138,6 +148,10 @@ export const relations = defineRelations(
 			reactions: r.many.postReactions({
 				from: r.posts.id,
 				to: r.postReactions.postId
+			}),
+			campaign: r.one.campaigns({
+				from: r.posts.campaignId,
+				to: r.campaigns.id
 			})
 		},
 		users: {
@@ -172,6 +186,20 @@ export const relations = defineRelations(
 			user: r.one.users({
 				from: r.invitations.userId,
 				to: r.users.id
+			})
+		},
+		campaigns: {
+			posts: r.many.posts({
+				from: r.campaigns.id,
+				to: r.posts.campaignId
+			}),
+			donationOneTimeIntents: r.many.donationOneTimeIntents({
+				from: r.campaigns.id,
+				to: r.donationOneTimeIntents.campaignId
+			}),
+			animal: r.one.animals({
+				from: r.campaigns.animalId,
+				to: r.animals.id
 			})
 		}
 	})
@@ -209,11 +237,13 @@ export const schema = {
 	sessions,
 	accounts,
 	verifications,
-	invitations
+	invitations,
+	campaigns
 };
 
 export * from './animals.schema';
 export * from './bot-help-config.schema';
+export * from './campaign.schema';
 export * from './finance.schema';
 export * from './guardianships.schema';
 export * from './posts.schema';

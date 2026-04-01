@@ -6,3 +6,4 @@ export * from './finance';
 export * from './guardianship';
 export * from './posts';
 export * from './telegram-bot';
+export * from './campaign';

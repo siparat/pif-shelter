@@ -1,0 +1,3 @@
+ALTER TABLE "donation_one_time_intents" ADD COLUMN "campaign_id" uuid;--> statement-breakpoint
+CREATE INDEX "donation_one_time_intents_campaign_id_idx" ON "donation_one_time_intents" ("campaign_id");--> statement-breakpoint
+ALTER TABLE "donation_one_time_intents" ADD CONSTRAINT "donation_one_time_intents_campaign_id_campaigns_id_fkey" FOREIGN KEY ("campaign_id") REFERENCES "campaigns"("id") ON DELETE SET NULL;

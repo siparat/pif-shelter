@@ -55,6 +55,9 @@ export default [
 					allowHigherOrderFunctions: true
 				}
 			],
+			'@typescript-eslint/no-unused-vars': ['error', {
+				argsIgnorePattern: '^_'
+			}],
 			...prettierConfig.rules
 		}
 	},

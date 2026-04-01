@@ -6,7 +6,8 @@ import { donationAmountKopecksSchema } from '../donation-amount.schema';
 export const createOneTimeDonationRequestSchema = z.object({
 	displayName: z.string().describe('Имя для публичного отчёта; при анонимности UI передаёт пустую строку'),
 	hidePublicName: z.boolean().describe('Не отдавать имя в публичном отчёте'),
-	amount: donationAmountKopecksSchema.describe('Сумма разового доната в копейках')
+	amount: donationAmountKopecksSchema.describe('Сумма разового доната в копейках'),
+	campaignId: z.uuid().optional().describe('Идентификатор срочного сбора')
 });
 
 export class CreateOneTimeDonationRequestDto extends createZodDto(createOneTimeDonationRequestSchema) {}

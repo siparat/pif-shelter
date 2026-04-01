@@ -3,6 +3,7 @@ import { index, integer, pgEnum, pgTable, smallint, text, uniqueIndex, uuid } fr
 import { animals } from './animals.schema';
 import { timestamps } from './timestamps';
 import { users } from './users.schema';
+import { campaigns } from './campaign.schema';
 
 export const postVisibilityEnum = pgEnum('post_visibility', PostVisibilityEnum);
 
@@ -21,7 +22,7 @@ export const posts = pgTable(
 		title: text('title').notNull(),
 		body: text('body').notNull(),
 		visibility: postVisibilityEnum('visibility').notNull(),
-		campaignId: uuid('campaign_id'),
+		campaignId: uuid('campaign_id').references(() => campaigns.id),
 		animalAgeYears: integer('animal_age_years').notNull(),
 		animalAgeMonths: integer('animal_age_months').notNull(),
 		...timestamps

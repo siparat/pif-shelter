@@ -12,6 +12,8 @@ export type MonthlyExcelDonationRow = {
 	occurredAt: Date;
 	source: LedgerEntrySourceEnum.DONATION_ONE_OFF | LedgerEntrySourceEnum.DONATION_SUBSCRIPTION;
 	donorDisplayName: string | null;
+	campaignId: string | null;
+	campaignTitle: string | null;
 	title: string;
 	grossAmount: number;
 	feeAmount: number;

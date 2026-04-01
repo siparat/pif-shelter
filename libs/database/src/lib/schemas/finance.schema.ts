@@ -10,6 +10,7 @@ import { boolean, index, integer, pgEnum, pgTable, text, timestamp, uniqueIndex,
 import { timestamps } from './timestamps';
 import { guardianships } from './guardianships.schema';
 import { users } from './users.schema';
+import { campaigns } from './campaign.schema';
 
 export const donationOneTimeIntentStatusEnum = pgEnum(
 	'donation_one_time_intent_status',
@@ -33,11 +34,15 @@ export const donationOneTimeIntents = pgTable(
 		displayName: text('display_name').notNull(),
 		hidePublicName: boolean('hide_public_name').default(false).notNull(),
 		expectedAmount: integer('expected_amount').notNull(),
+		campaignId: uuid('campaign_id').references(() => campaigns.id, { onDelete: 'set null' }),
 		status: donationOneTimeIntentStatusEnum('status').notNull(),
 		providerPaymentId: text('provider_payment_id').unique(),
 		...timestamps
 	},
-	(table) => [index('donation_one_time_intents_status_idx').on(table.status)]
+	(table) => [
+		index('donation_one_time_intents_status_idx').on(table.status),
+		index('donation_one_time_intents_campaign_id_idx').on(table.campaignId)
+	]
 );
 
 export const donationSubscriptions = pgTable('donation_subscriptions', {
