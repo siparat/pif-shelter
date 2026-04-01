@@ -8,6 +8,9 @@ export class CampaignUpdatedHandler implements IEventHandler<CampaignUpdatedEven
 	constructor(private readonly cache: CacheService) {}
 
 	async handle({ campaign: { id } }: CampaignUpdatedEvent): Promise<void> {
-		await this.cache.del(CampaignsCacheKeys.detail(id));
+		await Promise.all([
+			this.cache.del(CampaignsCacheKeys.detail(id)),
+			this.cache.delByPattern(`${CampaignsCacheKeys.LIST}:*`)
+		]);
 	}
 }

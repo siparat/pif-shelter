@@ -31,7 +31,10 @@ export class CampaignsProcessor extends WorkerHost {
 	private async markExpiredAsFailed({ id: jobId }: Job): Promise<void> {
 		const ids = await this.campaignsService.markExpiredAsFailed(new Date());
 		if (ids.length > 0) {
-			await Promise.all(ids.map((id) => this.cache.del(CampaignsCacheKeys.detail(id))));
+			await Promise.all([
+				...ids.map((id) => this.cache.del(CampaignsCacheKeys.detail(id))),
+				this.cache.delByPattern(`${CampaignsCacheKeys.LIST}:*`)
+			]);
 		}
 		this.logger.log('Обработано закрытие просроченных сборов', { updatedCount: ids.length, jobId });
 	}

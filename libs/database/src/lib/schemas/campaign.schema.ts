@@ -1,5 +1,5 @@
 import { CampaignStatus } from '@pif/shared';
-import { sql } from 'drizzle-orm';
+import { isNull, sql } from 'drizzle-orm';
 import { check, index, integer, pgEnum, pgTable, smallint, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { animals } from './animals.schema';
 import { timestamps } from './timestamps';
@@ -24,7 +24,7 @@ export const campaigns = pgTable(
 	},
 	(table) => [
 		index('campaigns_animal_id_idx').on(table.animalId),
-		index('campaigns_status_ends_at_idx').on(table.status, table.endsAt),
+		index('campaigns_status_ends_at_idx').on(table.status, table.endsAt).where(isNull(table.deletedAt)),
 		check('campaigns_positive_collected_check', sql`${table.collected} >= 0 `),
 		check('campaigns_positive_goal_check', sql`${table.goal} >= 0 `)
 	]

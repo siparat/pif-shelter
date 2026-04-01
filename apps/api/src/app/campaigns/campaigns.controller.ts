@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
@@ -6,6 +6,8 @@ import {
 	CreateCampaignResponseDto,
 	GetCampaignByIdResponseDto,
 	ReturnDto,
+	SearchCampaignsRequestDto,
+	SearchCampaignsResponseDto,
 	UpdateCampaignRequestDto,
 	UpdateCampaignResponseDto
 } from '@pif/contracts';
@@ -19,6 +21,7 @@ import { CreateCampaignCommand } from './commands/create-campaign/create-campaig
 import { DeleteCampaignCommand } from './commands/delete-campaign/delete-campaign.command';
 import { UpdateCampaignCommand } from './commands/update-campaign/update-campaign.command';
 import { CampaignDetails, GetCampaignByIdQuery } from './queries/get-campaign-by-id/get-campaign-by-id.query';
+import { CampaingsSearchResult, SearchCampaignsQuery } from './queries/search-campaigns/search-campaigns.query';
 
 @ApiTags('Campaigns | Срочные сборы')
 @Controller('campaigns')
@@ -27,6 +30,16 @@ export class CampaignsController {
 		private readonly commandBus: CommandBus,
 		private readonly queryBus: QueryBus
 	) {}
+
+	@ApiOperation({
+		summary: 'Поиск сборов',
+		description: 'Получение списка сборов по фильтру'
+	})
+	@ApiOkResponse({ type: SearchCampaignsResponseDto })
+	@Get()
+	async search(@Query() dto: SearchCampaignsRequestDto): Promise<CampaingsSearchResult> {
+		return this.queryBus.execute(new SearchCampaignsQuery(dto));
+	}
 
 	@ApiOperation({
 		summary: 'Создание срочного сбора',

@@ -18,6 +18,7 @@ import { DrizzleCampaignsRepository } from './repositories/drizzle-campaigns.rep
 import { GetCampaignByIdHandler } from './queries/get-campaign-by-id/get-campaign-by-id.handler';
 import { CampaignCreatedHandler } from './events/campaign-created/campaign-created.handler';
 import { CampaignUpdatedHandler } from './events/campaign-updated/campaign-updated.handler';
+import { SearchCampaignsHandler } from './queries/search-campaigns/search-campaigns.handler';
 
 @Module({
 	imports: [BullModule.registerQueue({ name: CAMPAIGNS_QUEUE_NAME }), CqrsModule, AnimalsModule],
@@ -36,6 +37,7 @@ import { CampaignUpdatedHandler } from './events/campaign-updated/campaign-updat
 		CampaignCreatedHandler,
 		CampaignUpdatedHandler,
 		CampaignDeletedHandler,
+		SearchCampaignsHandler,
 		{
 			provide: CampaignsRepository,
 			useClass: DrizzleCampaignsRepository
