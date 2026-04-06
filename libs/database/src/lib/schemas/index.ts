@@ -26,6 +26,7 @@ import {
 import { guardianshipStatusEnum, guardianships } from './guardianships.schema';
 import { postMedia, postMediaTypeEnum, postReactions, postVisibilityEnum, posts } from './posts.schema';
 import { accounts, invitations, roleEnum, sessions, users, verifications } from './users.schema';
+import { wishlistCategories, wishlistItemStatusEnum, wishlistItems } from './wishlist.schema';
 
 export const relations = defineRelations(
 	{
@@ -45,7 +46,9 @@ export const relations = defineRelations(
 		accounts,
 		verifications,
 		invitations,
-		campaigns
+		campaigns,
+		wishlistCategories,
+		wishlistItems
 	},
 	(r) => ({
 		animals: {
@@ -201,6 +204,18 @@ export const relations = defineRelations(
 				from: r.campaigns.animalId,
 				to: r.animals.id
 			})
+		},
+		wishlistCategories: {
+			items: r.many.wishlistItems({
+				from: r.wishlistCategories.id,
+				to: r.wishlistItems.categoryId
+			})
+		},
+		wishlistItems: {
+			category: r.one.wishlistCategories({
+				from: r.wishlistItems.categoryId,
+				to: r.wishlistCategories.id
+			})
 		}
 	})
 );
@@ -238,7 +253,10 @@ export const schema = {
 	accounts,
 	verifications,
 	invitations,
-	campaigns
+	campaigns,
+	wishlistItemStatusEnum,
+	wishlistCategories,
+	wishlistItems
 };
 
 export * from './animals.schema';
@@ -248,3 +266,4 @@ export * from './finance.schema';
 export * from './guardianships.schema';
 export * from './posts.schema';
 export * from './users.schema';
+export * from './wishlist.schema';

@@ -39,6 +39,7 @@ import { MediaModule } from './media/media.module';
 import { PaymentsModule } from './payments/payments.module';
 import { PostsModule } from './posts/posts.module';
 import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
+import { WishlistModule } from './wishlist/wishlist.module';
 
 @Module({
 	imports: [
@@ -64,6 +65,7 @@ import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
 		PaymentsModule,
 		PostsModule,
 		CampaignsModule,
+		WishlistModule,
 		HealthModule,
 		SeedModule
 	],
