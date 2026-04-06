@@ -34,8 +34,8 @@ export class GetCampaignByIdHandler implements IQueryHandler<GetCampaignByIdQuer
 		if (!result) {
 			throw new CampaignNotFoundException();
 		}
-		if (result.status === CampaignStatus.PUBLISHED && result.endsAt.getTime() <= Date.now()) {
-			await this.campaignsService.updateStatus(result.id, CampaignStatus.FAILED);
+		const now = new Date();
+		if (await this.campaignsService.expirePublishedIfDue(result.id, now)) {
 			result.status = CampaignStatus.FAILED;
 		}
 

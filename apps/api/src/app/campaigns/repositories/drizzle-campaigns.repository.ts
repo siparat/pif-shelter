@@ -2,9 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { CreateCampaignRequestDto, UpdateCampaignRequestDto } from '@pif/contracts';
 import { campaigns, DatabaseService } from '@pif/database';
 import { CampaignStatus } from '@pif/shared';
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, eq, isNull, lte, SQL, sql } from 'drizzle-orm';
 import { CampaignMapper } from '../mappers/campaign.mapper';
 import { CampaignsRepository } from './campaigns.repository';
+
+function publishedCampaignEndedWhere(now: Date): SQL<unknown> | undefined {
+	return and(eq(campaigns.status, CampaignStatus.PUBLISHED), isNull(campaigns.deletedAt), lte(campaigns.endsAt, now));
+}
 
 @Injectable()
 export class DrizzleCampaignsRepository extends CampaignsRepository {
@@ -53,17 +57,20 @@ export class DrizzleCampaignsRepository extends CampaignsRepository {
 		return campaign;
 	}
 
+	async expirePublishedIfDue(id: string, now: Date): Promise<boolean> {
+		const rows = await this.database.client
+			.update(campaigns)
+			.set({ status: CampaignStatus.FAILED })
+			.where(and(eq(campaigns.id, id), publishedCampaignEndedWhere(now)))
+			.returning({ id: campaigns.id });
+		return rows.length > 0;
+	}
+
 	async markExpiredAsFailed(now: Date): Promise<string[]> {
 		const rows = await this.database.client
 			.update(campaigns)
 			.set({ status: CampaignStatus.FAILED })
-			.where(
-				and(
-					eq(campaigns.status, CampaignStatus.PUBLISHED),
-					isNull(campaigns.deletedAt),
-					sql`${campaigns.endsAt} <= ${now}`
-				)
-			)
+			.where(publishedCampaignEndedWhere(now))
 			.returning({ id: campaigns.id });
 
 		return rows.map((row) => row.id);

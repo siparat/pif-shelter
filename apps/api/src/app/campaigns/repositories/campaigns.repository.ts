@@ -7,6 +7,7 @@ export abstract class CampaignsRepository {
 	abstract update(id: string, dto: UpdateCampaignRequestDto): Promise<typeof campaigns.$inferSelect | undefined>;
 	abstract updateStatus(id: string, status: CampaignStatus): Promise<typeof campaigns.$inferSelect | undefined>;
 	abstract applyDonation(id: string, amount: number): Promise<typeof campaigns.$inferSelect | undefined>;
+	abstract expirePublishedIfDue(id: string, now: Date): Promise<boolean>;
 	abstract markExpiredAsFailed(now: Date): Promise<string[]>;
 	abstract delete(id: string): Promise<boolean>;
 	abstract findById(id: string): Promise<typeof campaigns.$inferSelect | undefined>;

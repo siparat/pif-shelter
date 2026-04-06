@@ -19,6 +19,10 @@ export class CampaignsService {
 		return this.repository.applyDonation(id, amount);
 	}
 
+	expirePublishedIfDue(id: string, now: Date = new Date()): Promise<boolean> {
+		return this.repository.expirePublishedIfDue(id, now);
+	}
+
 	markExpiredAsFailed(now: Date): Promise<string[]> {
 		return this.repository.markExpiredAsFailed(now);
 	}
