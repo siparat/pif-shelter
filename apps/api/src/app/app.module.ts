@@ -36,6 +36,7 @@ import { DonationsModule } from './donations/donations.module';
 import { FinanceModule } from './finance/finance.module';
 import { GuardianshipModule } from './guardianship/guardianship.module';
 import { MediaModule } from './media/media.module';
+import { MeetingRequestsModule } from './meeting-requests/meeting-requests.module';
 import { PaymentsModule } from './payments/payments.module';
 import { PostsModule } from './posts/posts.module';
 import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
@@ -66,6 +67,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
 		PostsModule,
 		CampaignsModule,
 		WishlistModule,
+		MeetingRequestsModule,
 		HealthModule,
 		SeedModule
 	],

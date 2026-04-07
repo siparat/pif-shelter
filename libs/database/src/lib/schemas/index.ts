@@ -24,6 +24,7 @@ import {
 	monthlyFinanceReports
 } from './finance.schema';
 import { guardianshipStatusEnum, guardianships } from './guardianships.schema';
+import { meetingRequestStatusEnum, meetingRequests } from './meeting-requests.schema';
 import { postMedia, postMediaTypeEnum, postReactions, postVisibilityEnum, posts } from './posts.schema';
 import { accounts, invitations, roleEnum, sessions, users, verifications } from './users.schema';
 import { wishlistCategories, wishlistItemStatusEnum, wishlistItems } from './wishlist.schema';
@@ -36,6 +37,7 @@ export const relations = defineRelations(
 		donationOneTimeIntents,
 		donationSubscriptions,
 		guardianships,
+		meetingRequests,
 		ledgerEntries,
 		monthlyFinanceReports,
 		postMedia,
@@ -67,6 +69,10 @@ export const relations = defineRelations(
 			campaigns: r.many.campaigns({
 				from: r.animals.id,
 				to: r.campaigns.animalId
+			}),
+			meetingRequests: r.many.meetingRequests({
+				from: r.animals.id,
+				to: r.meetingRequests.animalId
 			})
 		},
 		animalLabels: {
@@ -103,6 +109,16 @@ export const relations = defineRelations(
 			ledgerEntries: r.many.ledgerEntries({
 				from: r.guardianships.id,
 				to: r.ledgerEntries.guardianshipId
+			})
+		},
+		meetingRequests: {
+			animal: r.one.animals({
+				from: r.meetingRequests.animalId,
+				to: r.animals.id
+			}),
+			curator: r.one.users({
+				from: r.meetingRequests.curatorUserId,
+				to: r.users.id
 			})
 		},
 		ledgerEntries: {
@@ -171,6 +187,10 @@ export const relations = defineRelations(
 			ledgerEntriesCreated: r.many.ledgerEntries({
 				from: r.users.id,
 				to: r.ledgerEntries.createdByUserId
+			}),
+			meetingRequests: r.many.meetingRequests({
+				from: r.users.id,
+				to: r.meetingRequests.curatorUserId
 			})
 		},
 		sessions: {
@@ -236,6 +256,8 @@ export const schema = {
 	donationSubscriptions,
 	guardianshipStatusEnum,
 	guardianships,
+	meetingRequestStatusEnum,
+	meetingRequests,
 	ledgerEntries,
 	ledgerEntryDirectionEnum,
 	ledgerEntrySourceEnum,
@@ -264,6 +286,7 @@ export * from './bot-help-config.schema';
 export * from './campaign.schema';
 export * from './finance.schema';
 export * from './guardianships.schema';
+export * from './meeting-requests.schema';
 export * from './posts.schema';
 export * from './users.schema';
 export * from './wishlist.schema';

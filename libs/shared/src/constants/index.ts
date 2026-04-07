@@ -7,3 +7,4 @@ export * from './posts';
 export * from './users';
 export * from './campaign';
 export * from './wishlist';
+export * from './meeting';

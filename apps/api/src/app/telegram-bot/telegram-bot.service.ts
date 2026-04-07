@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PostMediaTypeEnum, PostVisibilityEnum } from '@pif/shared';
 import { StorageService } from '@pif/storage';
+import { Logger } from 'nestjs-pino';
 import { InjectBot } from 'nestjs-telegraf';
-import { Telegraf } from 'telegraf';
+import { Telegraf, TelegramError } from 'telegraf';
 import { InputMediaPhoto, InputMediaVideo } from 'telegraf/typings/core/types/typegram';
 import { AppUrlMapper } from '../core/mappers/app-url.mapper';
 import { ISendAnimalNewPostPayload } from './interfaces/send-animal-new-post-payload.interface';
@@ -16,8 +17,22 @@ export class TelegramBotService {
 	constructor(
 		@InjectBot() private readonly bot: Telegraf,
 		private readonly config: ConfigService,
-		private readonly storage: StorageService
+		private readonly storage: StorageService,
+		private readonly logger: Logger
 	) {}
+
+	async sendMessage(chatId: string, message: string): Promise<boolean> {
+		try {
+			await this.bot.telegram.sendMessage(chatId, message);
+			return true;
+		} catch (error) {
+			if (error instanceof TelegramError) {
+				this.logger.error('Ошибка при отправке сообщения в телеграмм', error);
+				return false;
+			}
+			throw error;
+		}
+	}
 
 	async sendGuardianshipCancelledMessage(chatId: number, payload: ISendGuardianshipCancelledPayload): Promise<void> {
 		const adminUsername = this.config.getOrThrow<string>('TELEGRAM_ADMIN_USERNAME');

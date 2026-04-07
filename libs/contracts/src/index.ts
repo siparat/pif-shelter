@@ -8,3 +8,5 @@ export * from './guardianship';
 export * from './posts';
 export * from './telegram-bot';
 export * from './wishlist';
+
+export * from './meeting-requests';
