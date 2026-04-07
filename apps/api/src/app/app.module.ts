@@ -11,6 +11,7 @@ import { StorageModule } from '@pif/storage';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { ClsModule } from 'nestjs-cls';
 import { LoggerModule } from 'nestjs-pino';
+import { AdminDashboardModule } from './admin/dashboard/dashboard.module';
 import { AdminUsersModule } from './admin/users/users.module';
 import { AnimalsModule } from './animals/animals.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
@@ -62,6 +63,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
 		FinanceModule,
 		GuardianshipModule,
 		AdminUsersModule,
+		AdminDashboardModule,
 		MediaModule,
 		PaymentsModule,
 		PostsModule,
