@@ -21,7 +21,8 @@ export const createMeetingRequestSchema = z.object({
 					});
 					return z.NEVER;
 				}
-				return phoneNumber.number;
+				const number: string = phoneNumber.number;
+				return number;
 			} catch {
 				ctx.addIssue({
 					code: 'custom',
