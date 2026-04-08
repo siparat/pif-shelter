@@ -1,20 +1,31 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { ForbiddenException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test } from '@nestjs/testing';
+import { CacheService } from '@pif/cache';
 import { CreateMeetingRequestDto } from '@pif/contracts';
 import { meetingRequests } from '@pif/database';
+import { BlacklistSource, MeetingCacheKeys, generateIdempotencyKey } from '@pif/shared';
 import { randomUUID } from 'crypto';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import { Logger } from 'nestjs-pino';
+import { BlacklistPolicy } from '../../../core/policies/blacklist.policy';
+import { MeetingRequestCreatedEvent } from '../../events/meeting-request-created/meeting-request-created.event';
 import { MeetingRequestAnimalNotFoundException } from '../../exceptions/meeting-request-animal-not-found.exception';
 import { MeetingRequestCuratorNotAssignedException } from '../../exceptions/meeting-request-curator-not-assigned.exception';
 import { MeetingRequestsRepository } from '../../repositories/meeting-requests.repository';
 import { CreateMeetingRequestCommand } from './create-meeting-request.command';
 import { CreateMeetingRequestHandler } from './create-meeting-request.handler';
 
+dayjs.extend(utc);
+
 describe('CreateMeetingRequestHandler', () => {
 	let handler: CreateMeetingRequestHandler;
 	let repository: DeepMocked<MeetingRequestsRepository>;
 	let eventBus: DeepMocked<EventBus>;
+	let cache: DeepMocked<CacheService>;
+	let blacklistPolicy: DeepMocked<BlacklistPolicy>;
 
 	const dto: CreateMeetingRequestDto = {
 		animalId: randomUUID(),
@@ -25,19 +36,63 @@ describe('CreateMeetingRequestHandler', () => {
 		comment: 'Хочу познакомиться'
 	};
 
+	function idempotencyKeyFor(d: CreateMeetingRequestDto): string {
+		return generateIdempotencyKey('v1', [
+			d.animalId,
+			d.name,
+			d.phone,
+			d.email,
+			dayjs(d.meetingAt).utc().format('YYYY-MM-DDTHH:mm')
+		]);
+	}
+
 	beforeEach(async () => {
 		const module = await Test.createTestingModule({
 			providers: [
 				CreateMeetingRequestHandler,
 				{ provide: MeetingRequestsRepository, useValue: createMock<MeetingRequestsRepository>() },
 				{ provide: EventBus, useValue: createMock<EventBus>() },
-				{ provide: Logger, useValue: createMock<Logger>() }
+				{ provide: Logger, useValue: createMock<Logger>() },
+				{ provide: BlacklistPolicy, useValue: createMock<BlacklistPolicy>() },
+				{ provide: CacheService, useValue: createMock<CacheService>() }
 			]
 		}).compile();
 
 		handler = module.get(CreateMeetingRequestHandler);
 		repository = module.get(MeetingRequestsRepository);
 		eventBus = module.get(EventBus);
+		cache = module.get(CacheService);
+		blacklistPolicy = module.get(BlacklistPolicy);
+
+		cache.get.mockResolvedValue(null);
+		blacklistPolicy.assertCleanContacts.mockResolvedValue(undefined);
+	});
+
+	it('returns cached id without hitting repository when idempotency cache hit', async () => {
+		const cachedId = randomUUID();
+		cache.get.mockResolvedValue({ id: cachedId });
+
+		const result = await handler.execute(new CreateMeetingRequestCommand(dto));
+
+		expect(result).toEqual({ id: cachedId });
+		expect(blacklistPolicy.assertCleanContacts).not.toHaveBeenCalled();
+		expect(repository.findAnimalWithCurator).not.toHaveBeenCalled();
+		expect(repository.createIdempotent).not.toHaveBeenCalled();
+		expect(eventBus.publish).not.toHaveBeenCalled();
+		expect(cache.set).not.toHaveBeenCalled();
+	});
+
+	it('throws when blacklist rejects contacts', async () => {
+		blacklistPolicy.assertCleanContacts.mockRejectedValue(new ForbiddenException('В черном списке'));
+
+		await expect(handler.execute(new CreateMeetingRequestCommand(dto))).rejects.toThrow(ForbiddenException);
+		expect(blacklistPolicy.assertCleanContacts).toHaveBeenCalledWith([
+			{ source: BlacklistSource.PHONE, value: dto.phone },
+			{ source: BlacklistSource.EMAIL, value: dto.email }
+		]);
+		expect(repository.findAnimalWithCurator).not.toHaveBeenCalled();
+		expect(repository.createIdempotent).not.toHaveBeenCalled();
+		expect(eventBus.publish).not.toHaveBeenCalled();
 	});
 
 	it('throws when animal not found', async () => {
@@ -45,7 +100,7 @@ describe('CreateMeetingRequestHandler', () => {
 		await expect(handler.execute(new CreateMeetingRequestCommand(dto))).rejects.toThrow(
 			MeetingRequestAnimalNotFoundException
 		);
-		expect(repository.create).not.toHaveBeenCalled();
+		expect(repository.createIdempotent).not.toHaveBeenCalled();
 		expect(eventBus.publish).not.toHaveBeenCalled();
 	});
 
@@ -54,25 +109,49 @@ describe('CreateMeetingRequestHandler', () => {
 		await expect(handler.execute(new CreateMeetingRequestCommand(dto))).rejects.toThrow(
 			MeetingRequestCuratorNotAssignedException
 		);
-		expect(repository.create).not.toHaveBeenCalled();
+		expect(repository.createIdempotent).not.toHaveBeenCalled();
+		expect(eventBus.publish).not.toHaveBeenCalled();
 	});
 
-	it('creates meeting request and returns id', async () => {
+	it('creates meeting request, publishes event, caches id', async () => {
 		const id = randomUUID();
+		const idempotencyKey = idempotencyKeyFor(dto);
+		const entity = { id } as typeof meetingRequests.$inferSelect;
 		repository.findAnimalWithCurator.mockResolvedValue({ id: dto.animalId, curatorId: 'curator-1' });
-		repository.create.mockResolvedValue({ id } as typeof meetingRequests.$inferSelect);
+		repository.createIdempotent.mockResolvedValue({ entity, isAlreadyExists: false });
 
 		const result = await handler.execute(new CreateMeetingRequestCommand(dto));
 
 		expect(result).toEqual({ id });
-		expect(repository.create).toHaveBeenCalledWith(
+		expect(cache.get).toHaveBeenCalledWith(MeetingCacheKeys.idempotencyRequest(idempotencyKey));
+		expect(repository.createIdempotent).toHaveBeenCalledWith(
 			expect.objectContaining({
 				animalId: dto.animalId,
 				curatorUserId: 'curator-1',
 				name: dto.name,
-				phone: dto.phone
+				phone: dto.phone,
+				email: dto.email,
+				comment: dto.comment,
+				meetingAt: new Date(dto.meetingAt),
+				idempotencyKey
 			})
 		);
 		expect(eventBus.publish).toHaveBeenCalledTimes(1);
+		expect(eventBus.publish.mock.calls[0][0]).toBeInstanceOf(MeetingRequestCreatedEvent);
+		expect((eventBus.publish.mock.calls[0][0] as MeetingRequestCreatedEvent).meetingRequest).toBe(entity);
+		expect(cache.set).toHaveBeenCalledWith(MeetingCacheKeys.idempotencyRequest(idempotencyKey), { id }, 300);
+	});
+
+	it('does not publish when row already existed (idempotent create)', async () => {
+		const id = randomUUID();
+		const entity = { id } as typeof meetingRequests.$inferSelect;
+		repository.findAnimalWithCurator.mockResolvedValue({ id: dto.animalId, curatorId: 'curator-1' });
+		repository.createIdempotent.mockResolvedValue({ entity, isAlreadyExists: true });
+
+		const result = await handler.execute(new CreateMeetingRequestCommand(dto));
+
+		expect(result).toEqual({ id });
+		expect(eventBus.publish).not.toHaveBeenCalled();
+		expect(cache.set).toHaveBeenCalled();
 	});
 });
