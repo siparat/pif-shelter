@@ -43,7 +43,18 @@ docs/
   tdd/                 # Стандарты API, TDD
 ```
 
-Доменные модули API: `animals`, `guardianship`, `admin/users`, `users`, `media`, `telegram-bot`, `core`.
+Доменные модули API: `animals`, `donations`, `guardianship`, `campaigns`, `wishlist`, `meeting-requests`, `payments`, `finance`, `posts`, `admin/users`, `admin/dashboard`, `media`, `telegram-bot`, `core`.
+
+---
+
+## Готовый функционал API
+
+- Каталог и карточки животных, посты, медиа, заявки на знакомство.
+- Пожертвования, платежные вебхуки, опекунство, кампании сборов и список нужд.
+- Финансовая выгрузка в `XLSX` (генерация месячных отчетов и выдача ссылок на скачивание).
+- Админский контур пользователей: приглашения в команду, принятие инвайта, управление флагом `telegram_unreachable`.
+- Telegram-бот для опекунов: привязка по токену, `/my_animals`, `/report`, `/help`, `/unsubscribe` (отмена опекунства).
+- Отмена рекуррентных донатов поддерживается через PSP и email-ссылки, не через Telegram-бота.
 
 ---
 
