@@ -55,9 +55,12 @@ export default [
 					allowHigherOrderFunctions: true
 				}
 			],
-			'@typescript-eslint/no-unused-vars': ['error', {
-				argsIgnorePattern: '^_'
-			}],
+			'@typescript-eslint/no-unused-vars': [
+				'error',
+				{
+					argsIgnorePattern: '^_'
+				}
+			],
 			...prettierConfig.rules
 		}
 	},
@@ -78,6 +81,7 @@ export default [
 			}
 		},
 		rules: {
+			'@typescript-eslint/no-unused-vars': 'warn',
 			'@typescript-eslint/naming-convention': [
 				'error',
 				{

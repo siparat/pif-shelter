@@ -1,9 +1,10 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
 import { CreateMeetingRequestResponseDto, ReturnDto } from '@pif/contracts';
-import { generateIdempotencyKey, MeetingCacheKeys } from '@pif/shared';
+import { BlacklistSource, generateIdempotencyKey, MeetingCacheKeys } from '@pif/shared';
 import dayjs from 'dayjs';
 import { Logger } from 'nestjs-pino';
+import { BlacklistPolicy, IBlacklistPolicyItem } from '../../../core/policies/blacklist.policy';
 import { MeetingRequestCreatedEvent } from '../../events/meeting-request-created/meeting-request-created.event';
 import { MeetingRequestAnimalNotFoundException } from '../../exceptions/meeting-request-animal-not-found.exception';
 import { MeetingRequestCuratorNotAssignedException } from '../../exceptions/meeting-request-curator-not-assigned.exception';
@@ -16,7 +17,8 @@ export class CreateMeetingRequestHandler implements ICommandHandler<CreateMeetin
 		private readonly repository: MeetingRequestsRepository,
 		private readonly eventBus: EventBus,
 		private readonly logger: Logger,
-		private readonly cache: CacheService
+		private readonly cache: CacheService,
+		private readonly blacklistPolicy: BlacklistPolicy
 	) {}
 
 	async execute({ dto }: CreateMeetingRequestCommand): Promise<ReturnDto<typeof CreateMeetingRequestResponseDto>> {
@@ -32,6 +34,12 @@ export class CreateMeetingRequestHandler implements ICommandHandler<CreateMeetin
 		if (cachedResult) {
 			return cachedResult;
 		}
+
+		const contacts: IBlacklistPolicyItem[] = [{ source: BlacklistSource.PHONE, value: dto.phone }];
+		if (dto.email) {
+			contacts.push({ source: BlacklistSource.EMAIL, value: dto.email });
+		}
+		await this.blacklistPolicy.assertCleanContacts(contacts);
 
 		const animal = await this.repository.findAnimalWithCurator(dto.animalId);
 		if (!animal) {
