@@ -1,9 +1,12 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { CacheService } from '@pif/cache';
 import { CreateMeetingRequestResponseDto, ReturnDto } from '@pif/contracts';
+import { generateIdempotencyKey, MeetingCacheKeys } from '@pif/shared';
+import dayjs from 'dayjs';
 import { Logger } from 'nestjs-pino';
+import { MeetingRequestCreatedEvent } from '../../events/meeting-request-created/meeting-request-created.event';
 import { MeetingRequestAnimalNotFoundException } from '../../exceptions/meeting-request-animal-not-found.exception';
 import { MeetingRequestCuratorNotAssignedException } from '../../exceptions/meeting-request-curator-not-assigned.exception';
-import { MeetingRequestCreatedEvent } from '../../events/meeting-request-created/meeting-request-created.event';
 import { MeetingRequestsRepository } from '../../repositories/meeting-requests.repository';
 import { CreateMeetingRequestCommand } from './create-meeting-request.command';
 
@@ -12,10 +15,24 @@ export class CreateMeetingRequestHandler implements ICommandHandler<CreateMeetin
 	constructor(
 		private readonly repository: MeetingRequestsRepository,
 		private readonly eventBus: EventBus,
-		private readonly logger: Logger
+		private readonly logger: Logger,
+		private readonly cache: CacheService
 	) {}
 
 	async execute({ dto }: CreateMeetingRequestCommand): Promise<ReturnDto<typeof CreateMeetingRequestResponseDto>> {
+		const idempotencyKey = generateIdempotencyKey('v1', [
+			dto.animalId,
+			dto.name,
+			dto.phone,
+			dto.email,
+			dayjs(dto.meetingAt).utc().format('YYYY-MM-DDTHH:mm')
+		]);
+		const cacheKey = MeetingCacheKeys.idempotencyRequest(idempotencyKey);
+		const cachedResult = await this.cache.get<{ id: string }>(cacheKey).catch(() => null);
+		if (cachedResult) {
+			return cachedResult;
+		}
+
 		const animal = await this.repository.findAnimalWithCurator(dto.animalId);
 		if (!animal) {
 			throw new MeetingRequestAnimalNotFoundException();
@@ -24,18 +41,28 @@ export class CreateMeetingRequestHandler implements ICommandHandler<CreateMeetin
 			throw new MeetingRequestCuratorNotAssignedException();
 		}
 
-		const created = await this.repository.create({
+		const { entity, isAlreadyExists } = await this.repository.createIdempotent({
 			animalId: dto.animalId,
 			curatorUserId: animal.curatorId,
 			name: dto.name,
 			phone: dto.phone,
 			email: dto.email ?? null,
 			comment: dto.comment ?? null,
-			meetingAt: new Date(dto.meetingAt)
+			meetingAt: new Date(dto.meetingAt),
+			idempotencyKey
 		});
 
-		await this.eventBus.publish(new MeetingRequestCreatedEvent(created));
-		this.logger.log('Создана заявка на встречу', { meetingRequestId: created.id, animalId: dto.animalId });
-		return { id: created.id };
+		if (!isAlreadyExists) {
+			await this.eventBus.publish(new MeetingRequestCreatedEvent(entity));
+			this.logger.log('Создана заявка на встречу', {
+				meetingRequestId: entity.id,
+				animalId: dto.animalId,
+				idempotencyKey
+			});
+		}
+
+		await this.cache.set(cacheKey, { id: entity.id }, 300).catch(() => null);
+
+		return { id: entity.id };
 	}
 }

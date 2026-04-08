@@ -10,6 +10,30 @@ export class DrizzleMeetingRequestsRepository extends MeetingRequestsRepository 
 		super();
 	}
 
+	async createIdempotent(
+		input: CreateMeetingRequestInput
+	): Promise<{ entity: typeof meetingRequests.$inferSelect; isAlreadyExists: boolean }> {
+		return this.db.client.transaction(async (tx) => {
+			const [created] = await tx
+				.insert(meetingRequests)
+				.values(input)
+				.onConflictDoNothing({ target: meetingRequests.idempotencyKey })
+				.returning();
+			if (created) {
+				return { entity: created, isAlreadyExists: false };
+			}
+			const [alreadyCreated] = await tx
+				.select()
+				.from(meetingRequests)
+				.where(eq(meetingRequests.idempotencyKey, input.idempotencyKey))
+				.limit(1);
+			if (alreadyCreated) {
+				return { entity: alreadyCreated, isAlreadyExists: true };
+			}
+			throw new Error('Ошибка записи в базу данных, попробуйте еще раз');
+		});
+	}
+
 	findById(id: string): Promise<typeof meetingRequests.$inferSelect | undefined> {
 		return this.db.client.query.meetingRequests.findFirst({ where: { id } });
 	}

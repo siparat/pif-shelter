@@ -24,6 +24,7 @@ export const meetingRequests = pgTable(
 		confirmedAt: timestamp('confirmed_at'),
 		rejectedAt: timestamp('rejected_at'),
 		rejectionReason: text('rejection_reason'),
+		idempotencyKey: text('idempotency_key').notNull().unique(),
 		createdAt: timestamp('created_at').defaultNow().notNull(),
 		updatedAt: timestamp('updated_at')
 			.defaultNow()

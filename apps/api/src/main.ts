@@ -7,6 +7,7 @@ import { AuthService } from '@thallesp/nestjs-better-auth';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 import duration from 'dayjs/plugin/duration';
+import utc from 'dayjs/plugin/utc';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { Logger } from 'nestjs-pino';
 import { ZodValidationPipe } from 'nestjs-zod';
@@ -16,6 +17,7 @@ import { handleBetterAuthRequest } from './app/core/auth/better-auth-fastify.han
 import { GlobalDeserializerInterceptor } from './app/core/interceptors/global-deserializer.interceptor';
 
 dayjs.locale('ru');
+dayjs.extend(utc);
 dayjs.extend(duration);
 
 const PORT = 3000;
