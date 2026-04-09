@@ -93,4 +93,12 @@ export class DrizzleBlacklistRepository extends BlacklistRepository {
 		}
 		return result[0];
 	}
+
+	async delete(id: string): Promise<number> {
+		const list = await this.database.client
+			.delete(blacklist)
+			.where(eq(blacklist.id, id))
+			.returning({ id: blacklist.id });
+		return list.length;
+	}
 }

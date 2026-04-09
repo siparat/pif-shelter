@@ -10,4 +10,5 @@ export abstract class BlacklistRepository {
 	abstract banContacts(moderatorId: string, reason: string, ...sources: IBlacklistSource[]): Promise<number>;
 	abstract findByValue(value: string): Promise<typeof blacklist.$inferSelect | undefined>;
 	abstract findByValue(values: string[]): Promise<(typeof blacklist.$inferSelect)[]>;
+	abstract delete(id: string): Promise<number>;
 }

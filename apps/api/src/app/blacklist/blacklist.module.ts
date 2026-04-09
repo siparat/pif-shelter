@@ -5,6 +5,7 @@ import { BlacklistService } from './blacklist.service';
 import { BlacklistRepository } from './repositories/blacklist.repository';
 import { DrizzleBlacklistRepository } from './repositories/drizzle-blacklist.repository';
 import { BanContactsHandler } from './commands/ban-contacts/ban-contacts.handler';
+import { DeleteContactFromBlacklistHandler } from './commands/delete-contact-from-blacklist/delete-contact-from-blacklist.handler';
 
 @Module({
 	imports: [CqrsModule],
@@ -12,6 +13,7 @@ import { BanContactsHandler } from './commands/ban-contacts/ban-contacts.handler
 	exports: [BlacklistService],
 	providers: [
 		BanContactsHandler,
+		DeleteContactFromBlacklistHandler,
 		BlacklistService,
 		{
 			provide: BlacklistRepository,
