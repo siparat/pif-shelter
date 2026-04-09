@@ -56,6 +56,7 @@ export class ListCuratorMeetingRequestsHandler implements IQueryHandler<ListCura
 			confirmedAt: request.confirmedAt?.toISOString() ?? null,
 			rejectedAt: request.rejectedAt?.toISOString() ?? null,
 			rejectionReason: request.rejectionReason,
+			isSuspicious: request.isSuspicious,
 			createdAt: request.createdAt.toISOString(),
 			updatedAt: request.updatedAt?.toISOString(),
 			animal,

@@ -1,5 +1,6 @@
 export * from './admin';
 export * from './animals';
+export * from './blacklist';
 export * from './campaign';
 export * from './common';
 export * from './donations';

@@ -1,5 +1,6 @@
 import { MeetingRequestStatusEnum } from '@pif/shared';
-import { index, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { eq } from 'drizzle-orm';
+import { boolean, index, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { animals } from './animals.schema';
 import { users } from './users.schema';
 
@@ -19,6 +20,7 @@ export const meetingRequests = pgTable(
 		phone: text('phone').notNull(),
 		email: text('email'),
 		comment: text('comment'),
+		isSuspicious: boolean('is_suspicious').notNull().default(false),
 		meetingAt: timestamp('meeting_at').notNull(),
 		status: meetingRequestStatusEnum('status').notNull().default(MeetingRequestStatusEnum.NEW),
 		confirmedAt: timestamp('confirmed_at'),
@@ -33,6 +35,8 @@ export const meetingRequests = pgTable(
 	(table) => [
 		index('meeting_requests_animal_status_idx').on(table.animalId, table.status),
 		index('meeting_requests_curator_status_idx').on(table.curatorUserId, table.status),
-		index('meeting_requests_meeting_status_idx').on(table.meetingAt, table.status)
+		index('meeting_requests_meeting_status_idx').on(table.meetingAt, table.status),
+		index('meeting_requests_phone_idx').on(table.phone).where(eq(table.status, MeetingRequestStatusEnum.NEW)),
+		index('meeting_requests_email_idx').on(table.email).where(eq(table.status, MeetingRequestStatusEnum.NEW))
 	]
 );

@@ -27,7 +27,7 @@ export class BlacklistPolicy {
 				or(
 					...Object.entries(conditions).map(([source, values]) =>
 						and(
-							inArray(blacklist.status, [BlacklistStatus.SUSPICION, BlacklistStatus.SUSPICION]),
+							inArray(blacklist.status, [BlacklistStatus.SUSPICION, BlacklistStatus.BLOCKED]),
 							eq(blacklist.source, source as BlacklistSource),
 							values.length == 1 ? eq(blacklist.value, values[0]) : inArray(blacklist.value, values)
 						)
