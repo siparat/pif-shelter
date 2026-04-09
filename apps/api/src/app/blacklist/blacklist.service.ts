@@ -1,5 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { BanContactsResponseDto, DeleteContactFromBlacklistResponseDto, ReturnDto } from '@pif/contracts';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+	BanContactsResponseDto,
+	DeleteContactFromBlacklistResponseDto,
+	ReturnDto,
+	SuspectContactsResponseDto
+} from '@pif/contracts';
+import { BlacklistContext } from '@pif/shared';
+import dayjs from 'dayjs';
 import { BlacklistRepository, IBlacklistSource } from './repositories/blacklist.repository';
 
 @Injectable()
@@ -9,9 +16,24 @@ export class BlacklistService {
 	async banSource(
 		moderatorId: string,
 		reason: string,
+		context: BlacklistContext,
 		...sources: IBlacklistSource[]
 	): Promise<ReturnDto<typeof BanContactsResponseDto>> {
-		const updatedCount = await this.repository.banContacts(moderatorId, reason, ...sources);
+		const updatedCount = await this.repository.banContacts(moderatorId, reason, context, ...sources);
+		return { updated: updatedCount };
+	}
+
+	async suspectSource(
+		moderatorId: string,
+		reason: string,
+		context: BlacklistContext,
+		endsAt: Date,
+		...sources: IBlacklistSource[]
+	): Promise<ReturnDto<typeof SuspectContactsResponseDto>> {
+		if (dayjs().isBefore(endsAt)) {
+			throw new BadRequestException('Дата истечения не может быть в прошлом');
+		}
+		const updatedCount = await this.repository.suspectContacts(moderatorId, reason, context, endsAt, ...sources);
 		return { updated: updatedCount };
 	}
 

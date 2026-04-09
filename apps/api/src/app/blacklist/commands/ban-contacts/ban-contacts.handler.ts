@@ -1,5 +1,6 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { BanContactsResponseDto, ReturnDto } from '@pif/contracts';
+import { BlacklistContext } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
 import { BlacklistService } from '../../blacklist.service';
 import { ContactsBannedEvent } from '../../events/contacts-banned/contacts-banned.event';
@@ -14,7 +15,12 @@ export class BanContactsHandler implements ICommandHandler<BanContactsCommand> {
 	) {}
 
 	async execute({ dto, moderatorId }: BanContactsCommand): Promise<ReturnDto<typeof BanContactsResponseDto>> {
-		const result = await this.blacklistService.banSource(moderatorId, dto.reason, ...dto.sources);
+		const result = await this.blacklistService.banSource(
+			moderatorId,
+			dto.reason,
+			BlacklistContext.MANUAL,
+			...dto.sources
+		);
 
 		this.eventBus.publish(new ContactsBannedEvent(dto, moderatorId));
 

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { blacklist, DatabaseService, meetingRequests } from '@pif/database';
 import { BlacklistContext, BlacklistSource, BlacklistStatus } from '@pif/shared';
 import { eq, inArray, or } from 'drizzle-orm';
-import { BlacklistRepository, IBlacklistSource } from './blacklist.repository';
+import { BlacklistRepository, IBlacklistBuildedContacts, IBlacklistSource } from './blacklist.repository';
 
 @Injectable()
 export class DrizzleBlacklistRepository extends BlacklistRepository {
@@ -10,14 +10,19 @@ export class DrizzleBlacklistRepository extends BlacklistRepository {
 		super();
 	}
 
-	async banContacts(moderatorId: string, reason: string, ...sources: IBlacklistSource[]): Promise<number> {
+	async banContacts(
+		moderatorId: string,
+		reason: string,
+		context: BlacklistContext,
+		...sources: IBlacklistSource[]
+	): Promise<number> {
 		if (!sources.length) {
 			return 0;
 		}
-		const updatedCountRows = await this.database.client.transaction(async (tx): Promise<number> => {
-			const common = {
+		return await this.database.client.transaction(async (tx): Promise<number> => {
+			const common: Partial<typeof blacklist.$inferInsert> = {
 				blockedAt: new Date(),
-				context: BlacklistContext.MANUAL,
+				context,
 				status: BlacklistStatus.BLOCKED,
 				moderatorId,
 				reason,
@@ -25,56 +30,32 @@ export class DrizzleBlacklistRepository extends BlacklistRepository {
 				expiredAt: null
 			};
 
-			const keys: Set<string> = new Set();
-			const phones: string[] = [];
-			const emails: string[] = [];
-
-			const values = sources.reduce(
-				(acc: (typeof blacklist.$inferInsert)[], { value, source }: IBlacklistSource) => {
-					const key = `${source}:${value}`;
-					if (keys.has(key)) {
-						return acc;
-					}
-					switch (source) {
-						case BlacklistSource.PHONE: {
-							phones.push(value);
-							break;
-						}
-						case BlacklistSource.EMAIL: {
-							emails.push(value);
-							break;
-						}
-					}
-					keys.add(key);
-					acc.push({
-						...common,
-						value,
-						source
-					});
-					return acc;
-				},
-				[]
-			);
-
-			const { rowCount } = await tx
-				.insert(blacklist)
-				.values(values)
-				.onConflictDoUpdate({ target: [blacklist.source, blacklist.value], set: common });
-
-			const meetingConditions = [];
-			if (emails.length) meetingConditions.push(inArray(meetingRequests.email, emails));
-			if (phones.length) meetingConditions.push(inArray(meetingRequests.phone, phones));
-			if (meetingConditions.length) {
-				await tx
-					.update(meetingRequests)
-					.set({ isSuspicious: true })
-					.where(or(...meetingConditions));
-			}
-
-			return rowCount || 0;
+			return this.updateContacts(tx, sources, common);
 		});
+	}
 
-		return updatedCountRows;
+	async suspectContacts(
+		moderatorId: string,
+		reason: string,
+		context: BlacklistContext,
+		endsAt: Date,
+		...sources: IBlacklistSource[]
+	): Promise<number> {
+		if (!sources.length) {
+			return 0;
+		}
+
+		return this.database.client.transaction(async (tx): Promise<number> => {
+			const common: Partial<typeof blacklist.$inferInsert> = {
+				expiredAt: endsAt,
+				moderatorId,
+				reason,
+				context,
+				status: BlacklistStatus.SUSPICION
+			};
+
+			return this.updateContacts(tx, sources, common);
+		});
 	}
 
 	async findByValue(value: string): Promise<typeof blacklist.$inferSelect | undefined>;
@@ -100,5 +81,74 @@ export class DrizzleBlacklistRepository extends BlacklistRepository {
 			.where(eq(blacklist.id, id))
 			.returning({ id: blacklist.id });
 		return list.length;
+	}
+
+	private async updateContacts(
+		tx: Parameters<Parameters<typeof this.database.client.transaction>[0]>[0],
+		sources: IBlacklistSource[],
+		common: Partial<typeof blacklist.$inferInsert>
+	): Promise<number> {
+		const { phones, emails, contacts } = this.buildContactsWithoutDublicates(sources, common);
+
+		const { rowCount } = await tx
+			.insert(blacklist)
+			.values(contacts)
+			.onConflictDoUpdate({ target: [blacklist.source, blacklist.value], set: common });
+
+		const meetingConditions = [];
+		if (emails.length) meetingConditions.push(inArray(meetingRequests.email, emails));
+		if (phones.length) meetingConditions.push(inArray(meetingRequests.phone, phones));
+		if (meetingConditions.length) {
+			await tx
+				.update(meetingRequests)
+				.set({ isSuspicious: true })
+				.where(or(...meetingConditions));
+		}
+
+		return rowCount || 0;
+	}
+
+	private buildContactsWithoutDublicates(
+		sources: IBlacklistSource[],
+		common: Partial<typeof blacklist.$inferInsert>
+	): IBlacklistBuildedContacts {
+		const keys: Set<string> = new Set();
+		const emails: string[] = [];
+		const phones: string[] = [];
+		const telegrams: string[] = [];
+
+		const contacts = sources.reduce(
+			(acc: (typeof blacklist.$inferInsert)[], { value, source }: IBlacklistSource) => {
+				const key = `${source}:${value}`;
+				if (keys.has(key)) {
+					return acc;
+				}
+				switch (source) {
+					case BlacklistSource.EMAIL: {
+						emails.push(value);
+						break;
+					}
+					case BlacklistSource.PHONE: {
+						phones.push(value);
+						break;
+					}
+					case BlacklistSource.TELEGRAM: {
+						telegrams.push(value);
+						break;
+					}
+				}
+				keys.add(key);
+				acc.push({
+					context: BlacklistContext.MANUAL,
+					...common,
+					value,
+					source
+				});
+				return acc;
+			},
+			[]
+		);
+
+		return { contacts, phones, emails, telegrams };
 	}
 }

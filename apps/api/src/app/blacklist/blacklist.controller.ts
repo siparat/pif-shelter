@@ -5,7 +5,9 @@ import {
 	BanContactsRequestDto,
 	BanContactsResponseDto,
 	DeleteContactFromBlacklistResponseDto,
-	ReturnDto
+	ReturnDto,
+	SuspectContactsRequestDto,
+	SuspectContactsResponseDto
 } from '@pif/contracts';
 import { UserRole } from '@pif/shared';
 import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
@@ -13,13 +15,14 @@ import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import { BanContactsCommand } from './commands/ban-contacts/ban-contacts.command';
 import { DeleteContactFromBlacklistCommand } from './commands/delete-contact-from-blacklist/delete-contact-from-blacklist.command';
+import { SuspectContactsCommand } from './commands/suspect-contacts/suspect-contacts.command';
 
 @ApiTags('Blacklist | Черный список')
 @Controller('blacklist')
 export class BlacklistController {
 	constructor(private readonly commandBus: CommandBus) {}
 
-	@ApiCreatedResponse({ type: BanContactsRequestDto })
+	@ApiCreatedResponse({ type: BanContactsResponseDto })
 	@ApiOperation({ summary: 'Блокировка одного или несколько контактов' })
 	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
 	@UseGuards(AuthGuard)
@@ -29,6 +32,18 @@ export class BlacklistController {
 		@Session() { user }: ISession
 	): Promise<ReturnDto<typeof BanContactsResponseDto>> {
 		return this.commandBus.execute(new BanContactsCommand(dto, user.id));
+	}
+
+	@ApiCreatedResponse({ type: SuspectContactsResponseDto })
+	@ApiOperation({ summary: 'Поставить контакт на подозрение (временная блокировка)' })
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@UseGuards(AuthGuard)
+	@Post('suspect')
+	async suspectContacts(
+		@Body() dto: SuspectContactsRequestDto,
+		@Session() { user }: ISession
+	): Promise<ReturnDto<typeof SuspectContactsResponseDto>> {
+		return this.commandBus.execute(new SuspectContactsCommand(dto, user.id));
 	}
 
 	@ApiOkResponse({ type: DeleteContactFromBlacklistResponseDto })
