@@ -1,3 +1,3 @@
-export * from './post-reaction.constants';
-export * from './post-visibility.enum';
-export * from './posts-queue.constants';
+export * from './reaction.constants';
+export * from './visibility.enum';
+export * from './queue.constants';

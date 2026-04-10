@@ -1,2 +1,2 @@
 export * from './status.enum';
-export * from './meeting-queue.constants';
+export * from './queue.constants';
