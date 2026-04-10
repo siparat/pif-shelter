@@ -83,6 +83,14 @@ export class DrizzleBlacklistRepository extends BlacklistRepository {
 		return list.length;
 	}
 
+	async markSuspicionAsExpired(now: Date): Promise<number> {
+		const list = await this.database.client
+			.update(blacklist)
+			.set({ status: BlacklistStatus.SUSPICION_EXPIRED, expiredAt: now })
+			.returning({ id: blacklist.id });
+		return list.length;
+	}
+
 	private async updateContacts(
 		tx: Parameters<Parameters<typeof this.database.client.transaction>[0]>[0],
 		sources: IBlacklistSource[],

@@ -29,5 +29,6 @@ export abstract class BlacklistRepository {
 	): Promise<number>;
 	abstract findByValue(value: string): Promise<typeof blacklist.$inferSelect | undefined>;
 	abstract findByValue(values: string[]): Promise<(typeof blacklist.$inferSelect)[]>;
+	abstract markSuspicionAsExpired(now: Date): Promise<number>;
 	abstract delete(id: string): Promise<number>;
 }

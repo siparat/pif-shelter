@@ -37,6 +37,11 @@ export class BlacklistService {
 		return { updated: updatedCount };
 	}
 
+	async markSuspicionAsExpired(): Promise<{ count: number }> {
+		const count = await this.repository.markSuspicionAsExpired(new Date());
+		return { count };
+	}
+
 	async delete(id: string): Promise<ReturnDto<typeof DeleteContactFromBlacklistResponseDto>> {
 		const count = await this.repository.delete(id);
 
