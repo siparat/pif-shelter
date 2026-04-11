@@ -1,13 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { blacklist, DatabaseService, meetingRequests } from '@pif/database';
 import { BlacklistContext, BlacklistSource, BlacklistStatus } from '@pif/shared';
-import { eq, inArray, or } from 'drizzle-orm';
+import { and, eq, inArray, lt, or } from 'drizzle-orm';
 import { BlacklistRepository, IBlacklistBuildedContacts, IBlacklistSource } from './blacklist.repository';
 
 @Injectable()
 export class DrizzleBlacklistRepository extends BlacklistRepository {
 	constructor(private readonly database: DatabaseService) {
 		super();
+	}
+
+	async approveContacts(
+		moderatorId: string,
+		context: BlacklistContext,
+		...sources: IBlacklistSource[]
+	): Promise<number> {
+		if (!sources.length) {
+			return 0;
+		}
+		return await this.database.client.transaction(async (tx): Promise<number> => {
+			const common: Partial<typeof blacklist.$inferInsert> = {
+				appealedAt: new Date(),
+				context,
+				status: BlacklistStatus.APPEALED,
+				moderatorId,
+				reason: null,
+				blockedAt: null,
+				expiredAt: null
+			};
+
+			return this.updateContacts(tx, sources, common, false);
+		});
 	}
 
 	async banContacts(
@@ -30,7 +53,7 @@ export class DrizzleBlacklistRepository extends BlacklistRepository {
 				expiredAt: null
 			};
 
-			return this.updateContacts(tx, sources, common);
+			return this.updateContacts(tx, sources, common, true);
 		});
 	}
 
@@ -54,7 +77,7 @@ export class DrizzleBlacklistRepository extends BlacklistRepository {
 				status: BlacklistStatus.SUSPICION
 			};
 
-			return this.updateContacts(tx, sources, common);
+			return this.updateContacts(tx, sources, common, true);
 		});
 	}
 
@@ -87,6 +110,7 @@ export class DrizzleBlacklistRepository extends BlacklistRepository {
 		const list = await this.database.client
 			.update(blacklist)
 			.set({ status: BlacklistStatus.SUSPICION_EXPIRED, expiredAt: now })
+			.where(and(eq(blacklist.status, BlacklistStatus.SUSPICION), lt(blacklist.expiredAt, now)))
 			.returning({ id: blacklist.id });
 		return list.length;
 	}
@@ -94,7 +118,8 @@ export class DrizzleBlacklistRepository extends BlacklistRepository {
 	private async updateContacts(
 		tx: Parameters<Parameters<typeof this.database.client.transaction>[0]>[0],
 		sources: IBlacklistSource[],
-		common: Partial<typeof blacklist.$inferInsert>
+		common: Partial<typeof blacklist.$inferInsert>,
+		asSuspicious: boolean
 	): Promise<number> {
 		const { phones, emails, contacts } = this.buildContactsWithoutDublicates(sources, common);
 
@@ -109,7 +134,7 @@ export class DrizzleBlacklistRepository extends BlacklistRepository {
 		if (meetingConditions.length) {
 			await tx
 				.update(meetingRequests)
-				.set({ isSuspicious: true })
+				.set({ isSuspicious: asSuspicious })
 				.where(or(...meetingConditions));
 		}
 

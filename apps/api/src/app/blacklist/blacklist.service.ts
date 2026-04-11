@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import {
+	ApproveContactsResponseDto,
 	BanContactsResponseDto,
 	DeleteContactFromBlacklistResponseDto,
 	ReturnDto,
@@ -20,6 +21,15 @@ export class BlacklistService {
 		...sources: IBlacklistSource[]
 	): Promise<ReturnDto<typeof BanContactsResponseDto>> {
 		const updatedCount = await this.repository.banContacts(moderatorId, reason, context, ...sources);
+		return { updated: updatedCount };
+	}
+
+	async approveSource(
+		moderatorId: string,
+		context: BlacklistContext,
+		...sources: IBlacklistSource[]
+	): Promise<ReturnDto<typeof ApproveContactsResponseDto>> {
+		const updatedCount = await this.repository.approveContacts(moderatorId, context, ...sources);
 		return { updated: updatedCount };
 	}
 

@@ -2,6 +2,8 @@ import { Body, Controller, Delete, Param, ParseUUIDPipe, Post, UseGuards } from 
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
+	ApproveContactsRequestDto,
+	ApproveContactsResponseDto,
 	BanContactsRequestDto,
 	BanContactsResponseDto,
 	DeleteContactFromBlacklistResponseDto,
@@ -13,6 +15,7 @@ import { UserRole } from '@pif/shared';
 import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
+import { ApproveContactsCommand } from './commands/approve-contacts/approve-contacts.command';
 import { BanContactsCommand } from './commands/ban-contacts/ban-contacts.command';
 import { DeleteContactFromBlacklistCommand } from './commands/delete-contact-from-blacklist/delete-contact-from-blacklist.command';
 import { SuspectContactsCommand } from './commands/suspect-contacts/suspect-contacts.command';
@@ -22,8 +25,20 @@ import { SuspectContactsCommand } from './commands/suspect-contacts/suspect-cont
 export class BlacklistController {
 	constructor(private readonly commandBus: CommandBus) {}
 
+	@ApiCreatedResponse({ type: ApproveContactsResponseDto })
+	@ApiOperation({ summary: 'Разблокировка одного или нескольких контактов' })
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@UseGuards(AuthGuard)
+	@Post('approve')
+	async approveContacts(
+		@Body() dto: ApproveContactsRequestDto,
+		@Session() { user }: ISession
+	): Promise<ReturnDto<typeof ApproveContactsResponseDto>> {
+		return this.commandBus.execute(new ApproveContactsCommand(dto, user.id));
+	}
+
 	@ApiCreatedResponse({ type: BanContactsResponseDto })
-	@ApiOperation({ summary: 'Блокировка одного или несколько контактов' })
+	@ApiOperation({ summary: 'Блокировка одного или нескольких контактов' })
 	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
 	@UseGuards(AuthGuard)
 	@Post('ban')

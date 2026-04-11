@@ -11,6 +11,7 @@ import { BlacklistRepository } from './repositories/blacklist.repository';
 import { DrizzleBlacklistRepository } from './repositories/drizzle-blacklist.repository';
 import { BlacklistScheduler } from './blacklist.scheduler';
 import { BlacklistProcessor } from './blacklist.processor';
+import { ApproveContactsHandler } from './commands/approve-contacts/approve-contacts.handler';
 
 @Module({
 	imports: [CqrsModule, BullModule.registerQueue({ name: BLACKLIST_QUEUE_NAME })],
@@ -22,6 +23,7 @@ import { BlacklistProcessor } from './blacklist.processor';
 		BanContactsHandler,
 		SuspectContactsHandler,
 		DeleteContactFromBlacklistHandler,
+		ApproveContactsHandler,
 		BlacklistService,
 		{
 			provide: BlacklistRepository,

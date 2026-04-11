@@ -14,6 +14,11 @@ export interface IBlacklistSource {
 }
 
 export abstract class BlacklistRepository {
+	abstract approveContacts(
+		moderatorId: string,
+		context: BlacklistContext,
+		...sources: IBlacklistSource[]
+	): Promise<number>;
 	abstract banContacts(
 		moderatorId: string,
 		reason: string,
