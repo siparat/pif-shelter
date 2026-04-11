@@ -1,4 +1,5 @@
 export * from './animal.constants';
+export * from './blacklist.constants';
 export * from './campaigns.constants';
 export * from './guardianship.constants';
 export * from './ledger.constants';

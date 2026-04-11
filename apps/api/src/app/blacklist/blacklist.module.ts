@@ -7,11 +7,14 @@ import { BlacklistService } from './blacklist.service';
 import { BanContactsHandler } from './commands/ban-contacts/ban-contacts.handler';
 import { DeleteContactFromBlacklistHandler } from './commands/delete-contact-from-blacklist/delete-contact-from-blacklist.handler';
 import { SuspectContactsHandler } from './commands/suspect-contacts/suspect-contacts.handler';
+import { BlacklistCacheInvalidateHandler } from './events/blacklist-cache-invalidate/blacklist-cache-invalidate.handler';
 import { BlacklistRepository } from './repositories/blacklist.repository';
 import { DrizzleBlacklistRepository } from './repositories/drizzle-blacklist.repository';
 import { BlacklistScheduler } from './blacklist.scheduler';
 import { BlacklistProcessor } from './blacklist.processor';
 import { ApproveContactsHandler } from './commands/approve-contacts/approve-contacts.handler';
+import { GetBlacklistByIdHandler } from './queries/get-blacklist-by-id/get-blacklist-by-id.handler';
+import { ListBlacklistHandler } from './queries/list-blacklist/list-blacklist.handler';
 
 @Module({
 	imports: [CqrsModule, BullModule.registerQueue({ name: BLACKLIST_QUEUE_NAME })],
@@ -24,6 +27,9 @@ import { ApproveContactsHandler } from './commands/approve-contacts/approve-cont
 		SuspectContactsHandler,
 		DeleteContactFromBlacklistHandler,
 		ApproveContactsHandler,
+		BlacklistCacheInvalidateHandler,
+		ListBlacklistHandler,
+		GetBlacklistByIdHandler,
 		BlacklistService,
 		{
 			provide: BlacklistRepository,
