@@ -2,6 +2,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { MEETING_QUEUE_NAME } from '@pif/shared';
+import { BlacklistModule } from '../blacklist/blacklist.module';
 import { ConfirmMeetingRequestHandler } from './commands/confirm-meeting-request/confirm-meeting-request.handler';
 import { CreateMeetingRequestHandler } from './commands/create-meeting-request/create-meeting-request.handler';
 import { RejectMeetingRequestHandler } from './commands/reject-meeting-request/reject-meeting-request.handler';
@@ -17,7 +18,7 @@ import { MeetingRequestsRepository } from './repositories/meeting-requests.repos
 import { MeetingRequestRejectedHandler } from './events/meeting-request-rejected/meeting-request-rejected.handler';
 
 @Module({
-	imports: [BullModule.registerQueue({ name: MEETING_QUEUE_NAME }), CqrsModule],
+	imports: [BullModule.registerQueue({ name: MEETING_QUEUE_NAME }), CqrsModule, BlacklistModule],
 	controllers: [MeetingRequestsController],
 	providers: [
 		MeetingRequestsPolicy,

@@ -34,13 +34,13 @@ export class BlacklistService {
 	}
 
 	async suspectSource(
-		moderatorId: string,
+		moderatorId: string | null,
 		reason: string,
 		context: BlacklistContext,
 		endsAt: Date,
 		...sources: IBlacklistSource[]
 	): Promise<ReturnDto<typeof SuspectContactsResponseDto>> {
-		if (dayjs().isBefore(endsAt)) {
+		if (dayjs(endsAt).isBefore(dayjs())) {
 			throw new BadRequestException('Дата истечения не может быть в прошлом');
 		}
 		const updatedCount = await this.repository.suspectContacts(moderatorId, reason, context, endsAt, ...sources);

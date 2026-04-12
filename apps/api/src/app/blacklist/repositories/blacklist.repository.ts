@@ -26,7 +26,7 @@ export abstract class BlacklistRepository {
 		...sources: IBlacklistSource[]
 	): Promise<number>;
 	abstract suspectContacts(
-		moderatorId: string,
+		moderatorId: string | null,
 		reason: string,
 		context: BlacklistContext,
 		endsAt: Date,

@@ -1,9 +1,19 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
 import { CreateMeetingRequestResponseDto, ReturnDto } from '@pif/contracts';
-import { BlacklistSource, generateIdempotencyKey, MeetingCacheKeys } from '@pif/shared';
+import {
+	BlacklistContext,
+	BlacklistSource,
+	MEETING_FORM_AUTOMATIC_SUSPICION_DAYS,
+	MEETING_FORM_AUTOMATIC_SUSPICION_REASON,
+	generateIdempotencyKey,
+	MeetingCacheKeys
+} from '@pif/shared';
 import dayjs from 'dayjs';
 import { Logger } from 'nestjs-pino';
+import { BlacklistService } from '../../../blacklist/blacklist.service';
+import { AutomaticMeetingSuspicionAppliedEvent } from '../../../blacklist/events/automatic-meeting-suspicion-applied/automatic-meeting-suspicion-applied.event';
+import { IBlacklistSource } from '../../../blacklist/repositories/blacklist.repository';
 import { BlacklistPolicy, IBlacklistPolicyItem } from '../../../core/policies/blacklist.policy';
 import { MeetingRequestCreatedEvent } from '../../events/meeting-request-created/meeting-request-created.event';
 import { MeetingRequestAnimalNotFoundException } from '../../exceptions/meeting-request-animal-not-found.exception';
@@ -18,7 +28,8 @@ export class CreateMeetingRequestHandler implements ICommandHandler<CreateMeetin
 		private readonly eventBus: EventBus,
 		private readonly logger: Logger,
 		private readonly cache: CacheService,
-		private readonly blacklistPolicy: BlacklistPolicy
+		private readonly blacklistPolicy: BlacklistPolicy,
+		private readonly blacklistService: BlacklistService
 	) {}
 
 	async execute({ dto }: CreateMeetingRequestCommand): Promise<ReturnDto<typeof CreateMeetingRequestResponseDto>> {
@@ -49,7 +60,7 @@ export class CreateMeetingRequestHandler implements ICommandHandler<CreateMeetin
 			throw new MeetingRequestCuratorNotAssignedException();
 		}
 
-		const { entity, isAlreadyExists } = await this.repository.createIdempotent({
+		const { entity, isAlreadyExists, meetingFormAbuse } = await this.repository.createIdempotent({
 			animalId: dto.animalId,
 			curatorUserId: animal.curatorId,
 			name: dto.name,
@@ -67,6 +78,32 @@ export class CreateMeetingRequestHandler implements ICommandHandler<CreateMeetin
 				animalId: dto.animalId,
 				idempotencyKey
 			});
+		}
+
+		if (!isAlreadyExists && (meetingFormAbuse.suspectPhone || meetingFormAbuse.suspectEmail)) {
+			const sources: IBlacklistSource[] = [];
+			if (meetingFormAbuse.suspectPhone) {
+				sources.push({ source: BlacklistSource.PHONE, value: dto.phone });
+			}
+			if (meetingFormAbuse.suspectEmail && dto.email) {
+				sources.push({ source: BlacklistSource.EMAIL, value: dto.email });
+			}
+			if (sources.length > 0) {
+				const endsAt = dayjs().add(MEETING_FORM_AUTOMATIC_SUSPICION_DAYS, 'day').toDate();
+				const result = await this.blacklistService.suspectSource(
+					null,
+					MEETING_FORM_AUTOMATIC_SUSPICION_REASON,
+					BlacklistContext.MEETING_FORM,
+					endsAt,
+					...sources
+				);
+				await this.eventBus.publish(new AutomaticMeetingSuspicionAppliedEvent());
+				this.logger.log('Контакты внесены в подозрение из-за частых заявок на встречу', {
+					meetingRequestId: entity.id,
+					animalId: dto.animalId,
+					updated: result.updated
+				});
+			}
 		}
 
 		await this.cache.set(cacheKey, { id: entity.id }, 300).catch(() => null);

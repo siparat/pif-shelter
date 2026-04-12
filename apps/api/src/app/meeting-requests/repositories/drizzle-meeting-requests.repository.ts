@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { animals, DatabaseService, meetingRequests, users } from '@pif/database';
-import { MeetingRequestStatusEnum } from '@pif/shared';
-import { and, eq } from 'drizzle-orm';
-import { CreateMeetingRequestInput, MeetingRequestsRepository } from './meeting-requests.repository';
+import { MEETING_FORM_ABUSE_THRESHOLD, MEETING_FORM_ABUSE_WINDOW_MS, MeetingRequestStatusEnum } from '@pif/shared';
+import { and, count, eq, gte } from 'drizzle-orm';
+import {
+	CreateMeetingRequestIdempotentResult,
+	CreateMeetingRequestInput,
+	MeetingRequestsRepository
+} from './meeting-requests.repository';
 
 @Injectable()
 export class DrizzleMeetingRequestsRepository extends MeetingRequestsRepository {
@@ -10,9 +14,7 @@ export class DrizzleMeetingRequestsRepository extends MeetingRequestsRepository 
 		super();
 	}
 
-	async createIdempotent(
-		input: CreateMeetingRequestInput
-	): Promise<{ entity: typeof meetingRequests.$inferSelect; isAlreadyExists: boolean }> {
+	async createIdempotent(input: CreateMeetingRequestInput): Promise<CreateMeetingRequestIdempotentResult> {
 		return this.db.client.transaction(async (tx) => {
 			const [created] = await tx
 				.insert(meetingRequests)
@@ -20,7 +22,40 @@ export class DrizzleMeetingRequestsRepository extends MeetingRequestsRepository 
 				.onConflictDoNothing({ target: meetingRequests.idempotencyKey })
 				.returning();
 			if (created) {
-				return { entity: created, isAlreadyExists: false };
+				const since = new Date(Date.now() - MEETING_FORM_ABUSE_WINDOW_MS);
+				const [phoneRow] = await tx
+					.select({ c: count() })
+					.from(meetingRequests)
+					.where(
+						and(
+							eq(meetingRequests.animalId, input.animalId),
+							eq(meetingRequests.phone, input.phone),
+							gte(meetingRequests.createdAt, since)
+						)
+					);
+				const phoneCount = Number(phoneRow?.c ?? 0);
+				let emailCount = 0;
+				if (input.email) {
+					const [emailRow] = await tx
+						.select({ c: count() })
+						.from(meetingRequests)
+						.where(
+							and(
+								eq(meetingRequests.animalId, input.animalId),
+								eq(meetingRequests.email, input.email),
+								gte(meetingRequests.createdAt, since)
+							)
+						);
+					emailCount = Number(emailRow?.c ?? 0);
+				}
+				return {
+					entity: created,
+					isAlreadyExists: false,
+					meetingFormAbuse: {
+						suspectPhone: phoneCount >= MEETING_FORM_ABUSE_THRESHOLD,
+						suspectEmail: input.email ? emailCount >= MEETING_FORM_ABUSE_THRESHOLD : false
+					}
+				};
 			}
 			const [alreadyCreated] = await tx
 				.select()
@@ -28,7 +63,11 @@ export class DrizzleMeetingRequestsRepository extends MeetingRequestsRepository 
 				.where(eq(meetingRequests.idempotencyKey, input.idempotencyKey))
 				.limit(1);
 			if (alreadyCreated) {
-				return { entity: alreadyCreated, isAlreadyExists: true };
+				return {
+					entity: alreadyCreated,
+					isAlreadyExists: true,
+					meetingFormAbuse: { suspectPhone: false, suspectEmail: false }
+				};
 			}
 			throw new Error('Ошибка записи в базу данных, попробуйте еще раз');
 		});

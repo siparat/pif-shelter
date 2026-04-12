@@ -58,7 +58,7 @@ export class DrizzleBlacklistRepository extends BlacklistRepository {
 	}
 
 	async suspectContacts(
-		moderatorId: string,
+		moderatorId: string | null,
 		reason: string,
 		context: BlacklistContext,
 		endsAt: Date,
