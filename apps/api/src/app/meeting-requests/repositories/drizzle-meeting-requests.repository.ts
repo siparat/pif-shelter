@@ -5,6 +5,8 @@ import { and, count, eq, gte } from 'drizzle-orm';
 import {
 	CreateMeetingRequestIdempotentResult,
 	CreateMeetingRequestInput,
+	EvaluateMeetingFormAbuseInput,
+	MeetingFormAbuseSignals,
 	MeetingRequestsRepository
 } from './meeting-requests.repository';
 
@@ -12,6 +14,48 @@ import {
 export class DrizzleMeetingRequestsRepository extends MeetingRequestsRepository {
 	constructor(private readonly db: DatabaseService) {
 		super();
+	}
+
+	private async aggregateMeetingFormAbuse(
+		db: Pick<DatabaseService['client'], 'select'>,
+		animalId: string,
+		phone: string,
+		email: string | null
+	): Promise<MeetingFormAbuseSignals> {
+		const since = new Date(Date.now() - MEETING_FORM_ABUSE_WINDOW_MS);
+		const [phoneRow] = await db
+			.select({ c: count() })
+			.from(meetingRequests)
+			.where(
+				and(
+					eq(meetingRequests.animalId, animalId),
+					eq(meetingRequests.phone, phone),
+					gte(meetingRequests.createdAt, since)
+				)
+			);
+		const phoneCount = Number(phoneRow?.c ?? 0);
+		let emailCount = 0;
+		if (email) {
+			const [emailRow] = await db
+				.select({ c: count() })
+				.from(meetingRequests)
+				.where(
+					and(
+						eq(meetingRequests.animalId, animalId),
+						eq(meetingRequests.email, email),
+						gte(meetingRequests.createdAt, since)
+					)
+				);
+			emailCount = Number(emailRow?.c ?? 0);
+		}
+		return {
+			suspectPhone: phoneCount >= MEETING_FORM_ABUSE_THRESHOLD,
+			suspectEmail: email ? emailCount >= MEETING_FORM_ABUSE_THRESHOLD : false
+		};
+	}
+
+	async evaluateMeetingFormAbuse(input: EvaluateMeetingFormAbuseInput): Promise<MeetingFormAbuseSignals> {
+		return this.aggregateMeetingFormAbuse(this.db.client, input.animalId, input.phone, input.email);
 	}
 
 	async createIdempotent(input: CreateMeetingRequestInput): Promise<CreateMeetingRequestIdempotentResult> {
@@ -22,39 +66,16 @@ export class DrizzleMeetingRequestsRepository extends MeetingRequestsRepository 
 				.onConflictDoNothing({ target: meetingRequests.idempotencyKey })
 				.returning();
 			if (created) {
-				const since = new Date(Date.now() - MEETING_FORM_ABUSE_WINDOW_MS);
-				const [phoneRow] = await tx
-					.select({ c: count() })
-					.from(meetingRequests)
-					.where(
-						and(
-							eq(meetingRequests.animalId, input.animalId),
-							eq(meetingRequests.phone, input.phone),
-							gte(meetingRequests.createdAt, since)
-						)
-					);
-				const phoneCount = Number(phoneRow?.c ?? 0);
-				let emailCount = 0;
-				if (input.email) {
-					const [emailRow] = await tx
-						.select({ c: count() })
-						.from(meetingRequests)
-						.where(
-							and(
-								eq(meetingRequests.animalId, input.animalId),
-								eq(meetingRequests.email, input.email),
-								gte(meetingRequests.createdAt, since)
-							)
-						);
-					emailCount = Number(emailRow?.c ?? 0);
-				}
+				const meetingFormAbuse = await this.aggregateMeetingFormAbuse(
+					tx,
+					input.animalId,
+					input.phone,
+					input.email
+				);
 				return {
 					entity: created,
 					isAlreadyExists: false,
-					meetingFormAbuse: {
-						suspectPhone: phoneCount >= MEETING_FORM_ABUSE_THRESHOLD,
-						suspectEmail: input.email ? emailCount >= MEETING_FORM_ABUSE_THRESHOLD : false
-					}
+					meetingFormAbuse
 				};
 			}
 			const [alreadyCreated] = await tx

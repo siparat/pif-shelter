@@ -78,6 +78,7 @@ describe('CreateMeetingRequestHandler', () => {
 		cache.get.mockResolvedValue(null);
 		blacklistPolicy.assertCleanContacts.mockResolvedValue(undefined);
 		blacklistService.suspectSource.mockResolvedValue({ updated: 1 });
+		repository.evaluateMeetingFormAbuse.mockResolvedValue({ suspectPhone: false, suspectEmail: false });
 	});
 
 	it('returns cached id without hitting repository when idempotency cache hit', async () => {
@@ -157,6 +158,7 @@ describe('CreateMeetingRequestHandler', () => {
 		expect((eventBus.publish.mock.calls[0][0] as MeetingRequestCreatedEvent).meetingRequest).toBe(entity);
 		expect(cache.set).toHaveBeenCalledWith(MeetingCacheKeys.idempotencyRequest(idempotencyKey), { id }, 300);
 		expect(blacklistService.suspectSource).not.toHaveBeenCalled();
+		expect(repository.evaluateMeetingFormAbuse).not.toHaveBeenCalled();
 	});
 
 	it('does not publish when row already existed (idempotent create)', async () => {
@@ -175,6 +177,11 @@ describe('CreateMeetingRequestHandler', () => {
 		expect(eventBus.publish).not.toHaveBeenCalled();
 		expect(cache.set).toHaveBeenCalled();
 		expect(blacklistService.suspectSource).not.toHaveBeenCalled();
+		expect(repository.evaluateMeetingFormAbuse).toHaveBeenCalledWith({
+			animalId: dto.animalId,
+			phone: dto.phone,
+			email: dto.email
+		});
 	});
 
 	it('suspects contacts and invalidates blacklist cache when abuse threshold reached', async () => {
@@ -201,6 +208,33 @@ describe('CreateMeetingRequestHandler', () => {
 		const events = eventBus.publish.mock.calls.map((c) => c[0]);
 		expect(events.some((e) => e instanceof MeetingRequestCreatedEvent)).toBe(true);
 		expect(events.some((e) => e instanceof AutomaticMeetingSuspicionAppliedEvent)).toBe(true);
+		expect(cache.set).toHaveBeenCalledWith(MeetingCacheKeys.idempotencyRequest(idempotencyKey), { id }, 300);
+		expect(repository.evaluateMeetingFormAbuse).not.toHaveBeenCalled();
+	});
+
+	it('re-applies suspicion on idempotent retry when abuse still holds (e.g. prior suspectSource failed)', async () => {
+		const id = randomUUID();
+		const idempotencyKey = idempotencyKeyFor(dto);
+		const entity = { id } as typeof meetingRequests.$inferSelect;
+		repository.findAnimalWithCurator.mockResolvedValue({ id: dto.animalId, curatorId: 'curator-1' });
+		repository.createIdempotent.mockResolvedValue({
+			entity,
+			isAlreadyExists: true,
+			meetingFormAbuse: { suspectPhone: false, suspectEmail: false }
+		});
+		repository.evaluateMeetingFormAbuse.mockResolvedValue({ suspectPhone: true, suspectEmail: false });
+
+		await handler.execute(new CreateMeetingRequestCommand(dto));
+
+		expect(blacklistService.suspectSource).toHaveBeenCalledWith(
+			null,
+			MEETING_FORM_AUTOMATIC_SUSPICION_REASON,
+			BlacklistContext.MEETING_FORM,
+			expect.any(Date),
+			{ source: BlacklistSource.PHONE, value: dto.phone }
+		);
+		expect(eventBus.publish).toHaveBeenCalledTimes(1);
+		expect(eventBus.publish.mock.calls[0][0]).toBeInstanceOf(AutomaticMeetingSuspicionAppliedEvent);
 		expect(cache.set).toHaveBeenCalledWith(MeetingCacheKeys.idempotencyRequest(idempotencyKey), { id }, 300);
 	});
 });

@@ -71,6 +71,14 @@ export class CreateMeetingRequestHandler implements ICommandHandler<CreateMeetin
 			idempotencyKey
 		});
 
+		const abuse = isAlreadyExists
+			? await this.repository.evaluateMeetingFormAbuse({
+					animalId: dto.animalId,
+					phone: dto.phone,
+					email: dto.email ?? null
+				})
+			: meetingFormAbuse;
+
 		if (!isAlreadyExists) {
 			await this.eventBus.publish(new MeetingRequestCreatedEvent(entity));
 			this.logger.log('Создана заявка на встречу', {
@@ -80,12 +88,12 @@ export class CreateMeetingRequestHandler implements ICommandHandler<CreateMeetin
 			});
 		}
 
-		if (!isAlreadyExists && (meetingFormAbuse.suspectPhone || meetingFormAbuse.suspectEmail)) {
+		if (abuse.suspectPhone || abuse.suspectEmail) {
 			const sources: IBlacklistSource[] = [];
-			if (meetingFormAbuse.suspectPhone) {
+			if (abuse.suspectPhone) {
 				sources.push({ source: BlacklistSource.PHONE, value: dto.phone });
 			}
-			if (meetingFormAbuse.suspectEmail && dto.email) {
+			if (abuse.suspectEmail && dto.email) {
 				sources.push({ source: BlacklistSource.EMAIL, value: dto.email });
 			}
 			if (sources.length > 0) {
