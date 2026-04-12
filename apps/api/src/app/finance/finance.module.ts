@@ -52,6 +52,7 @@ import { InvalidateMonthlyLedgerCacheHandler } from './events/invalidate-monthly
 			provide: MonthlyFinanceReportsRepository,
 			useClass: DrizzleMonthlyFinanceReportsRepository
 		}
-	]
+	],
+	exports: [LedgerRepository]
 })
 export class FinanceModule {}

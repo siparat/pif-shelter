@@ -1,9 +1,14 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { CommandBus, CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import type { PaymentWebhookPayload, PaymentWebhookResponse } from '@pif/contracts';
 import { guardianships } from '@pif/database';
 import { PaymentService, PaymentWebhookEvent } from '@pif/payment';
-import { GuardianshipStatusEnum } from '@pif/shared';
+import { GUARDIANSHIP_LEDGER_INCOME_TITLE_PREFIX, GuardianshipStatusEnum, LedgerEntrySourceEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
+import { ProcessDonationWebhookSubscriptionCommand } from '../../../donations/commands/process-donation-webhook-subscription/process-donation-webhook-subscription.command';
+import { RecordLedgerIncomeCommand } from '../../../finance/commands/record-ledger-income/record-ledger-income.command';
+import { DuplicateProviderPaymentException } from '../../../finance/exceptions/duplicate-provider-payment.exception';
+import { LedgerRepository } from '../../../finance/repositories/ledger.repository';
 import { GuardianshipActivatedEvent } from '../../events/guardianship-activated/guardianship-activated.event';
 import { GuardianshipCancelledEvent } from '../../events/guardianship-cancelled/guardianship-cancelled.event';
 import { GuardianshipNotFoundBySubscriptionException } from '../../exceptions/guardianship-not-found-by-subscription.exception';
@@ -11,13 +16,12 @@ import { GuardianshipRepository } from '../../repositories/guardianship.reposito
 import { computeNextPaidPeriodEnd, computeRenewalPaidPeriodEnd } from '../../utils/compute-next-paid-period-end';
 import { resolveGuardianPrivilegesUntilForCancel } from '../../utils/resolve-guardian-privileges-until-for-cancel';
 import { ProcessPaymentWebhookCommand } from './process-payment-webhook.command';
-import { PaymentWebhookResponse } from '@pif/contracts';
-import { ProcessDonationWebhookSubscriptionCommand } from '../../../donations/commands/process-donation-webhook-subscription/process-donation-webhook-subscription.command';
 
 @CommandHandler(ProcessPaymentWebhookCommand)
 export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaymentWebhookCommand> {
 	constructor(
 		private readonly repository: GuardianshipRepository,
+		private readonly ledgerRepository: LedgerRepository,
 		private readonly commandBus: CommandBus,
 		private readonly eventBus: EventBus,
 		private readonly logger: Logger,
@@ -44,8 +48,7 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 
 		switch (event) {
 			case PaymentWebhookEvent.SUBSCRIPTION_SUCCEEDED: {
-				const isActivated = await this.handleSubscriptionSucceeded(guardianship);
-				return { guardianshipId: guardianship.id, activated: isActivated, handledBy: 'guardianship' };
+				return this.handleSubscriptionSucceededWithLedger(guardianship, command.payload);
 			}
 			case PaymentWebhookEvent.SUBSCRIPTION_FAILED: {
 				const isCancelled = await this.handleSubscriptionFailed(guardianship);
@@ -58,6 +61,105 @@ export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaym
 			default: {
 				throw new InternalServerErrorException();
 			}
+		}
+	}
+
+	private async handleSubscriptionSucceededWithLedger(
+		guardianship: typeof guardianships.$inferSelect,
+		payload: PaymentWebhookPayload
+	): Promise<PaymentWebhookResponse['data']> {
+		const providerPaymentId = payload.providerPaymentId;
+		if (providerPaymentId) {
+			const existingEntry = await this.ledgerRepository.findByProviderPaymentId(providerPaymentId);
+			if (existingEntry) {
+				if (existingEntry.guardianshipId !== guardianship.id) {
+					this.logger.error('providerPaymentId уже используется другой проводкой', {
+						guardianshipId: guardianship.id,
+						providerPaymentId,
+						existingLedgerEntryId: existingEntry.id
+					});
+					throw new InternalServerErrorException();
+				}
+				this.logger.warn('Повторный вебхук опеки, проводка уже в ledger', {
+					guardianshipId: guardianship.id,
+					providerPaymentId
+				});
+				return {
+					guardianshipId: guardianship.id,
+					activated: true,
+					handledBy: 'guardianship',
+					ledgerEntryId: existingEntry.id
+				};
+			}
+		}
+
+		const isActivated = await this.handleSubscriptionSucceeded(guardianship);
+		const result: PaymentWebhookResponse['data'] = {
+			guardianshipId: guardianship.id,
+			activated: isActivated,
+			handledBy: 'guardianship'
+		};
+
+		if (!isActivated) {
+			return result;
+		}
+
+		const ledgerEntryId = await this.recordGuardianshipLedgerIncome(guardianship.id, payload);
+		if (ledgerEntryId) {
+			result.ledgerEntryId = ledgerEntryId;
+		}
+		return result;
+	}
+
+	private async recordGuardianshipLedgerIncome(
+		guardianshipId: string,
+		payload: PaymentWebhookPayload
+	): Promise<string | undefined> {
+		const providerPaymentId = payload.providerPaymentId;
+		const grossAmount = payload.grossAmount;
+		const feeAmount = payload.feeAmount;
+		const netAmount = payload.netAmount;
+		const paidAt = payload.paidAt;
+		if (
+			!providerPaymentId ||
+			grossAmount === undefined ||
+			feeAmount === undefined ||
+			netAmount === undefined ||
+			!paidAt
+		) {
+			this.logger.error('Вебхук опеки: нет данных для записи в ledger после успешной оплаты', {
+				guardianshipId
+			});
+			return undefined;
+		}
+
+		const labels = await this.repository.findLedgerLabelsByGuardianshipId(guardianshipId);
+		const title = `${GUARDIANSHIP_LEDGER_INCOME_TITLE_PREFIX} ${labels?.animalName ?? '—'}`;
+
+		try {
+			const { id } = await this.commandBus.execute(
+				new RecordLedgerIncomeCommand({
+					source: LedgerEntrySourceEnum.GUARDIANSHIP,
+					grossAmount,
+					feeAmount,
+					netAmount,
+					occurredAt: new Date(paidAt),
+					title,
+					providerPaymentId,
+					donorDisplayName: labels?.guardianDisplayName ?? null,
+					guardianshipId
+				})
+			);
+			return id;
+		} catch (err) {
+			if (err instanceof DuplicateProviderPaymentException) {
+				this.logger.warn('Дубликат providerPaymentId при записи опеки в ledger', {
+					guardianshipId,
+					providerPaymentId
+				});
+				return undefined;
+			}
+			throw err;
 		}
 	}
 

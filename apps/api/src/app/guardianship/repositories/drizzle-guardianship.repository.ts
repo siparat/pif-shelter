@@ -4,7 +4,7 @@ import { GuardianshipStatusEnum } from '@pif/shared';
 import { eq } from 'drizzle-orm';
 import { AnimalAlreadyHasGuardianException } from '../exceptions/animal-already-has-guardian.exception';
 import { GuardianshipMapper } from '../mappers/guardianship.mapper';
-import { GuardianshipRepository } from './guardianship.repository';
+import { GuardianshipLedgerLabels, GuardianshipRepository } from './guardianship.repository';
 
 @Injectable()
 export class DrizzleGuardianshipRepository implements GuardianshipRepository {
@@ -20,6 +20,24 @@ export class DrizzleGuardianshipRepository implements GuardianshipRepository {
 		return this.db.client.query.guardianships.findFirst({
 			where: { subscriptionId }
 		});
+	}
+
+	async findLedgerLabelsByGuardianshipId(id: string): Promise<GuardianshipLedgerLabels | undefined> {
+		const row = await this.db.client.query.guardianships.findFirst({
+			where: { id },
+			columns: { id: true },
+			with: {
+				animal: { columns: { name: true } },
+				guardian: { columns: { name: true } }
+			}
+		});
+		if (!row) {
+			return undefined;
+		}
+		return {
+			animalName: row.animal?.name ?? '—',
+			guardianDisplayName: row.guardian?.name ?? null
+		};
 	}
 
 	findByCancellationToken(token: string): Promise<typeof guardianships.$inferSelect | undefined> {

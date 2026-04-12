@@ -4,6 +4,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { PaymentModule } from '@pif/payment';
 import { GUARDIANSHIP_QUEUE_NAME } from '@pif/shared';
 import { AnimalsModule } from '../animals/animals.module';
+import { FinanceModule } from '../finance/finance.module';
 import { UsersModule } from '../users/users.module';
 import { CancelGuardianshipByTokenHandler } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.handler';
 import { CancelGuardianshipAsGuardianHandler } from './commands/cancel-guardianship-as-guardian/cancel-guardianship-as-guardian.handler';
@@ -37,6 +38,7 @@ import { GetMyGaurdianshipsHandler } from './queries/get-my-guardianships/get-my
 		BullModule.registerQueue({ name: GUARDIANSHIP_QUEUE_NAME }),
 		CqrsModule,
 		AnimalsModule,
+		FinanceModule,
 		PaymentModule,
 		UsersModule
 	],

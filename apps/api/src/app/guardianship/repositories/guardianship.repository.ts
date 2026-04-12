@@ -1,8 +1,14 @@
 import { Guardianship, guardianships } from '@pif/database';
 
+export type GuardianshipLedgerLabels = {
+	animalName: string;
+	guardianDisplayName: string | null;
+};
+
 export abstract class GuardianshipRepository {
 	abstract findById(id: string): Promise<typeof guardianships.$inferSelect | undefined>;
 	abstract findBySubscriptionId(subscriptionId: string): Promise<typeof guardianships.$inferSelect | undefined>;
+	abstract findLedgerLabelsByGuardianshipId(id: string): Promise<GuardianshipLedgerLabels | undefined>;
 	abstract findByCancellationToken(token: string): Promise<typeof guardianships.$inferSelect | undefined>;
 	abstract findActiveOrPendingByAnimalId(id: string): Promise<typeof guardianships.$inferSelect | undefined>;
 	abstract createPending(userId: string, animalId: string, subscriptionId: string): Promise<Guardianship>;
