@@ -14,6 +14,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { AdminDashboardModule } from './admin/dashboard/dashboard.module';
 import { AdminUsersModule } from './admin/users/users.module';
 import { AnimalsModule } from './animals/animals.module';
+import { BlacklistModule } from './blacklist/blacklist.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { getAuthConfig } from './configs/auth.config';
 import { getCacheConfig } from './configs/cache.config';
@@ -59,6 +60,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
 		ConfigModule,
 		CoreModule,
 		AnimalsModule,
+		BlacklistModule,
 		DonationsModule,
 		FinanceModule,
 		GuardianshipModule,

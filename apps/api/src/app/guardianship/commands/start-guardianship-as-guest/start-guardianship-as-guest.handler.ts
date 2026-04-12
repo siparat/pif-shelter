@@ -1,9 +1,10 @@
 import { CommandBus, CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { GUARDIAN_DEFAULT_POSITION, UserRole } from '@pif/shared';
+import { BlacklistSource, GUARDIAN_DEFAULT_POSITION, UserRole } from '@pif/shared';
 import { AuthService } from '@thallesp/nestjs-better-auth';
 import { randomBytes } from 'crypto';
 import { Logger } from 'nestjs-pino';
 import { AppAuth } from '../../../configs/auth.config';
+import { BlacklistPolicy } from '../../../core/policies/blacklist.policy';
 import { UsersService } from '../../../users/users.service';
 import { GuardianRegisteredEvent } from '../../events/guardian-registered/guardian-registered.event';
 import { GuardianRequiresAuthException } from '../../exceptions/guardian-requires-auth.exception';
@@ -17,13 +18,20 @@ export class StartGuardianshipAsGuestHandler implements ICommandHandler<StartGua
 		private readonly authService: AuthService<AppAuth>,
 		private readonly commandBus: CommandBus,
 		private readonly eventBus: EventBus,
-		private readonly logger: Logger
+		private readonly logger: Logger,
+		private readonly blacklistPolicy: BlacklistPolicy
 	) {}
 
 	async execute(
 		command: StartGuardianshipAsGuestCommand
 	): Promise<{ guardianshipId: string; paymentUrl: string; cancellationToken: string }> {
 		const { dto } = command;
+
+		const contacts = [
+			{ source: BlacklistSource.EMAIL, value: dto.email },
+			{ source: BlacklistSource.TELEGRAM, value: dto.telegramUsername }
+		];
+		await this.blacklistPolicy.assertCleanContacts(contacts);
 
 		const [existingByEmail, existingByTelegram] = await Promise.all([
 			this.usersService.findByEmail(dto.email),

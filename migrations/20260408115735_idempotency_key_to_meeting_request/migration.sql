@@ -1,0 +1,2 @@
+ALTER TABLE "meeting_requests" ADD COLUMN "idempotency_key" text NOT NULL;--> statement-breakpoint
+ALTER TABLE "meeting_requests" ADD CONSTRAINT "meeting_requests_idempotency_key_key" UNIQUE("idempotency_key");

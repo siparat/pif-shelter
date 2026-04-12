@@ -10,6 +10,7 @@ export const meetingRequestResponseSchema = z.object({
 	email: z.string().nullable(),
 	comment: z.string().nullable(),
 	meetingAt: z.iso.datetime(),
+	isSuspicious: z.boolean(),
 	status: z.enum(MeetingRequestStatusEnum),
 	confirmedAt: z.iso.datetime().nullable(),
 	rejectedAt: z.iso.datetime().nullable(),

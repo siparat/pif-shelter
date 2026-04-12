@@ -32,6 +32,7 @@ export class GetMeetingRequestByIdHandler implements IQueryHandler<GetMeetingReq
 			comment: row.request.comment,
 			meetingAt: row.request.meetingAt.toISOString(),
 			status: row.request.status,
+			isSuspicious: row.request.isSuspicious,
 			confirmedAt: row.request.confirmedAt?.toISOString() ?? null,
 			rejectedAt: row.request.rejectedAt?.toISOString() ?? null,
 			rejectionReason: row.request.rejectionReason,

@@ -28,6 +28,7 @@ import { meetingRequestStatusEnum, meetingRequests } from './meeting-requests.sc
 import { postMedia, postMediaTypeEnum, postReactions, postVisibilityEnum, posts } from './posts.schema';
 import { accounts, invitations, roleEnum, sessions, users, verifications } from './users.schema';
 import { wishlistCategories, wishlistItemStatusEnum, wishlistItems } from './wishlist.schema';
+import { blacklist } from './blacklist.schema';
 
 export const relations = defineRelations(
 	{
@@ -50,7 +51,8 @@ export const relations = defineRelations(
 		invitations,
 		campaigns,
 		wishlistCategories,
-		wishlistItems
+		wishlistItems,
+		blacklist
 	},
 	(r) => ({
 		animals: {
@@ -191,6 +193,10 @@ export const relations = defineRelations(
 			meetingRequests: r.many.meetingRequests({
 				from: r.users.id,
 				to: r.meetingRequests.curatorUserId
+			}),
+			moderatedBlacklists: r.many.blacklist({
+				from: r.users.id,
+				to: r.blacklist.moderatorId
 			})
 		},
 		sessions: {
@@ -236,6 +242,12 @@ export const relations = defineRelations(
 				from: r.wishlistItems.categoryId,
 				to: r.wishlistCategories.id
 			})
+		},
+		blacklist: {
+			moderator: r.one.users({
+				from: r.blacklist.moderatorId,
+				to: r.users.id
+			})
 		}
 	})
 );
@@ -278,7 +290,8 @@ export const schema = {
 	campaigns,
 	wishlistItemStatusEnum,
 	wishlistCategories,
-	wishlistItems
+	wishlistItems,
+	blacklist
 };
 
 export * from './animals.schema';
@@ -290,3 +303,4 @@ export * from './meeting-requests.schema';
 export * from './posts.schema';
 export * from './users.schema';
 export * from './wishlist.schema';
+export * from './blacklist.schema';

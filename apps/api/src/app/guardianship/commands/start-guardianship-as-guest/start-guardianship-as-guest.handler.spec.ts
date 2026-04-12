@@ -3,8 +3,10 @@ import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { CommandBus, EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
 import { StartGuardianshipRequestDto } from '@pif/contracts';
+import { BlacklistSource } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
 import { AppAuth } from '../../../configs/auth.config';
+import { BlacklistPolicy } from '../../../core/policies/blacklist.policy';
 import { UsersService } from '../../../users/users.service';
 import { AnimalAlreadyHasGuardianException } from '../../exceptions/animal-already-has-guardian.exception';
 import { GuardianRequiresAuthException } from '../../exceptions/guardian-requires-auth.exception';
@@ -28,6 +30,7 @@ describe('StartGuardianshipAsGuestHandler', () => {
 	let authService: ReturnType<typeof createMockAuthService>;
 	let commandBus: DeepMocked<CommandBus>;
 	let eventBus: DeepMocked<EventBus>;
+	let blacklistPolicy: DeepMocked<BlacklistPolicy>;
 
 	const animalId = faker.string.uuid();
 	const dto: StartGuardianshipRequestDto = {
@@ -46,7 +49,8 @@ describe('StartGuardianshipAsGuestHandler', () => {
 				{ provide: AuthService, useValue: mockAuth as never },
 				{ provide: CommandBus, useValue: createMock<CommandBus>() },
 				{ provide: EventBus, useValue: createMock<EventBus>() },
-				{ provide: Logger, useValue: createMock<Logger>() }
+				{ provide: Logger, useValue: createMock<Logger>() },
+				{ provide: BlacklistPolicy, useValue: createMock<BlacklistPolicy>() }
 			]
 		}).compile();
 
@@ -55,6 +59,8 @@ describe('StartGuardianshipAsGuestHandler', () => {
 		authService = module.get(AuthService);
 		commandBus = module.get(CommandBus);
 		eventBus = module.get(EventBus);
+		blacklistPolicy = module.get(BlacklistPolicy);
+		blacklistPolicy.assertCleanContacts.mockResolvedValue(undefined);
 	});
 
 	it('throws GuardianRequiresAuthException when user exists by email', async () => {
@@ -64,6 +70,10 @@ describe('StartGuardianshipAsGuestHandler', () => {
 		await expect(handler.execute(new StartGuardianshipAsGuestCommand(dto))).rejects.toThrow(
 			GuardianRequiresAuthException
 		);
+		expect(blacklistPolicy.assertCleanContacts).toHaveBeenCalledWith([
+			{ source: BlacklistSource.EMAIL, value: dto.email },
+			{ source: BlacklistSource.TELEGRAM, value: dto.telegramUsername }
+		]);
 		expect(authService.api.signUpEmail).not.toHaveBeenCalled();
 		expect(commandBus.execute).not.toHaveBeenCalled();
 	});
@@ -82,6 +92,7 @@ describe('StartGuardianshipAsGuestHandler', () => {
 		const userId = faker.string.uuid();
 		const guardianshipId = faker.string.uuid();
 		const paymentUrl = 'https://pay.example/link';
+		const cancellationToken = faker.string.uuid();
 		const createdUser = { id: userId, email: dto.email, name: dto.name } as AppAuth['$Infer']['Session']['user'];
 
 		usersService.findByEmail.mockResolvedValue(undefined as never);
@@ -89,11 +100,11 @@ describe('StartGuardianshipAsGuestHandler', () => {
 		authService.api.signUpEmail.mockResolvedValue({
 			response: { user: createdUser }
 		} as never);
-		commandBus.execute.mockResolvedValue({ guardianshipId, paymentUrl });
+		commandBus.execute.mockResolvedValue({ guardianshipId, paymentUrl, cancellationToken });
 
 		const result = await handler.execute(new StartGuardianshipAsGuestCommand(dto));
 
-		expect(result).toEqual({ guardianshipId, paymentUrl });
+		expect(result).toEqual({ guardianshipId, paymentUrl, cancellationToken });
 		expect(commandBus.execute).toHaveBeenCalledWith(new StartGuardianshipCommand(userId, animalId));
 		expect(eventBus.publish).toHaveBeenCalledWith(
 			expect.objectContaining({
