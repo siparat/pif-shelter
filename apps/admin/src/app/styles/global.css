@@ -1,0 +1,49 @@
+@import 'tailwindcss';
+
+:root {
+	--color-brand-beige: #f9f4ef;
+	--color-brand-brown: #3d3430;
+	--color-brand-brown-light: #6e645e;
+	--color-brand-orange: #ff7b4b;
+	--color-brand-orange-hover: #e66a3d;
+	--color-brand-orange-soft: #fff4e5;
+
+	--radius-pif: 16px;
+	--radius-pif-button: 12px;
+
+	--shadow-pif: 0 4px 24px rgba(61, 52, 48, 0.04);
+	--shadow-pif-lg: 0 12px 48px rgba(61, 52, 48, 0.08);
+}
+
+@layer base {
+	body {
+		background-color: var(--color-brand-beige);
+		color: var(--color-brand-brown);
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		font-family: 'Inter', system-ui, sans-serif;
+	}
+
+	::selection {
+		background-color: var(--color-brand-orange);
+		color: white;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-weight: 700;
+		letter-spacing: -0.025em;
+	}
+}
+
+@layer utilities {
+	.glass {
+		background-color: rgba(255, 255, 255, 0.7);
+		backdrop-filter: blur(12px);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+}

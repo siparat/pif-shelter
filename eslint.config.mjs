@@ -35,13 +35,10 @@ export default [
 			'unicorn/filename-case': [
 				'error',
 				{
-					case: 'kebabCase'
-				}
-			],
-			'check-file/folder-naming-convention': [
-				'error',
-				{
-					'**/': 'KEBAB_CASE'
+					cases: {
+						kebabCase: true,
+						pascalCase: true
+					}
 				}
 			],
 			'@typescript-eslint/no-explicit-any': 'off',
