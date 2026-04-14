@@ -29,6 +29,7 @@ async function bootstrap(): Promise<void> {
 
 	app.enableShutdownHooks();
 	app.useLogger(app.get(Logger));
+	app.enableCors({ origin: ['http://localhost:4200', 'http://localhost:5173'], credentials: true });
 
 	await app.register(require('@fastify/helmet'));
 

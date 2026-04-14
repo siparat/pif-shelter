@@ -8,17 +8,23 @@
 	--color-brand-orange-hover: #e66a3d;
 	--color-brand-orange-soft: #fff4e5;
 
+	--color-bg-primary: #0f0e0d;
+	--color-bg-secondary: #1a1816;
+	--color-text-primary: #f9f4ef;
+	--color-text-secondary: #a39b97;
+	--color-border: #2e2a27;
+
 	--radius-pif: 16px;
 	--radius-pif-button: 12px;
 
-	--shadow-pif: 0 4px 24px rgba(61, 52, 48, 0.04);
-	--shadow-pif-lg: 0 12px 48px rgba(61, 52, 48, 0.08);
+	--shadow-pif: 0 4px 24px rgba(0, 0, 0, 0.4);
+	--shadow-pif-lg: 0 12px 48px rgba(0, 0, 0, 0.6);
 }
 
 @layer base {
 	body {
-		background-color: var(--color-brand-beige);
-		color: var(--color-brand-brown);
+		background-color: var(--color-bg-primary);
+		color: var(--color-text-primary);
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
 		font-family: 'Inter', system-ui, sans-serif;
@@ -42,8 +48,16 @@
 
 @layer utilities {
 	.glass {
-		background-color: rgba(255, 255, 255, 0.7);
+		background-color: rgba(26, 24, 22, 0.7);
 		backdrop-filter: blur(12px);
-		border: 1px solid rgba(255, 255, 255, 0.2);
+		border: 1px solid rgba(255, 255, 255, 0.05);
 	}
+}
+
+html {
+	scrollbar-gutter: stable;
+}
+
+button {
+	cursor: pointer;
 }

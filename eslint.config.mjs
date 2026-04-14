@@ -78,77 +78,7 @@ export default [
 			}
 		},
 		rules: {
-			'@typescript-eslint/no-unused-vars': 'warn',
-			'@typescript-eslint/naming-convention': [
-				'error',
-				{
-					selector: 'default',
-					format: ['camelCase'],
-					leadingUnderscore: 'allow',
-					trailingUnderscore: 'allow'
-				},
-				{
-					selector: 'variable',
-					format: ['camelCase', 'UPPER_CASE'],
-					leadingUnderscore: 'allow',
-					trailingUnderscore: 'allow'
-				},
-				{
-					selector: 'variable',
-					modifiers: ['const', 'global'],
-					format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
-					leadingUnderscore: 'forbid'
-				},
-				{
-					selector: 'objectLiteralProperty',
-					format: ['camelCase', 'PascalCase', 'UPPER_CASE', 'snake_case']
-				},
-				{
-					selector: 'variable',
-					types: ['boolean'],
-					format: ['camelCase'],
-					custom: {
-						regex: '^(is|has|can|should|must)[A-Z]',
-						match: true
-					}
-				},
-				{
-					selector: 'typeLike',
-					format: ['PascalCase']
-				},
-				{
-					selector: 'interface',
-					format: ['PascalCase'],
-					custom: {
-						regex: '^I[A-Z]',
-						match: true
-					}
-				},
-				{
-					selector: 'enumMember',
-					format: ['UPPER_CASE']
-				},
-				{
-					selector: 'enum',
-					format: ['PascalCase']
-				},
-				{
-					selector: 'property',
-					format: ['camelCase', 'UPPER_CASE']
-				}
-			]
-		}
-	},
-	{
-		files: ['**/*.tsx', '**/*.jsx'],
-		rules: {
-			'@typescript-eslint/naming-convention': [
-				'error',
-				{
-					selector: 'interface',
-					format: ['PascalCase']
-				}
-			]
+			'@typescript-eslint/no-unused-vars': 'warn'
 		}
 	},
 	{

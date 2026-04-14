@@ -19,21 +19,21 @@ export const createApiPaginatedResponseSchema = <T extends z.ZodTypeAny>(dataSch
 		})
 	});
 
-export class ApiErrorResponseDto extends createZodDto(
-	z.object({
-		success: z.literal(false).default(false).describe('Статус неуспешности запроса'),
-		error: z.object({
-			code: z.string().describe('Машинночитаемый код ошибки (например, VALIDATION_ERROR)'),
-			message: z.string().describe('Человекочитаемое сообщение об ошибке'),
-			details: z
-				.array(
-					z.object({
-						message: z.string().describe('Сообщение о конкретной ошибке в поле'),
-						path: z.string().describe('Путь к полю, вызвавшему ошибку')
-					})
-				)
-				.optional()
-				.describe('Детализированный список ошибок (например, для валидации)')
-		})
+export const apiErrorSchema = z.object({
+	success: z.literal(false).default(false).describe('Статус неуспешности запроса'),
+	error: z.object({
+		code: z.string().describe('Машинночитаемый код ошибки (например, VALIDATION_ERROR)'),
+		message: z.string().describe('Человекочитаемое сообщение об ошибке'),
+		details: z
+			.array(
+				z.object({
+					message: z.string().describe('Сообщение о конкретной ошибке в поле'),
+					path: z.string().describe('Путь к полю, вызвавшему ошибку')
+				})
+			)
+			.optional()
+			.describe('Детализированный список ошибок (например, для валидации)')
 	})
-) {}
+});
+
+export class ApiErrorResponseDto extends createZodDto(apiErrorSchema) {}
