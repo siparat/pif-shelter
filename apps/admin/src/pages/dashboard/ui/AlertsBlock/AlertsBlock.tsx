@@ -1,5 +1,5 @@
 import { AlertCircle, ShoppingCart } from 'lucide-react';
-import { FC } from 'react';
+import { JSX } from 'react';
 import { DashboardCard } from '../DashboardCard/DashboardCard';
 
 interface Props {
@@ -7,7 +7,7 @@ interface Props {
 	activeItemsCount: number;
 }
 
-export const AlertsBlock: FC<Props> = ({ sosCount, activeItemsCount }) => {
+export const AlertsBlock = ({ sosCount, activeItemsCount }: Props): JSX.Element => {
 	return (
 		<DashboardCard title="Внимание">
 			<div className="flex flex-col gap-4">

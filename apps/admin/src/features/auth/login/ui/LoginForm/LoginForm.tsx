@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { HTTPError } from 'ky';
 import { Lock, Mail } from 'lucide-react';
-import { FC } from 'react';
+import { JSX } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { Button, Input } from '../../../../../shared/ui';
 import { signInEmail } from '../../api/sign-in-email';
 import { LoginFormValues, loginSchema } from '../../model/login.schema';
 
-export const LoginForm: FC = () => {
+export const LoginForm = (): JSX.Element => {
 	const navigate = useNavigate();
 
 	const {

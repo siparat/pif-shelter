@@ -11,7 +11,7 @@ export const Sidebar = (): JSX.Element => {
 		<aside className="w-72 h-screen hidden md:flex flex-col bg-(--color-bg-secondary) border-r border-(--color-border) sticky top-0">
 			<div className="p-8">
 				<div className="flex items-center gap-3">
-					<span className="text-xl font-bold tracking-tight"> </span>
+					<span className="text-xl font-bold tracking-tight">ПИФ</span>
 				</div>
 			</div>
 

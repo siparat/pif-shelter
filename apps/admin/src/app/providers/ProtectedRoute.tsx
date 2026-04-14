@@ -1,5 +1,5 @@
 import { Loader2 } from 'lucide-react';
-import { FC, ReactNode } from 'react';
+import { JSX, ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSession } from '../../entities/session/model/hooks';
 
@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 	children: ReactNode;
 }
 
-export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
+export const ProtectedRoute = ({ children }: ProtectedRouteProps): JSX.Element => {
 	const { data: session, isLoading, isError } = useSession();
 	const location = useLocation();
 

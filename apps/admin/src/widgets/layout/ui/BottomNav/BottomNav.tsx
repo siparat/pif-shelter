@@ -1,10 +1,10 @@
 import { Link } from 'lucide-react';
-import { FC } from 'react';
+import { JSX } from 'react';
 import { useLocation } from 'react-router-dom';
 import { MENU } from '../../../../shared/config';
 import { cn } from '../../../../shared/lib';
 
-export const BottomNav: FC = () => {
+export const BottomNav = (): JSX.Element => {
 	const location = useLocation();
 
 	return (

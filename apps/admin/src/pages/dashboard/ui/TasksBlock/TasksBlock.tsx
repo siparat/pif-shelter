@@ -1,5 +1,5 @@
 import { Calendar, UserCheck } from 'lucide-react';
-import { FC } from 'react';
+import { JSX } from 'react';
 import { DashboardCard } from '../DashboardCard/DashboardCard';
 
 interface Props {
@@ -7,7 +7,7 @@ interface Props {
 	upcoming24hCount: number;
 }
 
-export const TasksBlock: FC<Props> = ({ newCount, upcoming24hCount }) => {
+export const TasksBlock = ({ newCount, upcoming24hCount }: Props): JSX.Element => {
 	return (
 		<DashboardCard title="Мои задачи">
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">

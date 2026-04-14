@@ -1,12 +1,12 @@
 import { Loader2 } from 'lucide-react';
-import { ButtonHTMLAttributes, FC } from 'react';
+import { ButtonHTMLAttributes, JSX } from 'react';
 import { cn } from '../../lib';
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
 	isLoading?: boolean;
 }
 
-export const Button: FC<Props> = ({ isLoading, disabled, className, children, ...props }) => {
+export const Button = ({ isLoading, disabled, className, children, ...props }: Props): JSX.Element => {
 	return (
 		<button
 			{...props}

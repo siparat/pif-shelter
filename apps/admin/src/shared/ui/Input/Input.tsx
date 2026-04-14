@@ -1,5 +1,5 @@
 import { Eye, EyeOff, LucideProps } from 'lucide-react';
-import { FC, ForwardRefExoticComponent, InputHTMLAttributes, useId, useState } from 'react';
+import { ForwardRefExoticComponent, InputHTMLAttributes, JSX, useId, useState } from 'react';
 import { cn } from '../../lib';
 
 interface Props extends InputHTMLAttributes<HTMLInputElement> {
@@ -9,7 +9,7 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
 	Icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'>>;
 }
 
-export const Input: FC<Props> = ({ className, classNameBlock, Icon, type, error, label, ...props }) => {
+export const Input = ({ className, classNameBlock, Icon, type, error, label, ...props }: Props): JSX.Element => {
 	const id = useId();
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 
