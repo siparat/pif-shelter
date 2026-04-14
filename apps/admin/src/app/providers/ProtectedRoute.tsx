@@ -14,7 +14,7 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
 	if (isLoading) {
 		return (
 			<div className="min-h-screen w-full flex items-center justify-center bg-(--color-bg-primary)">
-				<Loader2 className="animate-spin text-brand-orange" size={48} />
+				<Loader2 className="animate-spin text-(--color-brand-orange)" size={48} />
 			</div>
 		);
 	}

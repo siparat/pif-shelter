@@ -5,8 +5,8 @@ import { FC, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { loginApi } from '../api/login.api';
-import { LoginFormValues, loginSchema } from '../model/login.schema';
+import { signInEmail } from '../../api/sign-in-email';
+import { LoginFormValues, loginSchema } from '../../model/login.schema';
 
 export const LoginForm: FC = () => {
 	const [showPassword, setShowPassword] = useState(false);
@@ -22,7 +22,7 @@ export const LoginForm: FC = () => {
 
 	const onSubmit = async (values: LoginFormValues): Promise<void> => {
 		try {
-			const data = await loginApi.signIn(values);
+			const data = await signInEmail(values);
 
 			if (data.token) {
 				localStorage.setItem('token', data.token);

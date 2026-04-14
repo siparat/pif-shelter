@@ -14,10 +14,13 @@ const NavItem: FC<NavItemProps> = ({ to, icon: Icon, label, isActive }) => (
 		to={to}
 		className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group ${
 			isActive
-				? 'bg-brand-orange text-white shadow-lg shadow-brand-orange/20'
+				? 'bg-(--color-brand-orange) text-white shadow-lg shadow-(--color-brand-orange)/20'
 				: 'text-(--color-text-secondary) hover:bg-(--color-bg-primary) hover:text-(--color-text-primary)'
 		}`}>
-		<Icon size={20} className={isActive ? 'text-white' : 'group-hover:text-brand-orange transition-colors'} />
+		<Icon
+			size={20}
+			className={isActive ? 'text-white' : 'group-hover:text-(--color-brand-orange) transition-colors'}
+		/>
 		{label}
 	</Link>
 );

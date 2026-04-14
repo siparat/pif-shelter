@@ -15,12 +15,10 @@ export interface LoginResponse {
 	token: string;
 }
 
-export const loginApi = {
-	signIn: async (values: LoginFormValues): Promise<LoginResponse> => {
-		return await api
-			.post('auth/sign-in/email', {
-				json: values
-			})
-			.json<LoginResponse>();
-	}
+export const signInEmail = async (values: LoginFormValues): Promise<LoginResponse> => {
+	return await api
+		.post('auth/sign-in/email', {
+			json: values
+		})
+		.json<LoginResponse>();
 };
