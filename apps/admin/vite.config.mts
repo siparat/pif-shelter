@@ -4,6 +4,7 @@ import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+import svgr from 'vite-plugin-svgr';
 
 export default defineConfig(() => ({
 	root: import.meta.dirname,
@@ -16,7 +17,7 @@ export default defineConfig(() => ({
 		port: 4200,
 		host: 'localhost'
 	},
-	plugins: [react(), tailwindcss(), nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
+	plugins: [react(), svgr(), tailwindcss(), nxViteTsPaths(), nxCopyAssetsPlugin(['*.md'])],
 	build: {
 		outDir: '../../dist/apps/admin',
 		emptyOutDir: true,
