@@ -1,15 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { HTTPError } from 'ky';
-import { Eye, EyeOff, Loader2, Lock, Mail } from 'lucide-react';
-import { FC, useState } from 'react';
+import { Lock, Mail } from 'lucide-react';
+import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { Button, Input } from '../../../../../shared/ui';
 import { signInEmail } from '../../api/sign-in-email';
 import { LoginFormValues, loginSchema } from '../../model/login.schema';
 
 export const LoginForm: FC = () => {
-	const [showPassword, setShowPassword] = useState(false);
 	const navigate = useNavigate();
 
 	const {
@@ -30,7 +30,7 @@ export const LoginForm: FC = () => {
 
 			toast.success('Успешный вход');
 			navigate('/');
-		} catch (err: any) {
+		} catch (err) {
 			let message = 'Не удалось войти. Попробуйте снова.';
 			if (err instanceof HTTPError) {
 				try {
@@ -51,72 +51,27 @@ export const LoginForm: FC = () => {
 			</div>
 
 			<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-				<div className="flex flex-col gap-2">
-					<label className="text-sm font-semibold text-(--color-text-primary) px-1">Почта</label>
-					<div className="relative group">
-						<Mail
-							className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${
-								errors.email
-									? 'text-red-400'
-									: 'text-(--color-text-secondary) group-focus-within:text-(--color-brand-orange)'
-							}`}
-							size={18}
-						/>
-						<input
-							{...register('email')}
-							type="email"
-							className={`w-full bg-(--color-bg-primary) border rounded-xl py-3 pl-12 pr-4 text-(--color-text-primary) focus:outline-none transition-all ${
-								errors.email
-									? 'border-red-400'
-									: 'border-(--color-border) focus:border-(--color-brand-orange)'
-							}`}
-							placeholder="admin@pif-dpr.ru"
-						/>
-					</div>
-					{errors.email && (
-						<span className="text-xs text-red-400 px-1 font-medium">{errors.email.message}</span>
-					)}
-				</div>
+				<Input
+					{...register('email')}
+					Icon={Mail}
+					error={errors.email?.message}
+					label="Почта"
+					type="text"
+					placeholder="admin@pif-dpr.ru"
+				/>
 
-				<div className="flex flex-col gap-2">
-					<label className="text-sm font-semibold text-(--color-text-primary) px-1">Пароль</label>
-					<div className="relative group">
-						<Lock
-							className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${
-								errors.password
-									? 'text-red-400'
-									: 'text-(--color-text-secondary) group-focus-within:text-(--color-brand-orange)'
-							}`}
-							size={18}
-						/>
-						<input
-							{...register('password')}
-							type={showPassword ? 'text' : 'password'}
-							className={`w-full bg-(--color-bg-primary) border rounded-xl py-3 pl-12 pr-12 text-(--color-text-primary) focus:outline-none transition-all ${
-								errors.password
-									? 'border-red-400'
-									: 'border-(--color-border) focus:border-(--color-brand-orange)'
-							}`}
-							placeholder="••••••••"
-						/>
-						<button
-							type="button"
-							onClick={() => setShowPassword(!showPassword)}
-							className="absolute right-4 top-1/2 -translate-y-1/2 text-(--color-text-secondary) hover:text-(--color-brand-orange) transition-colors">
-							{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-						</button>
-					</div>
-					{errors.password && (
-						<span className="text-xs text-red-400 px-1 font-medium">{errors.password.message}</span>
-					)}
-				</div>
+				<Input
+					{...register('password')}
+					Icon={Lock}
+					error={errors.password?.message}
+					label="Пароль"
+					type="password"
+					placeholder="09.03.01"
+				/>
 
-				<button
-					type="submit"
-					disabled={isSubmitting}
-					className="mt-2 w-full bg-(--color-brand-orange) hover:bg-(--color-brand-orange)-hover text-white font-bold py-4 rounded-xl shadow-lg shadow-(--color-brand-orange)/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group">
-					{isSubmitting ? <Loader2 className="animate-spin" size={24} /> : 'Войти в панель'}
-				</button>
+				<Button type="submit" isLoading={isSubmitting}>
+					Войти в панель
+				</Button>
 			</form>
 		</div>
 	);

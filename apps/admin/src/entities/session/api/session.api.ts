@@ -1,4 +1,4 @@
-import { api } from '../../../shared/api/base';
+import { api } from '../../../shared/api';
 import { IUser } from '../model/types';
 
 export interface ISessionResponse {

@@ -1,7 +1,7 @@
 import { getAdminDashboardSummaryResponseSchema } from '@pif/contracts';
 import z from 'zod';
-import { api } from '../../../shared/api/base';
-import { isApiError } from '../../../shared/lib/is-error';
+import { api } from '../../../shared/api';
+import { isApiError } from '../../../shared/lib';
 
 type Response = z.infer<typeof getAdminDashboardSummaryResponseSchema>;
 

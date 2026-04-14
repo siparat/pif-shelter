@@ -1,4 +1,4 @@
-import { api } from '../../../../shared/api/base';
+import { api } from '../../../../shared/api';
 import { LoginFormValues } from '../model/login.schema';
 
 export interface LoginResponse {
