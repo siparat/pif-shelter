@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { JSX } from 'react';
+import { Button } from '../../../../shared/ui';
 import { getDashboardSummary } from '../../api/get-summary';
 import { AlertsBlock } from '../AlertsBlock/AlertsBlock';
 import { TasksBlock } from '../TasksBlock/TasksBlock';
 
 export const DashboardPage = (): JSX.Element => {
-	const { data, isLoading, error } = useQuery({
+	const { data, isLoading, error, refetch } = useQuery({
 		queryKey: ['dashboard-summary'],
 		queryFn: getDashboardSummary
 	});
@@ -23,7 +24,14 @@ export const DashboardPage = (): JSX.Element => {
 		return (
 			<div className="p-8 bg-red-400/10 border border-red-400/20 rounded-2xl text-red-400 text-center">
 				<p className="font-bold">Ошибка загрузки данных дашборда</p>
-				<p className="text-sm opacity-80">Попробуйте обновить страницу позже</p>
+				<p className="text-sm opacity-80">
+					{error instanceof Error ? error.message : 'Попробуйте обновить страницу позже'}
+				</p>
+				<div className="mt-4 flex justify-center">
+					<Button className="mt-0 w-auto px-6 py-2" onClick={() => void refetch()}>
+						Повторить
+					</Button>
+				</div>
 			</div>
 		);
 	}
@@ -66,3 +74,5 @@ export const DashboardPage = (): JSX.Element => {
 		</div>
 	);
 };
+
+export default DashboardPage;

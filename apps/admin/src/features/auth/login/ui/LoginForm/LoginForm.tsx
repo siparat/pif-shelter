@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { HTTPError } from 'ky';
 import { Lock, Mail } from 'lucide-react';
 import { JSX } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { getErrorMessage } from '../../../../../shared/api';
 import { Button, Input } from '../../../../../shared/ui';
 import { signInEmail } from '../../api/sign-in-email';
 import { LoginFormValues, loginSchema } from '../../model/login.schema';
@@ -22,23 +22,11 @@ export const LoginForm = (): JSX.Element => {
 
 	const onSubmit = async (values: LoginFormValues): Promise<void> => {
 		try {
-			const data = await signInEmail(values);
-
-			if (data.token) {
-				localStorage.setItem('token', data.token);
-			}
-
+			await signInEmail(values);
 			toast.success('Успешный вход');
 			navigate('/');
 		} catch (err) {
-			let message = 'Не удалось войти. Попробуйте снова.';
-			if (err instanceof HTTPError) {
-				try {
-					message = err.data.message;
-				} catch (e) {
-					console.error(e);
-				}
-			}
+			const message = await getErrorMessage(err);
 			toast.error(message);
 		}
 	};

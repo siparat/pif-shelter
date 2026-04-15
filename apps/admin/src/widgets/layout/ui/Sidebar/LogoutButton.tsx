@@ -1,10 +1,14 @@
 import { LogOut } from 'lucide-react';
 import { JSX } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { clearAuthState } from '../../../../shared/lib';
 
 export const LogoutButton = (): JSX.Element => {
+	const navigate = useNavigate();
+
 	const onLogout = (): void => {
-		localStorage.removeItem('token');
-		window.location.href = '/login';
+		clearAuthState();
+		navigate('/login', { replace: true });
 	};
 
 	return (

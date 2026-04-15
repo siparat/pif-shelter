@@ -19,9 +19,12 @@ export const Sidebar = (): JSX.Element => {
 					Меню управления
 				</p>
 
-				{MENU.map(({ Icon, name, path }) => (
+				{MENU.map(({ Icon, name, path, preload }) => (
 					<Link
+						key={path}
 						to={path}
+						onMouseEnter={() => void preload()}
+						onFocus={() => void preload()}
 						className={cn(
 							'flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group',
 							location.pathname === path

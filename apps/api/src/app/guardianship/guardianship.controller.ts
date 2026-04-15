@@ -4,6 +4,8 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GuardianshipStatusEnum, UserRole } from '@pif/shared';
 import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+import { ISession } from '../configs/auth.config';
+import { Roles } from '../core/decorators/roles.decorator';
 import {
 	CancelGuardianshipByTokenRequestDto,
 	CancelGuardianshipByTokenResponseDto,
@@ -16,8 +18,6 @@ import {
 	StartGuardianshipRequestDto,
 	StartGuardianshipResponseDto
 } from '../core/dto';
-import { ISession } from '../configs/auth.config';
-import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
 import { TelegramUrlMapper } from '../core/mappers/telegram-url.mapper';
 import { CancelGuardianshipByTokenCommand } from './commands/cancel-guardianship-by-token/cancel-guardianship-by-token.command';
@@ -129,6 +129,7 @@ export class GuardianshipController {
 				: undefined;
 		return {
 			...result,
+			paidPeriodEndAt: result.paidPeriodEndAt?.toISOString() ?? null,
 			animal,
 			guardian: {
 				...guardian,

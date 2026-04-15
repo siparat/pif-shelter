@@ -10,7 +10,7 @@ export const Button = ({ isLoading, disabled, className, children, ...props }: P
 	return (
 		<button
 			{...props}
-			disabled={disabled === undefined ? isLoading : false}
+			disabled={disabled ?? isLoading}
 			className={cn(
 				'mt-2 w-full bg-(--color-brand-orange) hover:bg-(--color-brand-orange)-hover text-white font-bold py-4 rounded-xl shadow-lg shadow-(--color-brand-orange)/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed group',
 				className

@@ -28,7 +28,7 @@ export const guardianshipViewSchema = z
 		id: z.uuid(),
 		animalId: z.uuid(),
 		status: z.enum(GuardianshipStatusEnum),
-		paidPeriodEndAt: z.union([z.string(), z.date()]).nullable()
+		paidPeriodEndAt: z.string().nullable()
 	})
 	.loose();
 

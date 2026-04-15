@@ -27,7 +27,13 @@ export class GetMyGaurdianshipsHandler implements IQueryHandler<GetMyGaurdianshi
 			.innerJoin(animals, eq(guardianships.animalId, animals.id))
 			.where(guardianshipPortalAccessWhere(now, { guardianUserId: userId }));
 
-		const result = { guardianships: rows.map(({ g, animal }) => ({ ...g, animal })) };
+		const result = {
+			guardianships: rows.map(({ g, animal }) => ({
+				...g,
+				animal,
+				paidPeriodEndAt: g.paidPeriodEndAt?.toISOString() ?? null
+			}))
+		};
 		await this.cache.set(key, result).catch(() => undefined);
 
 		return result;
