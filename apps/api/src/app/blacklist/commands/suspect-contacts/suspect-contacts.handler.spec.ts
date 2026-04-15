@@ -2,9 +2,9 @@ import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { BadRequestException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test } from '@nestjs/testing';
-import { ReturnDto, SuspectContactsRequestDto, SuspectContactsResponseDto } from '@pif/contracts';
 import { BlacklistContext, BlacklistSource } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
+import { ReturnData, SuspectContactsRequestDto, SuspectContactsResponseDto } from '../../../core/dto';
 import { BlacklistService } from '../../blacklist.service';
 import { ContactsSuspectedEvent } from '../../events/contacts-suspected/contacts-suspected.event';
 import { SuspectContactsCommand } from './suspect-contacts.command';
@@ -50,7 +50,7 @@ describe('SuspectContactsHandler', () => {
 	});
 
 	it('calls service, publishes event and logs when payload is valid', async () => {
-		const serviceResult: ReturnDto<typeof SuspectContactsResponseDto> = { updated: 1 };
+		const serviceResult: ReturnData<typeof SuspectContactsResponseDto> = { updated: 1 };
 		blacklistService.suspectSource.mockResolvedValue(serviceResult);
 
 		const result = await handler.execute(new SuspectContactsCommand(dto, 'moderator-1'));

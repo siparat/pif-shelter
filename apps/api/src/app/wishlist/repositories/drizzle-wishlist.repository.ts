@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import { DatabaseService, wishlistCategories, wishlistItems } from '@pif/database';
+import { WishlistItemStatusEnum } from '@pif/shared';
+import { eq } from 'drizzle-orm';
 import {
 	CreateWishlistCategoryRequestDto,
 	CreateWishlistItemRequestDto,
 	UpdateWishlistCategoryRequestDto,
 	UpdateWishlistItemRequestDto
-} from '@pif/contracts';
-import { DatabaseService, wishlistCategories, wishlistItems } from '@pif/database';
-import { WishlistItemStatusEnum } from '@pif/shared';
-import { eq } from 'drizzle-orm';
+} from '../../core/dto';
 import { WishlistRepository } from './wishlist.repository';
 
 @Injectable()

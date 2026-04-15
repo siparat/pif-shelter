@@ -1,6 +1,10 @@
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ListBlacklistResult } from '@pif/contracts';
+import { UserRole } from '@pif/shared';
+import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+import { ZodValidationPipe } from 'nestjs-zod';
 import {
 	ApproveContactsRequestDto,
 	ApproveContactsResponseDto,
@@ -10,14 +14,10 @@ import {
 	GetBlacklistByIdResponseDto,
 	ListBlacklistQueryDto,
 	ListBlacklistResponseDto,
-	ListBlacklistResult,
-	ReturnDto,
+	ReturnData,
 	SuspectContactsRequestDto,
 	SuspectContactsResponseDto
-} from '@pif/contracts';
-import { UserRole } from '@pif/shared';
-import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
-import { ZodValidationPipe } from 'nestjs-zod';
+} from '../core/dto';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
@@ -53,7 +53,7 @@ export class BlacklistController {
 	async approveContacts(
 		@Body() dto: ApproveContactsRequestDto,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof ApproveContactsResponseDto>> {
+	): Promise<ReturnData<typeof ApproveContactsResponseDto>> {
 		return this.commandBus.execute(new ApproveContactsCommand(dto, user.id));
 	}
 
@@ -65,7 +65,7 @@ export class BlacklistController {
 	async banContacts(
 		@Body() dto: BanContactsRequestDto,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof BanContactsResponseDto>> {
+	): Promise<ReturnData<typeof BanContactsResponseDto>> {
 		return this.commandBus.execute(new BanContactsCommand(dto, user.id));
 	}
 
@@ -77,7 +77,7 @@ export class BlacklistController {
 	async suspectContacts(
 		@Body() dto: SuspectContactsRequestDto,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof SuspectContactsResponseDto>> {
+	): Promise<ReturnData<typeof SuspectContactsResponseDto>> {
 		return this.commandBus.execute(new SuspectContactsCommand(dto, user.id));
 	}
 
@@ -86,7 +86,7 @@ export class BlacklistController {
 	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
 	@UseGuards(AuthGuard, RoleGuard)
 	@Get(':id')
-	async getById(@Param('id', ParseUUIDPipe) id: string): Promise<ReturnDto<typeof GetBlacklistByIdResponseDto>> {
+	async getById(@Param('id', ParseUUIDPipe) id: string): Promise<ReturnData<typeof GetBlacklistByIdResponseDto>> {
 		return this.queryBus.execute(new GetBlacklistByIdQuery(id));
 	}
 
@@ -98,7 +98,7 @@ export class BlacklistController {
 	async delete(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof DeleteContactFromBlacklistResponseDto>> {
+	): Promise<ReturnData<typeof DeleteContactFromBlacklistResponseDto>> {
 		return this.commandBus.execute(new DeleteContactFromBlacklistCommand(id, user.id));
 	}
 }

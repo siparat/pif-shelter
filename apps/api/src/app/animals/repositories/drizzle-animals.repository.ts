@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAnimalRequestDto, UpdateAnimalRequestDto } from '@pif/contracts';
 import { animals, animalsToAnimalLabels, DatabaseService } from '@pif/database';
 import { AnimalStatusEnum } from '@pif/shared';
 import { and, eq } from 'drizzle-orm';
+import { CreateAnimalRequestDto, UpdateAnimalRequestDto } from '../../core/dto';
 import { AnimalNotFoundException } from '../exceptions/animal-not-found.exception';
 import { AnimalMapper } from '../mappers/animal.mapper';
 import { AnimalsRepository } from './animals.repository';

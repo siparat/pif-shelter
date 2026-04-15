@@ -1,5 +1,5 @@
 import { Command } from '@nestjs/cqrs';
-import { UpdateCampaignRequestDto } from '@pif/contracts';
+import { UpdateCampaignRequestDto } from '../../../core/dto';
 
 export class UpdateCampaignCommand extends Command<{ id: string }> {
 	constructor(

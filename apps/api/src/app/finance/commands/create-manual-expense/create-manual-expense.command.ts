@@ -1,5 +1,5 @@
 import { Command } from '@nestjs/cqrs';
-import { CreateManualExpenseRequestDto } from '@pif/contracts';
+import { CreateManualExpenseRequestDto } from '../../../core/dto';
 
 export class CreateManualExpenseCommand extends Command<{ id: string }> {
 	constructor(

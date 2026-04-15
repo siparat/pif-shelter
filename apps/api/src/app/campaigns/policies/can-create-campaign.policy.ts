@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCampaignRequestDto, UpdateCampaignRequestDto } from '@pif/contracts';
 import { campaigns } from '@pif/database';
 import { AnimalStatusEnum, CampaignStatus } from '@pif/shared';
+import { CreateCampaignRequestDto, UpdateCampaignRequestDto } from '../../core/dto';
 import { AnimalsService } from '../../animals/animals.service';
 import { AnimalIsNotWithUsException } from '../exceptions/animal-is-not-with-us.exception';
 import { AnimalNotFoundException } from '../exceptions/animal-not-found.exception';

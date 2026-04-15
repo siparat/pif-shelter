@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { CommandBus, EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PaymentWebhookEvent } from '@pif/payment';
+import { PaymentWebhookEvent } from '@pif/shared';
 import { DonationSubscriptionStatusEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
 import { DonationSubscriptionCancelledEvent } from '../../events/donation-subscription-cancelled/donation-subscription-cancelled.event';

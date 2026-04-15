@@ -1,9 +1,9 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { EventBus } from '@nestjs/cqrs';
 import { Test } from '@nestjs/testing';
-import { BanContactsRequestDto, BanContactsResponseDto, ReturnDto } from '@pif/contracts';
 import { BlacklistContext, BlacklistSource } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
+import { BanContactsRequestDto, BanContactsResponseDto, ReturnData } from '../../../core/dto';
 import { BlacklistService } from '../../blacklist.service';
 import { ContactsBannedEvent } from '../../events/contacts-banned/contacts-banned.event';
 import { BanContactsCommand } from './ban-contacts.command';
@@ -37,7 +37,7 @@ describe('BanContactsHandler', () => {
 	});
 
 	it('calls service, publishes event and logs', async () => {
-		const serviceResult: ReturnDto<typeof BanContactsResponseDto> = { updated: 1 };
+		const serviceResult: ReturnData<typeof BanContactsResponseDto> = { updated: 1 };
 		blacklistService.banSource.mockResolvedValue(serviceResult);
 
 		const result = await handler.execute(new BanContactsCommand(dto, 'moderator-1'));

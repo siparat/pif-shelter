@@ -5,7 +5,7 @@ import {
 	DonationSubscriptionParams,
 	IGeneratedDonationSubscriptionPayment,
 	IGeneratedPayment
-} from './interfaces/payment.interface';
+} from '@pif/shared';
 
 @Injectable()
 export class PaymentService {

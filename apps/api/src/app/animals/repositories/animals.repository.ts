@@ -1,6 +1,6 @@
-import { CreateAnimalRequestDto, UpdateAnimalRequestDto } from '@pif/contracts';
 import { animals } from '@pif/database';
 import { AnimalStatusEnum } from '@pif/shared';
+import { CreateAnimalRequestDto, UpdateAnimalRequestDto } from '../../core/dto';
 
 export abstract class AnimalsRepository {
 	abstract changeStatus(id: string, status: AnimalStatusEnum): Promise<void>;

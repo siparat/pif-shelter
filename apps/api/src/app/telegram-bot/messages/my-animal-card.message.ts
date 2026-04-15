@@ -3,13 +3,13 @@ import {
 	AnimalGenderEnum,
 	AnimalSpeciesEnum,
 	AnimalStatusNames,
-	buildTelegrafMessage,
 	GuardianshipBotCallback,
 	pluralize
 } from '@pif/shared';
 import dayjs from 'dayjs';
 import { Context, Format, Markup } from 'telegraf';
 import { TelegramUrlMapper } from '../../core/mappers/telegram-url.mapper';
+import { buildTelegrafMessage } from '../utils/build-telegraf-message';
 
 const MAX_DESCRIPTION_LENGTH = 500;
 

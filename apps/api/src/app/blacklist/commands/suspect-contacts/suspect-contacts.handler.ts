@@ -1,8 +1,8 @@
 import { BadRequestException } from '@nestjs/common';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ReturnDto, SuspectContactsResponseDto } from '@pif/contracts';
 import { BlacklistContext } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
+import { ReturnData, SuspectContactsResponseDto } from '../../../core/dto';
 import { BlacklistService } from '../../blacklist.service';
 import { ContactsSuspectedEvent } from '../../events/contacts-suspected/contacts-suspected.event';
 import { SuspectContactsCommand } from './suspect-contacts.command';
@@ -15,7 +15,10 @@ export class SuspectContactsHandler implements ICommandHandler<SuspectContactsCo
 		private readonly logger: Logger
 	) {}
 
-	async execute({ dto, moderatorId }: SuspectContactsCommand): Promise<ReturnDto<typeof SuspectContactsResponseDto>> {
+	async execute({
+		dto,
+		moderatorId
+	}: SuspectContactsCommand): Promise<ReturnData<typeof SuspectContactsResponseDto>> {
 		const endsAt = new Date(dto.suspicionEndsAt);
 		if (Number.isNaN(endsAt.getTime())) {
 			throw new BadRequestException('Невалидный срок конца подозрения');

@@ -1,5 +1,4 @@
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common';
 
 export const cancelDonationSubscriptionRequestSchema = z.object({
@@ -10,12 +9,8 @@ export const cancelDonationSubscriptionRequestSchema = z.object({
 	email: z.email().describe('Email для отправки ссылки отмены подписки')
 });
 
-export class CancelDonationSubscriptionRequestDto extends createZodDto(cancelDonationSubscriptionRequestSchema) {}
-
 export const cancelDonationSubscriptionResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		subscriptionId: z.string().min(1).describe('Внешний id подписки, для которой отправлена ссылка отмены')
 	})
 );
-
-export class CancelDonationSubscriptionResponseDto extends createZodDto(cancelDonationSubscriptionResponseSchema) {}

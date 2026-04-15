@@ -1,8 +1,8 @@
-import { buildTelegrafMessage } from '@pif/shared';
 import { Format, Markup } from 'telegraf';
 import type { FmtString } from 'telegraf/format';
 import { TelegramUrlMapper } from '../../core/mappers/telegram-url.mapper';
 import type { IGuardianshipCancelledMessagePayload } from '../interfaces/send-guardianship-cancelled-payload.interface';
+import { buildTelegrafMessage } from '../utils/build-telegraf-message';
 
 export function buildGuardianshipCancelledMessage(payload: IGuardianshipCancelledMessagePayload): {
 	text: FmtString;

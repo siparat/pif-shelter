@@ -1,5 +1,5 @@
-import { AcceptInvitationRequestDto } from '@pif/contracts';
 import { Invitation } from '@pif/database';
+import { AcceptInvitationRequestDto } from '../../../../core/dto';
 
 export class InvitationAcceptedEvent {
 	constructor(

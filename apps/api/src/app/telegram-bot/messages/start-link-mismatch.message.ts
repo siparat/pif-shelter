@@ -1,6 +1,6 @@
-import { buildTelegrafMessage } from '@pif/shared';
 import { Context, Format } from 'telegraf';
 import { TelegramUrlMapper } from '../../core/mappers/telegram-url.mapper';
+import { buildTelegrafMessage } from '../utils/build-telegraf-message';
 
 interface IProps {
 	adminUsername: string;

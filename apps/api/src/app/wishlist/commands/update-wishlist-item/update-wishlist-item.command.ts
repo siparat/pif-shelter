@@ -1,4 +1,4 @@
-import { UpdateWishlistItemRequestDto } from '@pif/contracts';
+import { UpdateWishlistItemRequestDto } from '../../../core/dto';
 
 export class UpdateWishlistItemCommand {
 	constructor(

@@ -1,9 +1,9 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { EventBus } from '@nestjs/cqrs';
 import { Test } from '@nestjs/testing';
-import { CreateWishlistCategoryRequestDto } from '@pif/contracts';
 import { randomUUID } from 'crypto';
 import { Logger } from 'nestjs-pino';
+import { CreateWishlistCategoryRequestDto } from '../../../core/dto';
 import { WishlistDataChangedEvent } from '../../events/wishlist-data-changed/wishlist-data-changed.event';
 import { WishlistRepository } from '../../repositories/wishlist.repository';
 import { CreateWishlistCategoryCommand } from './create-wishlist-category.command';

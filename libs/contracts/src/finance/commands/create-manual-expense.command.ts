@@ -1,5 +1,4 @@
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
 
 const manualExpenseAmountKopecksSchema = z
@@ -16,12 +15,8 @@ export const createManualExpenseRequestSchema = z.object({
 	receiptStorageKey: z.string().trim().min(1).describe('Ключ объекта чека в S3')
 });
 
-export class CreateManualExpenseRequestDto extends createZodDto(createManualExpenseRequestSchema) {}
-
 export const createManualExpenseResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		id: z.uuid()
 	})
 );
-
-export class CreateManualExpenseResponseDto extends createZodDto(createManualExpenseResponseSchema) {}

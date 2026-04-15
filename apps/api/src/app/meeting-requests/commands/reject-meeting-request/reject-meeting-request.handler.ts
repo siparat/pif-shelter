@@ -1,7 +1,7 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { RejectMeetingRequestResponseDto, ReturnDto } from '@pif/contracts';
 import { MeetingRequestStatusEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
+import { RejectMeetingRequestResponseDto, ReturnData } from '../../../core/dto';
 import { MeetingRequestRejectedEvent } from '../../events/meeting-request-rejected/meeting-request-rejected.event';
 import { MeetingRequestInvalidStatusException } from '../../exceptions/meeting-request-invalid-status.exception';
 import { MeetingRequestNotFoundException } from '../../exceptions/meeting-request-not-found.exception';
@@ -22,7 +22,7 @@ export class RejectMeetingRequestHandler implements ICommandHandler<RejectMeetin
 		id,
 		curatorUserId,
 		reason
-	}: RejectMeetingRequestCommand): Promise<ReturnDto<typeof RejectMeetingRequestResponseDto>> {
+	}: RejectMeetingRequestCommand): Promise<ReturnData<typeof RejectMeetingRequestResponseDto>> {
 		const existing = await this.repository.findById(id);
 		if (!existing) {
 			throw new MeetingRequestNotFoundException();

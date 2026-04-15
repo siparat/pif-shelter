@@ -1,6 +1,6 @@
 import { Command } from '@nestjs/cqrs';
-import { UpdateManualExpenseRequestDto } from '@pif/contracts';
 import { UserRole } from '@pif/shared';
+import { UpdateManualExpenseRequestDto } from '../../../core/dto';
 
 export class UpdateManualExpenseCommand extends Command<{ id: string }> {
 	constructor(

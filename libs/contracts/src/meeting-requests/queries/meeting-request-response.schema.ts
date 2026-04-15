@@ -1,5 +1,5 @@
 import { MeetingRequestStatusEnum } from '@pif/shared';
-import z from 'zod';
+import { z } from 'zod';
 
 export const meetingRequestResponseSchema = z.object({
 	id: z.uuid(),

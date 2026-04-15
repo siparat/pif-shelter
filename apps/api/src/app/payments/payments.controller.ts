@@ -1,11 +1,11 @@
 import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { PaymentWebhookRequestDto, PaymentWebhookResponseDto, ReturnDto } from '@pif/contracts';
-import { ProcessPaymentWebhookCommand } from '../guardianship/commands/process-payment-webhook/process-payment-webhook.command';
+import { PaymentWebhookEvent } from '@pif/shared';
+import { PaymentWebhookRequestDto, PaymentWebhookResponseDto, ReturnData } from '../core/dto';
 import { ProcessDonationWebhookOneTimeCommand } from '../donations/commands/process-donation-webhook-one-time/process-donation-webhook-one-time.command';
 import { ProcessDonationWebhookSubscriptionCommand } from '../donations/commands/process-donation-webhook-subscription/process-donation-webhook-subscription.command';
-import { PaymentWebhookEvent } from '@pif/payment';
+import { ProcessPaymentWebhookCommand } from '../guardianship/commands/process-payment-webhook/process-payment-webhook.command';
 
 @ApiTags('Payments | Платежи')
 @Controller('payments')
@@ -21,7 +21,7 @@ export class PaymentsController {
 	@Post('webhooks/guardianship')
 	async guardianshipPaymentWebhook(
 		@Body() dto: PaymentWebhookRequestDto
-	): Promise<ReturnDto<typeof PaymentWebhookResponseDto>> {
+	): Promise<ReturnData<typeof PaymentWebhookResponseDto>> {
 		return this.commandBus.execute(new ProcessPaymentWebhookCommand(dto));
 	}
 
@@ -33,7 +33,7 @@ export class PaymentsController {
 	@Post('webhooks/donations/one-time')
 	async donationOneTimePaymentWebhook(
 		@Body() dto: PaymentWebhookRequestDto
-	): Promise<ReturnDto<typeof PaymentWebhookResponseDto>> {
+	): Promise<ReturnData<typeof PaymentWebhookResponseDto>> {
 		if (dto.event !== PaymentWebhookEvent.PAYMENT_SUCCEEDED && dto.event !== PaymentWebhookEvent.PAYMENT_FAILED) {
 			throw new BadRequestException('Invalid event for donations one-time webhook');
 		}
@@ -48,7 +48,7 @@ export class PaymentsController {
 	@Post('webhooks/donations/subscription')
 	async donationSubscriptionPaymentWebhook(
 		@Body() dto: PaymentWebhookRequestDto
-	): Promise<ReturnDto<typeof PaymentWebhookResponseDto>> {
+	): Promise<ReturnData<typeof PaymentWebhookResponseDto>> {
 		if (
 			dto.event !== PaymentWebhookEvent.SUBSCRIPTION_SUCCEEDED &&
 			dto.event !== PaymentWebhookEvent.SUBSCRIPTION_FAILED &&

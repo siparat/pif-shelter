@@ -1,6 +1,6 @@
-import { CreateAnimalRequestDto, UpdateAnimalRequestDto } from '@pif/contracts';
 import { animals } from '@pif/database';
 import { InferInsertModel } from 'drizzle-orm';
+import { CreateAnimalRequestDto, UpdateAnimalRequestDto } from '../../core/dto';
 
 type AnimalInsertModel = InferInsertModel<typeof animals>;
 

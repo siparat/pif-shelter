@@ -1,6 +1,6 @@
 import { Command } from '@nestjs/cqrs';
-import { UpdateAnimalRequestDto } from '@pif/contracts';
 import { UserRole } from '@pif/shared';
+import { UpdateAnimalRequestDto } from '../../../core/dto';
 
 export class UpdateAnimalCommand extends Command<string> {
 	constructor(

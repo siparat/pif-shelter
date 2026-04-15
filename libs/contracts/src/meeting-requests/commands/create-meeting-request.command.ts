@@ -1,5 +1,4 @@
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { phoneSchema } from '../../common';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
 
@@ -12,12 +11,8 @@ export const createMeetingRequestSchema = z.object({
 	meetingAt: z.iso.datetime('Некорректная дата встречи')
 });
 
-export class CreateMeetingRequestDto extends createZodDto(createMeetingRequestSchema) {}
-
 export const createMeetingRequestResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		id: z.uuid()
 	})
 );
-
-export class CreateMeetingRequestResponseDto extends createZodDto(createMeetingRequestResponseSchema) {}

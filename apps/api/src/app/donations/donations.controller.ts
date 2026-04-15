@@ -8,8 +8,8 @@ import {
 	CreateDonationSubscriptionResponseDto,
 	CreateOneTimeDonationRequestDto,
 	CreateOneTimeDonationResponseDto,
-	ReturnDto
-} from '@pif/contracts';
+	ReturnData
+} from '../core/dto';
 import { CancelDonationSubscriptionByTokenCommand } from './commands/cancel-donation-subscription-by-token/cancel-donation-subscription-by-token.command';
 import { CreateDonationOneTimeCommand } from './commands/create-donation-one-time/create-donation-one-time.command';
 import { CreateDonationSubscriptionCommand } from './commands/create-donation-subscription/create-donation-subscription.command';
@@ -24,7 +24,7 @@ export class DonationsController {
 	@Post('one-time')
 	async createOneTime(
 		@Body() dto: CreateOneTimeDonationRequestDto
-	): Promise<ReturnDto<typeof CreateOneTimeDonationResponseDto>> {
+	): Promise<ReturnData<typeof CreateOneTimeDonationResponseDto>> {
 		return this.commandBus.execute(new CreateDonationOneTimeCommand(dto));
 	}
 
@@ -36,7 +36,7 @@ export class DonationsController {
 	@Post('subscription')
 	async createSubscription(
 		@Body() dto: CreateDonationSubscriptionRequestDto
-	): Promise<ReturnDto<typeof CreateDonationSubscriptionResponseDto>> {
+	): Promise<ReturnData<typeof CreateDonationSubscriptionResponseDto>> {
 		return this.commandBus.execute(new CreateDonationSubscriptionCommand(dto));
 	}
 
@@ -48,7 +48,7 @@ export class DonationsController {
 	@Post('subscription/cancel-by-token')
 	async cancelSubscriptionByToken(
 		@Body() dto: CancelDonationSubscriptionByTokenRequestDto
-	): Promise<ReturnDto<typeof CancelDonationSubscriptionByTokenResponseDto>> {
+	): Promise<ReturnData<typeof CancelDonationSubscriptionByTokenResponseDto>> {
 		return this.commandBus.execute(new CancelDonationSubscriptionByTokenCommand(dto.token));
 	}
 }

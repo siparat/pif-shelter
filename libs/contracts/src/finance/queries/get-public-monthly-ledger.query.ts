@@ -1,6 +1,5 @@
 import { LedgerEntryDirectionEnum, LedgerEntrySourceEnum } from '@pif/shared';
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
 import { listLedgerForMonthQuerySchema } from './get-monthly-ledger.query';
 
@@ -29,8 +28,4 @@ export const publicLedgerReportEntrySchema = z.object({
 
 export const publicLedgerReportQuerySchema = listLedgerForMonthQuerySchema;
 
-export class PublicLedgerReportQueryDto extends createZodDto(publicLedgerReportQuerySchema) {}
-
 export const publicLedgerReportResponseSchema = createApiSuccessResponseSchema(z.array(publicLedgerReportEntrySchema));
-
-export class PublicLedgerReportResponseDto extends createZodDto(publicLedgerReportResponseSchema) {}

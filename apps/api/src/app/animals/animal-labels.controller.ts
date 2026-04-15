@@ -1,17 +1,17 @@
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AnimalLabel } from '@pif/database';
+import { UserRole } from '@pif/shared';
+import { AuthGuard } from '@thallesp/nestjs-better-auth';
 import {
 	CreateAnimalLabelRequestDto,
 	CreateAnimalLabelResponseDto,
 	ListAnimalLabelsResponseDto,
-	ReturnDto,
+	ReturnData,
 	UpdateAnimalLabelRequestDto,
 	UpdateAnimalLabelResponseDto
-} from '@pif/contracts';
-import { AnimalLabel } from '@pif/database';
-import { UserRole } from '@pif/shared';
-import { AuthGuard } from '@thallesp/nestjs-better-auth';
+} from '../core/dto';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
 import { CreateAnimalLabelCommand } from './commands/create-animal-label/create-animal-label.command';
@@ -32,7 +32,7 @@ export class AnimalLabelsController {
 	@UseGuards(AuthGuard, RoleGuard)
 	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
 	@Post()
-	async create(@Body() dto: CreateAnimalLabelRequestDto): Promise<ReturnDto<typeof CreateAnimalLabelResponseDto>> {
+	async create(@Body() dto: CreateAnimalLabelRequestDto): Promise<ReturnData<typeof CreateAnimalLabelResponseDto>> {
 		const { labelId } = await this.commandBus.execute(new CreateAnimalLabelCommand(dto));
 		return { id: labelId };
 	}
@@ -52,7 +52,7 @@ export class AnimalLabelsController {
 	async update(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Body() dto: UpdateAnimalLabelRequestDto
-	): Promise<ReturnDto<typeof UpdateAnimalLabelResponseDto>> {
+	): Promise<ReturnData<typeof UpdateAnimalLabelResponseDto>> {
 		return this.commandBus.execute(new UpdateAnimalLabelCommand(id, dto));
 	}
 

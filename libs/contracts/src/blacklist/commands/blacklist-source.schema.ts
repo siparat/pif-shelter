@@ -1,5 +1,5 @@
 import { BlacklistSource } from '@pif/shared';
-import z from 'zod';
+import { z } from 'zod';
 import { phoneSchema, telegramNicknameSchema } from '../../common';
 
 const phoneBlacklistSourceSchema = z.object({

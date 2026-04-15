@@ -1,5 +1,5 @@
 import { DONATION_MAX_AMOUNT_KOPECKS, DONATION_MIN_AMOUNT_KOPECKS } from '@pif/shared';
-import z from 'zod';
+import { z } from 'zod';
 
 export const donationAmountKopecksSchema = z
 	.number()

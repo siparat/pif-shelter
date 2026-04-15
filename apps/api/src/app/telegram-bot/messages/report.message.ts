@@ -1,14 +1,16 @@
-import { GetMyGaurdianshipsResponseDto, ReturnDto } from '@pif/contracts';
+import { ReturnData } from '@pif/contracts';
 import { users } from '@pif/database';
-import { buildTelegrafMessage, ITopic } from '@pif/shared';
+import { ITopic } from '@pif/shared';
 import dayjs from 'dayjs';
 import { Context, Format } from 'telegraf';
 import { User } from 'telegraf/typings/core/types/typegram';
+import { GetMyGaurdianshipsResponseDto } from '../../core/dto/index';
+import { buildTelegrafMessage } from '../utils/build-telegraf-message';
 
 export interface IReportMessagePayload {
 	chat: User | undefined;
 	user: typeof users.$inferSelect | undefined;
-	guardianships: ReturnDto<typeof GetMyGaurdianshipsResponseDto>['guardianships'] | undefined;
+	guardianships: ReturnData<typeof GetMyGaurdianshipsResponseDto>['guardianships'] | undefined;
 	text: string;
 }
 

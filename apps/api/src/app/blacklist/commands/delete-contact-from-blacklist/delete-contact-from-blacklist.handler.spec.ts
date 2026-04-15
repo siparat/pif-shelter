@@ -1,8 +1,8 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { EventBus } from '@nestjs/cqrs';
 import { Test } from '@nestjs/testing';
-import { DeleteContactFromBlacklistResponseDto, ReturnDto } from '@pif/contracts';
 import { Logger } from 'nestjs-pino';
+import { DeleteContactFromBlacklistResponseDto, ReturnData } from '../../../core/dto';
 import { BlacklistService } from '../../blacklist.service';
 import { ContactDeletedFromBlacklistEvent } from '../../events/contact-deleted-from-blacklist/contact-deleted-from-blacklist.event';
 import { DeleteContactFromBlacklistCommand } from './delete-contact-from-blacklist.command';
@@ -31,7 +31,7 @@ describe('DeleteContactFromBlacklistHandler', () => {
 	});
 
 	it('publishes event and logs when delete succeeds', async () => {
-		const serviceResult: ReturnDto<typeof DeleteContactFromBlacklistResponseDto> = { ok: true };
+		const serviceResult: ReturnData<typeof DeleteContactFromBlacklistResponseDto> = { ok: true };
 		blacklistService.delete.mockResolvedValue(serviceResult);
 
 		const result = await handler.execute(new DeleteContactFromBlacklistCommand('blacklist-id', 'moderator-1'));
@@ -47,7 +47,7 @@ describe('DeleteContactFromBlacklistHandler', () => {
 	});
 
 	it('does not publish event and does not log when delete did not affect rows', async () => {
-		const serviceResult: ReturnDto<typeof DeleteContactFromBlacklistResponseDto> = { ok: false };
+		const serviceResult: ReturnData<typeof DeleteContactFromBlacklistResponseDto> = { ok: false };
 		blacklistService.delete.mockResolvedValue(serviceResult);
 
 		const result = await handler.execute(new DeleteContactFromBlacklistCommand('blacklist-id', 'moderator-1'));

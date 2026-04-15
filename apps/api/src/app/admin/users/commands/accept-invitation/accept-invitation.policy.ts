@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { AcceptInvitationRequestDto } from '@pif/contracts';
 import { Invitation } from '@pif/database';
 import dayjs from 'dayjs';
+import { FileStoragePolicy } from '../../../../core/policies/file-storage.policy';
 import { UsersService } from '../../../../users/users.service';
+import { AcceptInvitationRequestDto } from '../../../../core/dto';
 import { InvitationHasExpiredException } from '../../exceptions/invitation-has-expired.exception';
 import { InvitationNotFoundException } from '../../exceptions/invitation-not-found.exception';
 import { TelegramAlreadyUsedException } from '../../exceptions/telegram-already-used.exception';
 import { UserAlreadyExistsException } from '../../exceptions/user-already-exists.exception';
-import { FileStoragePolicy } from '../../../../core/policies/file-storage.policy';
 
 @Injectable()
 export class AcceptInvitationPolicy {

@@ -1,4 +1,4 @@
-import { SuspectContactsRequestDto } from '@pif/contracts';
+import { SuspectContactsRequestDto } from '../../../core/dto';
 
 export class ContactsSuspectedEvent {
 	constructor(

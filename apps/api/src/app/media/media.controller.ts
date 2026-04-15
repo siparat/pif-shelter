@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { GetUploadUrlRequestDto, GetUploadUrlResponseDto, ReturnDto } from '@pif/contracts';
+import { GetUploadUrlRequestDto, GetUploadUrlResponseDto, ReturnData } from '../core/dto';
 import { GetUploadUrlQuery } from './queries/get-upload-url/get-upload-url.query';
 
 @ApiTags('Media | Медиа-файлы')
@@ -12,7 +12,7 @@ export class MediaController {
 	@ApiOperation({ summary: 'Получить данные для прямой загрузки файла в S3' })
 	@ApiOkResponse({ type: GetUploadUrlResponseDto })
 	@Get('upload-url')
-	async getUploadUrl(@Query() dto: GetUploadUrlRequestDto): Promise<ReturnDto<typeof GetUploadUrlResponseDto>> {
+	async getUploadUrl(@Query() dto: GetUploadUrlRequestDto): Promise<ReturnData<typeof GetUploadUrlResponseDto>> {
 		return this.queryBus.execute(new GetUploadUrlQuery(dto));
 	}
 }

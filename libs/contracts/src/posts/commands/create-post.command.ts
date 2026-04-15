@@ -1,7 +1,6 @@
 import { PostMediaTypeEnum, PostVisibilityEnum } from '@pif/shared';
-import { createZodDto } from 'nestjs-zod';
 import sanitizeHtml from 'sanitize-html';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
 
 const postMediaItemSchema = z.object({
@@ -37,12 +36,8 @@ export const createPostRequestSchema = z.object({
 	media: mediaArraySchema.describe('Медиа поста (до 10 элементов, не более 1 видео)')
 });
 
-export class CreatePostRequestDto extends createZodDto(createPostRequestSchema) {}
-
 export const createPostResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		id: z.uuid().describe('Идентификатор созданного поста')
 	})
 );
-
-export class CreatePostResponseDto extends createZodDto(createPostResponseSchema) {}

@@ -1,4 +1,3 @@
-import { createZodDto } from 'nestjs-zod';
 import sanitizeHtml from 'sanitize-html';
 import z, { uuid } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common';
@@ -31,12 +30,8 @@ export const createCampaignRequestSchema = z.object({
 	endsAt: z.iso.datetime().describe('Конец сбора')
 });
 
-export class CreateCampaignRequestDto extends createZodDto(createCampaignRequestSchema) {}
-
 export const createCampaignResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		id: uuid()
 	})
 );
-
-export class CreateCampaignResponseDto extends createZodDto(createCampaignResponseSchema) {}

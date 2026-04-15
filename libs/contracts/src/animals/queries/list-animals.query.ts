@@ -1,5 +1,4 @@
 import { AnimalCoatEnum, AnimalGenderEnum, AnimalSizeEnum, AnimalSpeciesEnum, AnimalStatusEnum } from '@pif/shared';
-import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 import { createApiPaginatedResponseSchema } from '../../common/base.responses';
 import { paginationSchema } from '../../common/schemas/pagination.schema';
@@ -18,9 +17,6 @@ export const listAnimalsRequestSchema = paginationSchema.extend({
 	maxAge: z.coerce.number().min(0).optional()
 });
 
-export class ListAnimalsRequestDto extends createZodDto(listAnimalsRequestSchema) {}
-
 export const listAnimalsResponseSchema = createApiPaginatedResponseSchema(animalSummarySchema);
-export class ListAnimalsResponseDto extends createZodDto(listAnimalsResponseSchema) {}
 
-export type ListAnimalsResult = Omit<ListAnimalsResponseDto, 'success'>;
+export type ListAnimalsResult = Omit<z.infer<typeof listAnimalsResponseSchema>, 'success'>;

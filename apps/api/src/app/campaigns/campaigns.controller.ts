@@ -1,18 +1,18 @@
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CampaignStatus, UserRole } from '@pif/shared';
+import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
 import {
 	CreateCampaignRequestDto,
 	CreateCampaignResponseDto,
 	GetCampaignByIdResponseDto,
-	ReturnDto,
+	ReturnData,
 	SearchCampaignsRequestDto,
 	SearchCampaignsResponseDto,
 	UpdateCampaignRequestDto,
 	UpdateCampaignResponseDto
-} from '@pif/contracts';
-import { CampaignStatus, UserRole } from '@pif/shared';
-import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+} from '../core/dto';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
@@ -52,7 +52,7 @@ export class CampaignsController {
 	async create(
 		@Body() dto: CreateCampaignRequestDto,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof CreateCampaignResponseDto>> {
+	): Promise<ReturnData<typeof CreateCampaignResponseDto>> {
 		return this.commandBus.execute(new CreateCampaignCommand(dto, user.id));
 	}
 
@@ -78,7 +78,7 @@ export class CampaignsController {
 		@Param('id', ParseUUIDPipe) id: string,
 		@Body() dto: UpdateCampaignRequestDto,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
+	): Promise<ReturnData<typeof UpdateCampaignResponseDto>> {
 		return this.commandBus.execute(new UpdateCampaignCommand(id, dto, user.id));
 	}
 
@@ -93,7 +93,7 @@ export class CampaignsController {
 	async draft(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
+	): Promise<ReturnData<typeof UpdateCampaignResponseDto>> {
 		return this.commandBus.execute(new ChangeCampaignStatusCommand(id, CampaignStatus.DRAFT, user.id));
 	}
 
@@ -108,7 +108,7 @@ export class CampaignsController {
 	async publish(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
+	): Promise<ReturnData<typeof UpdateCampaignResponseDto>> {
 		return this.commandBus.execute(new ChangeCampaignStatusCommand(id, CampaignStatus.PUBLISHED, user.id));
 	}
 
@@ -123,7 +123,7 @@ export class CampaignsController {
 	async cancel(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
+	): Promise<ReturnData<typeof UpdateCampaignResponseDto>> {
 		return this.commandBus.execute(new ChangeCampaignStatusCommand(id, CampaignStatus.CANCELLED, user.id));
 	}
 
@@ -138,7 +138,7 @@ export class CampaignsController {
 	async markSuccess(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
+	): Promise<ReturnData<typeof UpdateCampaignResponseDto>> {
 		return this.commandBus.execute(new ChangeCampaignStatusCommand(id, CampaignStatus.SUCCESS, user.id));
 	}
 
@@ -153,7 +153,7 @@ export class CampaignsController {
 	async markFailed(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof UpdateCampaignResponseDto>> {
+	): Promise<ReturnData<typeof UpdateCampaignResponseDto>> {
 		return this.commandBus.execute(new ChangeCampaignStatusCommand(id, CampaignStatus.FAILED, user.id));
 	}
 

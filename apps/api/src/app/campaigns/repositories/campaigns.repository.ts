@@ -1,6 +1,6 @@
-import { CreateCampaignRequestDto, UpdateCampaignRequestDto } from '@pif/contracts';
 import { campaigns } from '@pif/database';
 import { CampaignStatus } from '@pif/shared';
+import { CreateCampaignRequestDto, UpdateCampaignRequestDto } from '../../core/dto';
 
 export abstract class CampaignsRepository {
 	abstract create(dto: CreateCampaignRequestDto): Promise<typeof campaigns.$inferSelect>;

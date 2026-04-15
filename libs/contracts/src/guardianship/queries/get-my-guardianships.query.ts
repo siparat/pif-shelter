@@ -1,7 +1,6 @@
-import { guardianshipWithAnimalSchema } from '@pif/database';
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common';
+import { guardianshipWithAnimalSchema } from '../../common/schemas';
 
 export const getMyGaurdianshipsResponseSchema = createApiSuccessResponseSchema(
 	z.object({
@@ -12,5 +11,3 @@ export const getMyGaurdianshipsResponseSchema = createApiSuccessResponseSchema(
 			)
 	})
 );
-
-export class GetMyGaurdianshipsResponseDto extends createZodDto(getMyGaurdianshipsResponseSchema) {}

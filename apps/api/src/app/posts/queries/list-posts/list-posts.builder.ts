@@ -1,6 +1,6 @@
-import { ListPostsRequestDto } from '@pif/contracts';
 import { BaseBuilder, OrmCondition, posts } from '@pif/database';
 import { and, gte, ilike, lte, or, SQL } from 'drizzle-orm';
+import { ListPostsRequestDto } from '../../../core/dto';
 
 export class ListPostsBuilder extends BaseBuilder<ListPostsRequestDto, typeof posts & Record<string, unknown>> {
 	public setSearchTerm(q?: string): this {

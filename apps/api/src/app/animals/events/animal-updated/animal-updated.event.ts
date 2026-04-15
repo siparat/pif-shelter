@@ -1,5 +1,5 @@
-import { UpdateAnimalRequestDto } from '@pif/contracts';
 import { animals } from '@pif/database';
+import { UpdateAnimalRequestDto } from '../../../core/dto';
 
 export class AnimalUpdatedEvent {
 	constructor(

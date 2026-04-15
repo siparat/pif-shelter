@@ -1,10 +1,10 @@
+import { wishlistCategories, wishlistItems } from '@pif/database';
 import {
 	CreateWishlistCategoryRequestDto,
 	CreateWishlistItemRequestDto,
 	UpdateWishlistCategoryRequestDto,
 	UpdateWishlistItemRequestDto
-} from '@pif/contracts';
-import { wishlistCategories, wishlistItems } from '@pif/database';
+} from '../../core/dto';
 
 export abstract class WishlistRepository {
 	abstract createCategory(dto: CreateWishlistCategoryRequestDto): Promise<string>;

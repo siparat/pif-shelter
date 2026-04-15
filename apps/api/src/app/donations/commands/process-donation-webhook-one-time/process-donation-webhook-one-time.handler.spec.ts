@@ -4,7 +4,7 @@ import { CommandBus, EventBus } from '@nestjs/cqrs';
 import { Test } from '@nestjs/testing';
 import { PaymentWebhookPayload } from '@pif/contracts';
 import { campaigns, donationOneTimeIntents } from '@pif/database';
-import { PaymentWebhookEvent } from '@pif/payment';
+import { PaymentWebhookEvent } from '@pif/shared';
 import { CampaignStatus, DonationOneTimeIntentStatusEnum } from '@pif/shared';
 import { randomUUID } from 'crypto';
 import { Logger } from 'nestjs-pino';

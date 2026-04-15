@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { BlacklistContext } from '@pif/shared';
+import dayjs from 'dayjs';
 import {
 	ApproveContactsResponseDto,
 	BanContactsResponseDto,
 	DeleteContactFromBlacklistResponseDto,
-	ReturnDto,
+	ReturnData,
 	SuspectContactsResponseDto
-} from '@pif/contracts';
-import { BlacklistContext } from '@pif/shared';
-import dayjs from 'dayjs';
+} from '../core/dto';
 import { BlacklistRepository, IBlacklistSource } from './repositories/blacklist.repository';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class BlacklistService {
 		reason: string,
 		context: BlacklistContext,
 		...sources: IBlacklistSource[]
-	): Promise<ReturnDto<typeof BanContactsResponseDto>> {
+	): Promise<ReturnData<typeof BanContactsResponseDto>> {
 		const updatedCount = await this.repository.banContacts(moderatorId, reason, context, ...sources);
 		return { updated: updatedCount };
 	}
@@ -28,7 +28,7 @@ export class BlacklistService {
 		moderatorId: string,
 		context: BlacklistContext,
 		...sources: IBlacklistSource[]
-	): Promise<ReturnDto<typeof ApproveContactsResponseDto>> {
+	): Promise<ReturnData<typeof ApproveContactsResponseDto>> {
 		const updatedCount = await this.repository.approveContacts(moderatorId, context, ...sources);
 		return { updated: updatedCount };
 	}
@@ -39,7 +39,7 @@ export class BlacklistService {
 		context: BlacklistContext,
 		endsAt: Date,
 		...sources: IBlacklistSource[]
-	): Promise<ReturnDto<typeof SuspectContactsResponseDto>> {
+	): Promise<ReturnData<typeof SuspectContactsResponseDto>> {
 		if (dayjs(endsAt).isBefore(dayjs())) {
 			throw new BadRequestException('Дата истечения не может быть в прошлом');
 		}
@@ -52,7 +52,7 @@ export class BlacklistService {
 		return { count };
 	}
 
-	async delete(id: string): Promise<ReturnDto<typeof DeleteContactFromBlacklistResponseDto>> {
+	async delete(id: string): Promise<ReturnData<typeof DeleteContactFromBlacklistResponseDto>> {
 		const count = await this.repository.delete(id);
 
 		return { ok: count > 0 };

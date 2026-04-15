@@ -1,4 +1,4 @@
-import { CreateMeetingRequestDto } from '@pif/contracts';
+import { CreateMeetingRequestDto } from '../../../core/dto';
 
 export class CreateMeetingRequestCommand {
 	constructor(public readonly dto: CreateMeetingRequestDto) {}

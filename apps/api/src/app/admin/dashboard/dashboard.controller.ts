@@ -1,9 +1,9 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { GetAdminDashboardSummaryResponseDto, ReturnDto } from '@pif/contracts';
 import { UserRole } from '@pif/shared';
 import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+import { GetAdminDashboardSummaryResponseDto, ReturnData } from '../../core/dto';
 import { ISession } from '../../configs/auth.config';
 import { Roles } from '../../core/decorators/roles.decorator';
 import { RoleGuard } from '../../core/guards/role.guard';
@@ -19,7 +19,7 @@ export class AdminDashboardController {
 	@ApiOperation({ summary: 'Сводка дашборда админки' })
 	@ApiOkResponse({ type: GetAdminDashboardSummaryResponseDto })
 	@Get('summary')
-	async getSummary(@Session() { user }: ISession): Promise<ReturnDto<typeof GetAdminDashboardSummaryResponseDto>> {
+	async getSummary(@Session() { user }: ISession): Promise<ReturnData<typeof GetAdminDashboardSummaryResponseDto>> {
 		return this.queryBus.execute(new GetAdminDashboardSummaryQuery(user.id));
 	}
 }

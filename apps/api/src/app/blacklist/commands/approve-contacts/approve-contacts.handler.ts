@@ -1,7 +1,7 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ApproveContactsResponseDto, ReturnDto } from '@pif/contracts';
 import { BlacklistContext } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
+import { ApproveContactsResponseDto, ReturnData } from '../../../core/dto';
 import { BlacklistService } from '../../blacklist.service';
 import { ContactsApprovedEvent } from '../../events/contacts-approved/contacts-approved.event';
 import { ApproveContactsCommand } from './approve-contacts.command';
@@ -14,7 +14,10 @@ export class ApproveContactsHandler implements ICommandHandler<ApproveContactsCo
 		private readonly logger: Logger
 	) {}
 
-	async execute({ dto, moderatorId }: ApproveContactsCommand): Promise<ReturnDto<typeof ApproveContactsResponseDto>> {
+	async execute({
+		dto,
+		moderatorId
+	}: ApproveContactsCommand): Promise<ReturnData<typeof ApproveContactsResponseDto>> {
 		const result = await this.blacklistService.approveSource(moderatorId, BlacklistContext.MANUAL, ...dto.sources);
 
 		if (result.updated > 0) {

@@ -2,6 +2,8 @@ import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from '@n
 import { ConfigService } from '@nestjs/config';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { GuardianshipStatusEnum, UserRole } from '@pif/shared';
+import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
 import {
 	CancelGuardianshipByTokenRequestDto,
 	CancelGuardianshipByTokenResponseDto,
@@ -9,13 +11,11 @@ import {
 	CancelGuardianshipResponseDto,
 	GetGuardianshipByAnimalResponseDto,
 	GetMyGaurdianshipsResponseDto,
-	ReturnDto,
+	ReturnData,
 	StartGuardianshipAuthenticatedRequestDto,
 	StartGuardianshipRequestDto,
 	StartGuardianshipResponseDto
-} from '@pif/contracts';
-import { GuardianshipStatusEnum, UserRole } from '@pif/shared';
-import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+} from '../core/dto';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
@@ -46,7 +46,7 @@ export class GuardianshipController {
 	@Get('my')
 	async getMyGuardianships(
 		@Session() { user: { id } }: ISession
-	): Promise<ReturnDto<typeof GetMyGaurdianshipsResponseDto>> {
+	): Promise<ReturnData<typeof GetMyGaurdianshipsResponseDto>> {
 		return this.queryBus.execute(new GetMyGaurdianshipsQuery(id));
 	}
 
@@ -57,7 +57,7 @@ export class GuardianshipController {
 	})
 	@ApiCreatedResponse({ description: 'Опекунство создано, требуется оплата', type: StartGuardianshipResponseDto })
 	@Post()
-	async start(@Body() dto: StartGuardianshipRequestDto): Promise<ReturnDto<typeof StartGuardianshipResponseDto>> {
+	async start(@Body() dto: StartGuardianshipRequestDto): Promise<ReturnData<typeof StartGuardianshipResponseDto>> {
 		return this.commandBus.execute(new StartGuardianshipAsGuestCommand(dto));
 	}
 
@@ -72,7 +72,7 @@ export class GuardianshipController {
 	async startAuthenticated(
 		@Session() session: ISession,
 		@Body() dto: StartGuardianshipAuthenticatedRequestDto
-	): Promise<ReturnDto<typeof StartGuardianshipResponseDto>> {
+	): Promise<ReturnData<typeof StartGuardianshipResponseDto>> {
 		const { guardianshipId, paymentUrl, cancellationToken } = await this.commandBus.execute(
 			new StartGuardianshipCommand(session.user.id, dto.animalId)
 		);
@@ -89,7 +89,7 @@ export class GuardianshipController {
 	@Post('cancel')
 	async cancel(
 		@Body() { guardianshipId, reason }: CancelGuardianshipRequestDto
-	): Promise<ReturnDto<typeof CancelGuardianshipResponseDto>> {
+	): Promise<ReturnData<typeof CancelGuardianshipResponseDto>> {
 		return this.commandBus.execute(new CancelGuardianshipCommand(guardianshipId, false, reason));
 	}
 
@@ -101,7 +101,7 @@ export class GuardianshipController {
 	@Post('cancel-by-token')
 	async cancelByToken(
 		@Body() dto: CancelGuardianshipByTokenRequestDto
-	): Promise<ReturnDto<typeof CancelGuardianshipByTokenResponseDto>> {
+	): Promise<ReturnData<typeof CancelGuardianshipByTokenResponseDto>> {
 		return this.commandBus.execute(new CancelGuardianshipByTokenCommand(dto.token));
 	}
 
@@ -113,7 +113,7 @@ export class GuardianshipController {
 	@Get('by-animal/:animalId')
 	async getByAnimal(
 		@Param('animalId', ParseUUIDPipe) animalId: string
-	): Promise<ReturnDto<typeof GetGuardianshipByAnimalResponseDto>> {
+	): Promise<ReturnData<typeof GetGuardianshipByAnimalResponseDto>> {
 		const result = await this.queryBus.execute(new GetGuardianshipByAnimalQuery(animalId));
 		const animal = result.animal;
 		const guardian = result.guardian;

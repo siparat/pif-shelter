@@ -1,5 +1,4 @@
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../../common/base.responses';
 
 export const adminDashboardSummarySchema = z.object({
@@ -16,5 +15,3 @@ export const adminDashboardSummarySchema = z.object({
 });
 
 export const getAdminDashboardSummaryResponseSchema = createApiSuccessResponseSchema(adminDashboardSummarySchema);
-
-export class GetAdminDashboardSummaryResponseDto extends createZodDto(getAdminDashboardSummaryResponseSchema) {}

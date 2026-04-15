@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CreateInvitationRequestDto } from '@pif/contracts';
 import { DatabaseService, Invitation, invitations } from '@pif/database';
 import { and, eq, gt, isNull } from 'drizzle-orm';
+import { CreateInvitationRequestDto } from '../../../core/dto';
 import { AdminUsersRepository } from './admin-users.repository';
 
 @Injectable()

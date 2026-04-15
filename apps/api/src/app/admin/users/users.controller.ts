@@ -2,17 +2,17 @@ import { Body, Controller, HttpCode, HttpStatus, Param, Patch, Post, UseGuards }
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { UserRole } from '@pif/shared';
+import { AllowAnonymous, AuthGuard } from '@thallesp/nestjs-better-auth';
 import {
 	AcceptInvitationRequestDto,
 	AcceptInvitationResponseDto,
 	CreateInvitationRequestDto,
 	CreateInvitationResponseDto,
-	ReturnDto,
+	ReturnData,
 	SetTelegramUnreachableRequestDto,
 	SetTelegramUnreachableResponseDto
-} from '@pif/contracts';
-import { UserRole } from '@pif/shared';
-import { AllowAnonymous, AuthGuard } from '@thallesp/nestjs-better-auth';
+} from '../../core/dto';
 import { Roles } from '../../core/decorators/roles.decorator';
 import { RoleGuard } from '../../core/guards/role.guard';
 import { AcceptInvitationCommand } from './commands/accept-invitation/accept-invitation.command';
@@ -30,7 +30,7 @@ export class AdminUsersController {
 	@Roles([UserRole.ADMIN])
 	@Throttle({ default: { limit: 5, ttl: 60000 } })
 	@Post('invite')
-	async invite(@Body() dto: CreateInvitationRequestDto): Promise<ReturnDto<typeof CreateInvitationResponseDto>> {
+	async invite(@Body() dto: CreateInvitationRequestDto): Promise<ReturnData<typeof CreateInvitationResponseDto>> {
 		return this.commandBus.execute(new CreateInvitationCommand(dto));
 	}
 
@@ -42,7 +42,7 @@ export class AdminUsersController {
 	@Post('accept-invitation')
 	async acceptInvitation(
 		@Body() dto: AcceptInvitationRequestDto
-	): Promise<ReturnDto<typeof AcceptInvitationResponseDto>> {
+	): Promise<ReturnData<typeof AcceptInvitationResponseDto>> {
 		return this.commandBus.execute(new AcceptInvitationCommand(dto));
 	}
 
@@ -53,7 +53,7 @@ export class AdminUsersController {
 	async setTelegramUnreachable(
 		@Param('userId') userId: string,
 		@Body() dto: SetTelegramUnreachableRequestDto
-	): Promise<ReturnDto<typeof SetTelegramUnreachableResponseDto>> {
+	): Promise<ReturnData<typeof SetTelegramUnreachableResponseDto>> {
 		return this.commandBus.execute(new SetTelegramUnreachableCommand(userId, dto.unreachable));
 	}
 }

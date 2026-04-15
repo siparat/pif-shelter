@@ -1,7 +1,6 @@
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
-import { createApiSuccessResponseSchema } from '../../common/base.responses';
 import { PostMediaTypeEnum, PostVisibilityEnum } from '@pif/shared';
+import { z } from 'zod';
+import { createApiSuccessResponseSchema } from '../../common/base.responses';
 
 const postMediaItemResponseSchema = z.object({
 	id: z.uuid().describe('Идентификатор медиа'),
@@ -33,4 +32,3 @@ export const postResponseSchema = z.object({
 });
 
 export const getPostResponseSchema = createApiSuccessResponseSchema(postResponseSchema);
-export class GetPostResponseDto extends createZodDto(getPostResponseSchema) {}

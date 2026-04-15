@@ -1,7 +1,7 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ConfirmMeetingRequestResponseDto, ReturnDto } from '@pif/contracts';
 import { MeetingRequestStatusEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
+import { ConfirmMeetingRequestResponseDto, ReturnData } from '../../../core/dto';
 import { MeetingRequestConfirmedEvent } from '../../events/meeting-request-confirmed/meeting-request-confirmed.event';
 import { MeetingRequestInvalidStatusException } from '../../exceptions/meeting-request-invalid-status.exception';
 import { MeetingRequestNotFoundException } from '../../exceptions/meeting-request-not-found.exception';
@@ -21,7 +21,7 @@ export class ConfirmMeetingRequestHandler implements ICommandHandler<ConfirmMeet
 	async execute({
 		id,
 		curatorUserId
-	}: ConfirmMeetingRequestCommand): Promise<ReturnDto<typeof ConfirmMeetingRequestResponseDto>> {
+	}: ConfirmMeetingRequestCommand): Promise<ReturnData<typeof ConfirmMeetingRequestResponseDto>> {
 		const existing = await this.repository.findById(id);
 		if (!existing) {
 			throw new MeetingRequestNotFoundException();

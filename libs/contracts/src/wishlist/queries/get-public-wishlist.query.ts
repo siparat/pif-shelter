@@ -1,5 +1,4 @@
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
 import { wishlistItemStatusSchema } from '../schemas/wishlist-item-status.schema';
 
@@ -23,7 +22,4 @@ export const getPublicWishlistResponseSchema = createApiSuccessResponseSchema(
 	})
 );
 
-export class GetPublicWishlistResponseDto extends createZodDto(getPublicWishlistResponseSchema) {}
-
-export type PublicWishlistCategoryDto = z.infer<typeof publicWishlistCategorySchema>;
-export type GetPublicWishlistDataDto = z.infer<typeof getPublicWishlistResponseSchema>['data'];
+export type GetPublicWishlistData = z.infer<typeof getPublicWishlistResponseSchema>['data'];

@@ -1,4 +1,3 @@
-import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 import { createApiPaginatedResponseSchema } from '../../common/base.responses';
 import { paginationSchema } from '../../common/schemas/pagination.schema';
@@ -15,9 +14,6 @@ export const listPostsRequestSchema = paginationSchema
 		path: ['fromDate']
 	});
 
-export class ListPostsRequestDto extends createZodDto(listPostsRequestSchema) {}
-
 export const listPostsResponseSchema = createApiPaginatedResponseSchema(postResponseSchema);
-export class ListPostsResponseDto extends createZodDto(listPostsResponseSchema) {}
 
 export type ListPostsResult = Omit<z.infer<typeof listPostsResponseSchema>, 'success'>;

@@ -1,5 +1,5 @@
 import { ALLOW_IMAGE_EXT, ALLOW_VIDEO_EXT } from '@pif/shared';
-import z from 'zod';
+import { z } from 'zod';
 
 export const s3ImageKeySchema = z
 	.string()

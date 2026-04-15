@@ -1,4 +1,4 @@
-import { ApproveContactsRequestDto } from '@pif/contracts';
+import { ApproveContactsRequestDto } from '../../../core/dto';
 
 export class ContactsApprovedEvent {
 	constructor(

@@ -1,6 +1,6 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ReturnDto, UpdateWishlistCategoryResponseDto } from '@pif/contracts';
 import { Logger } from 'nestjs-pino';
+import { ReturnData, UpdateWishlistCategoryResponseDto } from '../../../core/dto';
 import { WishlistDataChangedEvent } from '../../events/wishlist-data-changed/wishlist-data-changed.event';
 import { WishlistCategoryNotFoundException } from '../../exceptions/wishlist-category-not-found.exception';
 import { WishlistRepository } from '../../repositories/wishlist.repository';
@@ -17,7 +17,7 @@ export class UpdateWishlistCategoryHandler implements ICommandHandler<UpdateWish
 	async execute({
 		id,
 		dto
-	}: UpdateWishlistCategoryCommand): Promise<ReturnDto<typeof UpdateWishlistCategoryResponseDto>> {
+	}: UpdateWishlistCategoryCommand): Promise<ReturnData<typeof UpdateWishlistCategoryResponseDto>> {
 		const isUpdated = await this.repository.updateCategory(id, dto);
 		if (!isUpdated) {
 			throw new WishlistCategoryNotFoundException();

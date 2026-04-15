@@ -2,8 +2,12 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { CommandBus, CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import type { PaymentWebhookPayload, PaymentWebhookResponse } from '@pif/contracts';
 import { guardianships } from '@pif/database';
-import { PaymentService, PaymentWebhookEvent } from '@pif/payment';
-import { GUARDIANSHIP_LEDGER_INCOME_TITLE_PREFIX, GuardianshipStatusEnum, LedgerEntrySourceEnum } from '@pif/shared';
+import {
+	GUARDIANSHIP_LEDGER_INCOME_TITLE_PREFIX,
+	GuardianshipStatusEnum,
+	LedgerEntrySourceEnum,
+	PaymentWebhookEvent
+} from '@pif/shared';
 import { Logger } from 'nestjs-pino';
 import { ProcessDonationWebhookSubscriptionCommand } from '../../../donations/commands/process-donation-webhook-subscription/process-donation-webhook-subscription.command';
 import { RecordLedgerIncomeCommand } from '../../../finance/commands/record-ledger-income/record-ledger-income.command';
@@ -16,6 +20,7 @@ import { GuardianshipRepository } from '../../repositories/guardianship.reposito
 import { computeNextPaidPeriodEnd, computeRenewalPaidPeriodEnd } from '../../utils/compute-next-paid-period-end';
 import { resolveGuardianPrivilegesUntilForCancel } from '../../utils/resolve-guardian-privileges-until-for-cancel';
 import { ProcessPaymentWebhookCommand } from './process-payment-webhook.command';
+import { PaymentService } from '@pif/payment';
 
 @CommandHandler(ProcessPaymentWebhookCommand)
 export class ProcessPaymentWebhookHandler implements ICommandHandler<ProcessPaymentWebhookCommand> {

@@ -1,5 +1,5 @@
 import { Command } from '@nestjs/cqrs';
-import { SetCostOfGuardianshipRequestDto } from '@pif/contracts';
+import { SetCostOfGuardianshipRequestDto } from '../../../core/dto';
 
 export class SetCostOfGuardianshipCommand extends Command<{ oldCost: number | null; newCost: number | null }> {
 	constructor(

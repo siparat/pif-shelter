@@ -1,4 +1,4 @@
-import { BanContactsRequestDto } from '@pif/contracts';
+import { BanContactsRequestDto } from '../../../core/dto';
 
 export class ContactsBannedEvent {
 	constructor(

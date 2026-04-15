@@ -2,14 +2,14 @@ import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { EventBus } from '@nestjs/cqrs';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateAnimalRequestDto } from '@pif/contracts';
 import { AnimalCoatEnum, AnimalGenderEnum, AnimalSizeEnum, AnimalSpeciesEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
+import { CreateAnimalRequestDto } from '../../../core/dto';
+import { FileStoragePolicy } from '../../../core/policies/file-storage.policy';
 import { AnimalCreatedEvent } from '../../events/animal-created/animal-created.event';
 import { AnimalsRepository } from '../../repositories/animals.repository';
 import { CreateAnimalCommand } from './create-animal.command';
 import { CreateAnimalHandler } from './create-animal.handler';
-import { FileStoragePolicy } from '../../../core/policies/file-storage.policy';
 
 describe('CreateAnimalHandler', () => {
 	let handler: CreateAnimalHandler;

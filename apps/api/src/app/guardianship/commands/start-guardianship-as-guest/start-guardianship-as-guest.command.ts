@@ -1,5 +1,5 @@
 import { Command } from '@nestjs/cqrs';
-import { StartGuardianshipRequestDto } from '@pif/contracts';
+import { StartGuardianshipRequestDto } from '../../../core/dto';
 
 export class StartGuardianshipAsGuestCommand extends Command<{
 	guardianshipId: string;

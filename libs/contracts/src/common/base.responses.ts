@@ -1,5 +1,4 @@
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 
 export const createApiSuccessResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
 	z.object({
@@ -35,5 +34,3 @@ export const apiErrorSchema = z.object({
 			.describe('Детализированный список ошибок (например, для валидации)')
 	})
 });
-
-export class ApiErrorResponseDto extends createZodDto(apiErrorSchema) {}

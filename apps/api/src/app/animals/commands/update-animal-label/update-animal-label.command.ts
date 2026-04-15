@@ -1,6 +1,6 @@
 import { Command } from '@nestjs/cqrs';
-import { UpdateAnimalLabelRequestDto } from '@pif/contracts';
 import { AnimalLabel } from '@pif/database';
+import { UpdateAnimalLabelRequestDto } from '../../../core/dto';
 
 export class UpdateAnimalLabelCommand extends Command<AnimalLabel> {
 	constructor(

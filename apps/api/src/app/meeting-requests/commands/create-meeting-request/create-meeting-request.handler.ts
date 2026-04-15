@@ -1,12 +1,11 @@
+import { CreateMeetingRequestResponseDto, ReturnData } from '../../../core/dto';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
-import { CreateMeetingRequestResponseDto, ReturnDto } from '@pif/contracts';
 import {
 	BlacklistContext,
 	BlacklistSource,
 	MEETING_FORM_AUTOMATIC_SUSPICION_DAYS,
 	MEETING_FORM_AUTOMATIC_SUSPICION_REASON,
-	generateIdempotencyKey,
 	MeetingCacheKeys
 } from '@pif/shared';
 import dayjs from 'dayjs';
@@ -15,6 +14,7 @@ import { BlacklistService } from '../../../blacklist/blacklist.service';
 import { AutomaticMeetingSuspicionAppliedEvent } from '../../../blacklist/events/automatic-meeting-suspicion-applied/automatic-meeting-suspicion-applied.event';
 import { IBlacklistSource } from '../../../blacklist/repositories/blacklist.repository';
 import { BlacklistPolicy, IBlacklistPolicyItem } from '../../../core/policies/blacklist.policy';
+import { generateIdempotencyKey } from '../../../core/utils/generate-idempotency-key';
 import { MeetingRequestCreatedEvent } from '../../events/meeting-request-created/meeting-request-created.event';
 import { MeetingRequestAnimalNotFoundException } from '../../exceptions/meeting-request-animal-not-found.exception';
 import { MeetingRequestCuratorNotAssignedException } from '../../exceptions/meeting-request-curator-not-assigned.exception';
@@ -32,7 +32,7 @@ export class CreateMeetingRequestHandler implements ICommandHandler<CreateMeetin
 		private readonly blacklistService: BlacklistService
 	) {}
 
-	async execute({ dto }: CreateMeetingRequestCommand): Promise<ReturnDto<typeof CreateMeetingRequestResponseDto>> {
+	async execute({ dto }: CreateMeetingRequestCommand): Promise<ReturnData<typeof CreateMeetingRequestResponseDto>> {
 		const idempotencyKey = generateIdempotencyKey('v1', [
 			dto.animalId,
 			dto.name,

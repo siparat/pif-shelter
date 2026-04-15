@@ -11,5 +11,3 @@ export const paginationSchema = z.object({
 		.default('createdAt:desc')
 		.describe('Сортировка (например, createdAt:desc)')
 });
-
-export type PaginationDto = z.infer<typeof paginationSchema>;

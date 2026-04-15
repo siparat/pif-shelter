@@ -1,5 +1,4 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetUploadUrlResponseDto, ReturnDto } from '@pif/contracts';
 import {
 	DEFAULT_IMAGE_MAX_BYTES,
 	IMAGE_MIME_TYPES,
@@ -9,6 +8,7 @@ import {
 } from '@pif/shared';
 import { StorageService } from '@pif/storage';
 import { randomUUID } from 'crypto';
+import { GetUploadUrlResponseDto, ReturnData } from '../../../core/dto';
 import { GetUploadUrlQuery } from './get-upload-url.query';
 
 @QueryHandler(GetUploadUrlQuery)
@@ -17,7 +17,7 @@ export class GetUploadUrlHandler implements IQueryHandler<GetUploadUrlQuery> {
 
 	async execute({
 		dto: { ext, type, space }
-	}: GetUploadUrlQuery): Promise<ReturnDto<typeof GetUploadUrlResponseDto>> {
+	}: GetUploadUrlQuery): Promise<ReturnData<typeof GetUploadUrlResponseDto>> {
 		const key = `${space}/${randomUUID()}.${ext}`;
 		const contentType = type === 'image' ? IMAGE_MIME_TYPES[ext] : VIDEO_MIME_TYPES[ext];
 		const maxSize = UPLOAD_MAX_BYTES[space][type] ?? DEFAULT_IMAGE_MAX_BYTES;

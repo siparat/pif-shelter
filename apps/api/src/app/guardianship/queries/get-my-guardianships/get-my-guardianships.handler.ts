@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
-import { GetMyGaurdianshipsResponseDto, ReturnDto } from '@pif/contracts';
 import { animals, DatabaseService, guardianshipPortalAccessWhere, guardianships } from '@pif/database';
-import { eq } from 'drizzle-orm';
 import { GuardianshipCacheKeys } from '@pif/shared';
+import { eq } from 'drizzle-orm';
+import { GetMyGaurdianshipsResponseDto, ReturnData } from '../../../core/dto';
 import { GetMyGaurdianshipsQuery } from './get-my-guardianships.query';
 
 @QueryHandler(GetMyGaurdianshipsQuery)
@@ -13,9 +13,9 @@ export class GetMyGaurdianshipsHandler implements IQueryHandler<GetMyGaurdianshi
 		private readonly cache: CacheService
 	) {}
 
-	async execute({ userId }: GetMyGaurdianshipsQuery): Promise<ReturnDto<typeof GetMyGaurdianshipsResponseDto>> {
+	async execute({ userId }: GetMyGaurdianshipsQuery): Promise<ReturnData<typeof GetMyGaurdianshipsResponseDto>> {
 		const key = GuardianshipCacheKeys.activeByUserId(userId);
-		const cached = await this.cache.get<ReturnDto<typeof GetMyGaurdianshipsResponseDto>>(key).catch(() => null);
+		const cached = await this.cache.get<ReturnData<typeof GetMyGaurdianshipsResponseDto>>(key).catch(() => null);
 		if (cached) {
 			return cached;
 		}

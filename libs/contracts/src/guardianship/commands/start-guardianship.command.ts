@@ -1,5 +1,4 @@
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
 import { telegramNicknameSchema } from '../../common/schemas/telegram-nickname.schema';
 
@@ -15,15 +14,9 @@ export const startGuardianshipRequestSchema = z.object({
 	telegramUsername: telegramNicknameSchema.describe('Telegram-ник опекуна для связи через бота')
 });
 
-export class StartGuardianshipRequestDto extends createZodDto(startGuardianshipRequestSchema) {}
-
 export const startGuardianshipAuthenticatedRequestSchema = z.object({
 	animalId: z.uuid().describe('Уникальный идентификатор животного, для которого оформляется опека')
 });
-
-export class StartGuardianshipAuthenticatedRequestDto extends createZodDto(
-	startGuardianshipAuthenticatedRequestSchema
-) {}
 
 export const startGuardianshipResponseSchema = createApiSuccessResponseSchema(
 	z.object({
@@ -32,5 +25,3 @@ export const startGuardianshipResponseSchema = createApiSuccessResponseSchema(
 		cancellationToken: z.string().describe('Токен отмены опекунства')
 	})
 );
-
-export class StartGuardianshipResponseDto extends createZodDto(startGuardianshipResponseSchema) {}

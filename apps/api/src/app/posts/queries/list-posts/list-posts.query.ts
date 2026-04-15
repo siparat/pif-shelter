@@ -1,6 +1,7 @@
 import { Query } from '@nestjs/cqrs';
-import { ListPostsRequestDto, ListPostsResult } from '@pif/contracts';
+import { ListPostsResult } from '@pif/contracts';
 import { UserRole } from '@pif/shared';
+import { ListPostsRequestDto } from '../../../core/dto';
 
 export class ListPostsQuery extends Query<ListPostsResult> {
 	constructor(

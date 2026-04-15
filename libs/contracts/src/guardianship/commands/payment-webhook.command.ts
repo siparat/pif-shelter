@@ -1,6 +1,5 @@
-import { PaymentWebhookEvent } from '@pif/payment';
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { PaymentWebhookEvent } from '@pif/shared';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common';
 
 const subscriptionEvents = new Set<PaymentWebhookEvent>([
@@ -121,8 +120,6 @@ export const paymentWebhookRequestSchema = z
 
 export type PaymentWebhookPayload = z.infer<typeof paymentWebhookRequestSchema>;
 
-export class PaymentWebhookRequestDto extends createZodDto(paymentWebhookRequestSchema) {}
-
 const paymentWebhookHandledBySchema = z.enum(['guardianship', 'donation_one_time', 'donation_subscription']);
 
 export const paymentWebhookResponseSchema = createApiSuccessResponseSchema(
@@ -136,7 +133,5 @@ export const paymentWebhookResponseSchema = createApiSuccessResponseSchema(
 		handledBy: paymentWebhookHandledBySchema.optional()
 	})
 );
-
-export class PaymentWebhookResponseDto extends createZodDto(paymentWebhookResponseSchema) {}
 
 export type PaymentWebhookResponse = z.infer<typeof paymentWebhookResponseSchema>;

@@ -1,5 +1,4 @@
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
 
 export const updateWishlistCategoryRequestSchema = z.object({
@@ -7,12 +6,8 @@ export const updateWishlistCategoryRequestSchema = z.object({
 	sortOrder: z.number().int().optional().describe('Порядок сортировки')
 });
 
-export class UpdateWishlistCategoryRequestDto extends createZodDto(updateWishlistCategoryRequestSchema) {}
-
 export const updateWishlistCategoryResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		id: z.uuid().describe('Идентификатор категории')
 	})
 );
-
-export class UpdateWishlistCategoryResponseDto extends createZodDto(updateWishlistCategoryResponseSchema) {}

@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { PublicMonthlyLedgerExcelUrlResponseDto, ReturnDto } from '@pif/contracts';
 import { MonthlyFinanceReportStatusEnum, MonthlyFinanceReportTypeEnum } from '@pif/shared';
+import { PublicMonthlyLedgerExcelUrlResponseDto, ReturnData } from '../../../core/dto';
 import { StorageUrlMapper } from '../../../core/mappers/storage-url.mapper';
 import { MonthlyFinanceReportNotFoundException } from '../../exceptions/monthly-finance-report-not-found.exception';
 import { MonthlyFinanceReportsRepository } from '../../repositories/monthly-finance-reports.repository';
@@ -16,7 +16,7 @@ export class GetPublicMonthlyLedgerExcelUrlHandler implements IQueryHandler<GetP
 
 	async execute({
 		dto
-	}: GetPublicMonthlyLedgerExcelUrlQuery): Promise<ReturnDto<typeof PublicMonthlyLedgerExcelUrlResponseDto>> {
+	}: GetPublicMonthlyLedgerExcelUrlQuery): Promise<ReturnData<typeof PublicMonthlyLedgerExcelUrlResponseDto>> {
 		const report = await this.repository.findByPeriod(
 			dto.year,
 			dto.month,

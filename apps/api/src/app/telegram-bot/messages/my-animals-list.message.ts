@@ -1,11 +1,7 @@
-import {
-	AnimalSpeciesEnum,
-	buildTelegrafMessage,
-	GuardianshipBotCallback,
-	MY_ANIMALS_BOT_PAGE_SIZE
-} from '@pif/shared';
+import { AnimalSpeciesEnum, GuardianshipBotCallback, MY_ANIMALS_BOT_PAGE_SIZE } from '@pif/shared';
 import { Context, Format, Markup } from 'telegraf';
 import { InlineKeyboardMarkup } from 'telegraf/typings/core/types/typegram';
+import { buildTelegrafMessage } from '../utils/build-telegraf-message';
 
 export interface IMyAnimalsListGuardianship {
 	id: string;

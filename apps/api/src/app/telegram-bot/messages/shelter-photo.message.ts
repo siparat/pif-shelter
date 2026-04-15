@@ -1,5 +1,6 @@
-import { buildTelegrafMessage, GuardianshipBotImages } from '@pif/shared';
+import { GuardianshipBotImages } from '@pif/shared';
 import { Context, Format } from 'telegraf';
+import { buildTelegrafMessage } from '../utils/build-telegraf-message';
 
 export const sendShelterPhotoMessage = async (ctx: Context): Promise<void> => {
 	const caption = buildTelegrafMessage`

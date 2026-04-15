@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { PublicLedgerReportResponseDto, ReturnDto } from '@pif/contracts';
 import { CacheService } from '@pif/cache';
-import { LedgerCacheKeys } from '@pif/shared';
 import { campaigns, DatabaseService, donationOneTimeIntents, ledgerEntries } from '@pif/database';
+import { LedgerCacheKeys } from '@pif/shared';
 import { and, asc, eq, gte, lt } from 'drizzle-orm';
+import { PublicLedgerReportResponseDto, ReturnData } from '../../../core/dto';
 import { GetPublicMonthlyLedgerQuery } from './get-public-monthly-ledger.query';
 
 @QueryHandler(GetPublicMonthlyLedgerQuery)
@@ -13,10 +13,10 @@ export class GetPublicMonthlyLedgerHandler implements IQueryHandler<GetPublicMon
 		private readonly cache: CacheService
 	) {}
 
-	async execute({ dto }: GetPublicMonthlyLedgerQuery): Promise<ReturnDto<typeof PublicLedgerReportResponseDto>> {
+	async execute({ dto }: GetPublicMonthlyLedgerQuery): Promise<ReturnData<typeof PublicLedgerReportResponseDto>> {
 		const cacheKey = LedgerCacheKeys.monthPublic(dto.year, dto.month);
 		const cached = await this.cache
-			.get<ReturnDto<typeof PublicLedgerReportResponseDto>>(cacheKey)
+			.get<ReturnData<typeof PublicLedgerReportResponseDto>>(cacheKey)
 			.catch(() => null);
 		if (cached) {
 			return cached;

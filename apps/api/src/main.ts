@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
-import { ApiErrorResponseDto } from '@pif/contracts';
 import { AUTH_PREFIX } from '@pif/shared';
 import { AuthService } from '@thallesp/nestjs-better-auth';
 import dayjs from 'dayjs';
@@ -15,6 +14,8 @@ import { AppModule } from './app/app.module';
 import type { AppAuth } from './app/configs/auth.config';
 import { handleBetterAuthRequest } from './app/core/auth/better-auth-fastify.handler';
 import { GlobalDeserializerInterceptor } from './app/core/interceptors/global-deserializer.interceptor';
+import { apiErrorSchema } from '@pif/contracts';
+import { createZodDto } from 'nestjs-zod';
 
 dayjs.locale('ru');
 dayjs.extend(utc);
@@ -51,7 +52,7 @@ async function bootstrap(): Promise<void> {
 
 	const config = new DocumentBuilder().setTitle('ПИФ API').setVersion('0.1').build();
 	const document = SwaggerModule.createDocument(app, config, {
-		extraModels: [ApiErrorResponseDto]
+		extraModels: [createZodDto(apiErrorSchema)]
 	});
 	const authDocument = await app.get(AuthService).api.generateOpenAPISchema({ path: AUTH_PREFIX });
 

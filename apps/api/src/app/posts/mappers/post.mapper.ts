@@ -1,9 +1,10 @@
-import { CreatePostRequestDto, postResponseSchema, UpdatePostRequestDto } from '@pif/contracts';
+import { postResponseSchema } from '@pif/contracts';
 import { postMedia, posts } from '@pif/database';
 import { InferInsertModel } from 'drizzle-orm';
 import { z } from 'zod';
-import { PostWithMedia } from '../repositories/posts.repository';
+import { CreatePostRequestDto, UpdatePostRequestDto } from '../../core/dto';
 import { PostReactionCount } from '../repositories/post-reactions.repository';
+import { PostWithMedia } from '../repositories/posts.repository';
 
 type PostInsertModel = InferInsertModel<typeof posts>;
 type PostMediaInsertModel = InferInsertModel<typeof postMedia>;

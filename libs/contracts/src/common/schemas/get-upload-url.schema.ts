@@ -1,5 +1,4 @@
 import { ALLOW_IMAGE_EXT, ALLOW_VIDEO_EXT, UPLOAD_SPACE, UPLOAD_TYPE } from '@pif/shared';
-import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../base.responses';
 
@@ -32,8 +31,6 @@ export const getUploadUrlRequestSchema = z
 		}
 	);
 
-export class GetUploadUrlRequestDto extends createZodDto(getUploadUrlRequestSchema) {}
-
 export const getUploadUrlResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		url: z.string(),
@@ -41,5 +38,3 @@ export const getUploadUrlResponseSchema = createApiSuccessResponseSchema(
 		key: z.string()
 	})
 );
-
-export class GetUploadUrlResponseDto extends createZodDto(getUploadUrlResponseSchema) {}

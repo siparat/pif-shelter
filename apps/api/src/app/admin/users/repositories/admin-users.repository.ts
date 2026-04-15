@@ -1,5 +1,5 @@
-import { CreateInvitationRequestDto } from '@pif/contracts';
 import { Invitation } from '@pif/database';
+import { CreateInvitationRequestDto } from '../../../core/dto';
 
 export abstract class AdminUsersRepository {
 	abstract markInvitationAsUsed(id: string, userId: string): Promise<Invitation>;

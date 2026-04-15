@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
-import { GetAdminDashboardSummaryResponseDto, ReturnDto } from '@pif/contracts';
 import { DatabaseService, meetingRequests, wishlistItems } from '@pif/database';
 import { MeetingRequestStatusEnum, WishlistItemStatusEnum } from '@pif/shared';
 import { and, count, eq, gte, lt, ne } from 'drizzle-orm';
+import { GetAdminDashboardSummaryResponseDto, ReturnData } from '../../../../core/dto';
 import { GetAdminDashboardSummaryQuery } from './get-admin-dashboard-summary.query';
 
 const ADMIN_DASHBOARD_SUMMARY_CACHE_NAMESPACE = 'admin:dashboard:summary';
@@ -17,10 +17,10 @@ export class GetAdminDashboardSummaryHandler implements IQueryHandler<GetAdminDa
 
 	async execute({
 		userId
-	}: GetAdminDashboardSummaryQuery): Promise<ReturnDto<typeof GetAdminDashboardSummaryResponseDto>> {
+	}: GetAdminDashboardSummaryQuery): Promise<ReturnData<typeof GetAdminDashboardSummaryResponseDto>> {
 		const cacheKey = this.cache.buildQueryKey(ADMIN_DASHBOARD_SUMMARY_CACHE_NAMESPACE, { userId });
 		const cached = await this.cache
-			.get<ReturnDto<typeof GetAdminDashboardSummaryResponseDto>>(cacheKey)
+			.get<ReturnData<typeof GetAdminDashboardSummaryResponseDto>>(cacheKey)
 			.catch(() => null);
 		if (cached) {
 			return cached;
@@ -75,7 +75,7 @@ export class GetAdminDashboardSummaryHandler implements IQueryHandler<GetAdminDa
 					.where(ne(wishlistItems.status, WishlistItemStatusEnum.NOT_NEEDED))
 			]);
 
-		const result: ReturnDto<typeof GetAdminDashboardSummaryResponseDto> = {
+		const result: ReturnData<typeof GetAdminDashboardSummaryResponseDto> = {
 			meetingRequests: {
 				newCount: newCount.count,
 				upcoming24hCount: upcoming24hCount.count,

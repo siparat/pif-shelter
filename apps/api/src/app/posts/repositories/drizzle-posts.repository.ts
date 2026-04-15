@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CreatePostRequestDto, UpdatePostRequestDto } from '@pif/contracts';
 import { DatabaseService, postMedia, posts } from '@pif/database';
 import { eq } from 'drizzle-orm';
+import { CreatePostRequestDto, UpdatePostRequestDto } from '../../core/dto';
 import { PostMapper } from '../mappers/post.mapper';
 import { PostWithMedia, PostsRepository } from './posts.repository';
 

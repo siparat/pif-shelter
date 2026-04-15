@@ -1,5 +1,5 @@
 import { Command } from '@nestjs/cqrs';
-import { CreateInvitationRequestDto } from '@pif/contracts';
+import { CreateInvitationRequestDto } from '../../../../core/dto';
 
 export class CreateInvitationCommand extends Command<{ invitationId: string }> {
 	constructor(public readonly dto: CreateInvitationRequestDto) {

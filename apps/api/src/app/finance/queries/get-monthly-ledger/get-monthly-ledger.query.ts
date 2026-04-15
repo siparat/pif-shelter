@@ -1,7 +1,7 @@
 import { Query } from '@nestjs/cqrs';
-import { ListLedgerForMonthQueryDto, ReturnDto, ListLedgerForMonthResponseDto } from '@pif/contracts';
+import { ListLedgerForMonthQueryDto, ListLedgerForMonthResponseDto, ReturnData } from '../../../core/dto';
 
-export class GetMonthlyLedgerQuery extends Query<ReturnDto<typeof ListLedgerForMonthResponseDto>> {
+export class GetMonthlyLedgerQuery extends Query<ReturnData<typeof ListLedgerForMonthResponseDto>> {
 	constructor(public readonly dto: ListLedgerForMonthQueryDto) {
 		super();
 	}

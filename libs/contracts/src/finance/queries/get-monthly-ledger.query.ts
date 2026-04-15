@@ -1,6 +1,5 @@
 import { LedgerEntryDirectionEnum, LedgerEntrySourceEnum } from '@pif/shared';
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
 
 export const adminLedgerEntryRowSchema = z.object({
@@ -30,8 +29,4 @@ export const listLedgerForMonthQuerySchema = z.object({
 	month: z.coerce.number().int().min(1).max(12)
 });
 
-export class ListLedgerForMonthQueryDto extends createZodDto(listLedgerForMonthQuerySchema) {}
-
 export const listLedgerForMonthResponseSchema = createApiSuccessResponseSchema(z.array(adminLedgerEntryRowSchema));
-
-export class ListLedgerForMonthResponseDto extends createZodDto(listLedgerForMonthResponseSchema) {}

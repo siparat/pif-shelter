@@ -1,13 +1,13 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetWishlistManageDataDto } from '@pif/contracts';
 import { DatabaseService } from '@pif/database';
+import { GetWishlistManageData } from '../../../core/dto';
 import { GetWishlistManageQuery } from './get-wishlist-manage.query';
 
 @QueryHandler(GetWishlistManageQuery)
 export class GetWishlistManageHandler implements IQueryHandler<GetWishlistManageQuery> {
 	constructor(private readonly database: DatabaseService) {}
 
-	async execute(): Promise<GetWishlistManageDataDto> {
+	async execute(): Promise<GetWishlistManageData> {
 		const rows = await this.database.client.query.wishlistCategories.findMany({
 			orderBy: { sortOrder: 'asc' },
 			with: {

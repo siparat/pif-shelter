@@ -1,5 +1,4 @@
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
 
 const manualExpenseAmountKopecksSchema = z
@@ -27,12 +26,8 @@ export const updateManualExpenseRequestSchema = z
 		{ message: 'Укажите хотя бы одно поле для обновления' }
 	);
 
-export class UpdateManualExpenseRequestDto extends createZodDto(updateManualExpenseRequestSchema) {}
-
 export const updateManualExpenseResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		id: z.uuid()
 	})
 );
-
-export class UpdateManualExpenseResponseDto extends createZodDto(updateManualExpenseResponseSchema) {}

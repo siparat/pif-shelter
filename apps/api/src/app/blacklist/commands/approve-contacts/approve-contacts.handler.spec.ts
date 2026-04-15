@@ -1,9 +1,9 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { EventBus } from '@nestjs/cqrs';
 import { Test } from '@nestjs/testing';
-import { ApproveContactsRequestDto, ApproveContactsResponseDto, ReturnDto } from '@pif/contracts';
 import { BlacklistContext, BlacklistSource } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
+import { ApproveContactsRequestDto, ApproveContactsResponseDto, ReturnData } from '../../../core/dto';
 import { BlacklistService } from '../../blacklist.service';
 import { ContactsApprovedEvent } from '../../events/contacts-approved/contacts-approved.event';
 import { ApproveContactsCommand } from './approve-contacts.command';
@@ -36,7 +36,7 @@ describe('ApproveContactsHandler', () => {
 	});
 
 	it('calls service, publishes event and logs', async () => {
-		const serviceResult: ReturnDto<typeof ApproveContactsResponseDto> = { updated: 1 };
+		const serviceResult: ReturnData<typeof ApproveContactsResponseDto> = { updated: 1 };
 		blacklistService.approveSource.mockResolvedValue(serviceResult);
 
 		const result = await handler.execute(new ApproveContactsCommand(dto, 'moderator-1'));

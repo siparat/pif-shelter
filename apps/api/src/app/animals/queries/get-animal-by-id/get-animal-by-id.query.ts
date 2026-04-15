@@ -1,5 +1,5 @@
 import { Query } from '@nestjs/cqrs';
-import { AnimalDto } from '@pif/contracts';
+import { AnimalDto } from '../../../core/dto';
 
 export class GetAnimalByIdQuery extends Query<AnimalDto> {
 	constructor(public readonly id: string) {

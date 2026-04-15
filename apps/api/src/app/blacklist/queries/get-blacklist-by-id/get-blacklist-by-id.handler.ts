@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
-import { GetBlacklistByIdResponseDto, ReturnDto } from '@pif/contracts';
 import { blacklist, DatabaseService } from '@pif/database';
 import { BlacklistCacheKeys } from '@pif/shared';
 import { eq } from 'drizzle-orm';
+import { GetBlacklistByIdResponseDto, ReturnData } from '../../../core/dto';
 import { BlacklistEntryNotFoundException } from '../../exceptions/blacklist-entry-not-found.exception';
 import { BlacklistEntryMapper } from '../../mappers/blacklist-entry.mapper';
 import { GetBlacklistByIdQuery } from './get-blacklist-by-id.query';
@@ -15,9 +15,9 @@ export class GetBlacklistByIdHandler implements IQueryHandler<GetBlacklistByIdQu
 		private readonly cache: CacheService
 	) {}
 
-	async execute({ id }: GetBlacklistByIdQuery): Promise<ReturnDto<typeof GetBlacklistByIdResponseDto>> {
+	async execute({ id }: GetBlacklistByIdQuery): Promise<ReturnData<typeof GetBlacklistByIdResponseDto>> {
 		const cacheKey = BlacklistCacheKeys.detail(id);
-		const cached = await this.cache.get<ReturnDto<typeof GetBlacklistByIdResponseDto>>(cacheKey).catch(() => null);
+		const cached = await this.cache.get<ReturnData<typeof GetBlacklistByIdResponseDto>>(cacheKey).catch(() => null);
 		if (cached) {
 			return cached;
 		}

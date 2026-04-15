@@ -1,5 +1,5 @@
-import { buildTelegrafMessage } from '@pif/shared';
 import { Context, Format } from 'telegraf';
+import { buildTelegrafMessage } from '../utils/build-telegraf-message';
 
 export const sendStartLinkSuccessMessage = async (ctx: Context): Promise<void> => {
 	const message = buildTelegrafMessage`

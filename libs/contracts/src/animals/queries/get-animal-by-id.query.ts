@@ -1,13 +1,10 @@
-import { animalWithLabelsSchema } from '@pif/database';
-import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
+import { animalWithLabelsSchema } from '../../common/schemas';
 
 export const getAnimalByIdRequestSchema = z.object({
 	id: z.uuid().describe('Уникальный идентификатор животного')
 });
-
-export class GetAnimalByIdRequestDto extends createZodDto(getAnimalByIdRequestSchema) {}
 
 export const getAnimalByIdResponseSchema = createApiSuccessResponseSchema(
 	animalWithLabelsSchema.extend({
@@ -16,4 +13,3 @@ export const getAnimalByIdResponseSchema = createApiSuccessResponseSchema(
 		deletedAt: z.string().nullable()
 	})
 );
-export class GetAnimalByIdResponseDto extends createZodDto(getAnimalByIdResponseSchema) {}

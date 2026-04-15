@@ -1,6 +1,5 @@
 import { AnimalCoatEnum, AnimalGenderEnum, AnimalSizeEnum, AnimalSpeciesEnum } from '@pif/shared';
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
 
 export const createAnimalRequestSchema = z.object({
@@ -37,12 +36,8 @@ export const createAnimalRequestSchema = z.object({
 		.describe('Ключ главного фото в хранилище')
 });
 
-export class CreateAnimalRequestDto extends createZodDto(createAnimalRequestSchema) {}
-
 export const createAnimalResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		id: z.uuid().describe('Уникальный идентификатор созданного питомца')
 	})
 );
-
-export class CreateAnimalResponseDto extends createZodDto(createAnimalResponseSchema) {}

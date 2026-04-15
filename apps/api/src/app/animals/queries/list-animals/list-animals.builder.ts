@@ -1,8 +1,8 @@
-import { ListAnimalsRequestDto } from '@pif/contracts';
 import { Animal, BaseBuilder, OrmCondition, TableSchema } from '@pif/database';
 import { AnimalCoatEnum, AnimalGenderEnum, AnimalSizeEnum, AnimalSpeciesEnum, AnimalStatusEnum } from '@pif/shared';
 import dayjs from 'dayjs';
 import { and, gte, ilike, lte, or, SQL } from 'drizzle-orm';
+import { ListAnimalsRequestDto } from '../../../core/dto';
 
 export class ListAnimalsBuilder extends BaseBuilder<ListAnimalsRequestDto, TableSchema<Animal>> {
 	public setSearchTerm(q?: string): this {

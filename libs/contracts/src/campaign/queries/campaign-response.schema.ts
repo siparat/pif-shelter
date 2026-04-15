@@ -1,29 +1,32 @@
-import { animalSchema, campaigns } from '@pif/database';
-import { createSelectSchema } from 'drizzle-orm/zod';
-import z from 'zod';
+import { CampaignStatus } from '@pif/shared';
+import { z } from 'zod';
+import { animalWithLabelsSchema } from '../../common/schemas';
 
-export const campaignResponseSchema = createSelectSchema(campaigns)
-	.omit({
-		startsAt: true,
-		endsAt: true,
-		createdAt: true,
-		updatedAt: true,
-		deletedAt: true
+const campaignAnimalSchema = animalWithLabelsSchema
+	.pick({
+		id: true,
+		name: true,
+		avatarUrl: true,
+		gender: true,
+		status: true,
+		species: true
 	})
-	.extend({
+	.nullable();
+
+export const campaignResponseSchema = z
+	.object({
+		id: z.uuid(),
+		title: z.string(),
+		description: z.string().nullable(),
+		coverImageUrl: z.string().nullable().optional(),
+		targetAmount: z.number().nullable().optional(),
+		collectedAmount: z.number().optional(),
+		status: z.enum(CampaignStatus),
 		startsAt: z.iso.datetime(),
 		endsAt: z.iso.datetime(),
 		createdAt: z.iso.datetime(),
 		updatedAt: z.iso.datetime(),
 		deletedAt: z.iso.datetime().nullable(),
-		animal: animalSchema
-			.pick({
-				id: true,
-				name: true,
-				avatarUrl: true,
-				gender: true,
-				status: true,
-				species: true
-			})
-			.nullable()
-	});
+		animal: campaignAnimalSchema
+	})
+	.passthrough();

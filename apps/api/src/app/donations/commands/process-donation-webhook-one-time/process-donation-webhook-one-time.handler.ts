@@ -1,6 +1,6 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { CommandBus, CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { PaymentWebhookEvent } from '@pif/payment';
+import { PaymentWebhookEvent } from '@pif/shared';
 import { CampaignStatus, DonationOneTimeIntentStatusEnum, LedgerEntrySourceEnum } from '@pif/shared';
 import { Logger } from 'nestjs-pino';
 import { CampaignsService } from '../../../campaigns/campaigns.service';

@@ -1,5 +1,5 @@
-import { CreatePostRequestDto, UpdatePostRequestDto } from '@pif/contracts';
 import { postMedia, posts } from '@pif/database';
+import { CreatePostRequestDto, UpdatePostRequestDto } from '../../core/dto';
 
 export type PostWithMedia = typeof posts.$inferSelect & {
 	media: (typeof postMedia.$inferSelect)[];

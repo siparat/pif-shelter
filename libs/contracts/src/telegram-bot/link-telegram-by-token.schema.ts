@@ -1,4 +1,4 @@
-import z from 'zod';
+import { z } from 'zod';
 
 export const linkTelegramByTokenRequestSchema = z.object({
 	token: z.uuid().describe('Одноразовый токен из ссылки'),

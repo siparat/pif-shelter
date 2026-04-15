@@ -13,23 +13,23 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { UserRole } from '@pif/shared';
+import { AuthGuard } from '@thallesp/nestjs-better-auth';
 import {
 	CreateWishlistCategoryRequestDto,
 	CreateWishlistCategoryResponseDto,
 	CreateWishlistItemRequestDto,
 	CreateWishlistItemResponseDto,
-	GetPublicWishlistDataDto,
+	GetPublicWishlistData,
 	GetPublicWishlistResponseDto,
-	GetWishlistManageDataDto,
+	GetWishlistManageData,
 	GetWishlistManageResponseDto,
-	ReturnDto,
+	ReturnData,
 	UpdateWishlistCategoryRequestDto,
 	UpdateWishlistCategoryResponseDto,
 	UpdateWishlistItemRequestDto,
 	UpdateWishlistItemResponseDto
-} from '@pif/contracts';
-import { UserRole } from '@pif/shared';
-import { AuthGuard } from '@thallesp/nestjs-better-auth';
+} from '../core/dto';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
 import { CreateWishlistCategoryCommand } from './commands/create-wishlist-category/create-wishlist-category.command';
@@ -52,7 +52,7 @@ export class WishlistController {
 	@ApiOperation({ summary: 'Публичный список нужд' })
 	@ApiOkResponse({ type: GetPublicWishlistResponseDto })
 	@Get()
-	async getPublic(): Promise<GetPublicWishlistDataDto> {
+	async getPublic(): Promise<GetPublicWishlistData> {
 		return this.queryBus.execute(new GetPublicWishlistQuery());
 	}
 
@@ -61,7 +61,7 @@ export class WishlistController {
 	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
 	@UseGuards(AuthGuard, RoleGuard)
 	@Get('manage')
-	async getManage(): Promise<GetWishlistManageDataDto> {
+	async getManage(): Promise<GetWishlistManageData> {
 		return this.queryBus.execute(new GetWishlistManageQuery());
 	}
 
@@ -73,7 +73,7 @@ export class WishlistController {
 	@Post('categories')
 	async createCategory(
 		@Body() dto: CreateWishlistCategoryRequestDto
-	): Promise<ReturnDto<typeof CreateWishlistCategoryResponseDto>> {
+	): Promise<ReturnData<typeof CreateWishlistCategoryResponseDto>> {
 		return this.commandBus.execute(new CreateWishlistCategoryCommand(dto));
 	}
 
@@ -85,7 +85,7 @@ export class WishlistController {
 	async updateCategory(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Body() dto: UpdateWishlistCategoryRequestDto
-	): Promise<ReturnDto<typeof UpdateWishlistCategoryResponseDto>> {
+	): Promise<ReturnData<typeof UpdateWishlistCategoryResponseDto>> {
 		return this.commandBus.execute(new UpdateWishlistCategoryCommand(id, dto));
 	}
 
@@ -106,7 +106,7 @@ export class WishlistController {
 	@Post('items')
 	async createItem(
 		@Body() dto: CreateWishlistItemRequestDto
-	): Promise<ReturnDto<typeof CreateWishlistItemResponseDto>> {
+	): Promise<ReturnData<typeof CreateWishlistItemResponseDto>> {
 		return this.commandBus.execute(new CreateWishlistItemCommand(dto));
 	}
 
@@ -118,7 +118,7 @@ export class WishlistController {
 	async updateItem(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Body() dto: UpdateWishlistItemRequestDto
-	): Promise<ReturnDto<typeof UpdateWishlistItemResponseDto>> {
+	): Promise<ReturnData<typeof UpdateWishlistItemResponseDto>> {
 		return this.commandBus.execute(new UpdateWishlistItemCommand(id, dto));
 	}
 

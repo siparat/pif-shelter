@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCampaignRequestDto, UpdateCampaignRequestDto } from '@pif/contracts';
 import { campaigns, DatabaseService } from '@pif/database';
 import { CampaignStatus } from '@pif/shared';
 import { and, eq, isNull, lte, SQL, sql } from 'drizzle-orm';
+import { CreateCampaignRequestDto, UpdateCampaignRequestDto } from '../../core/dto';
 import { CampaignMapper } from '../mappers/campaign.mapper';
 import { CampaignsRepository } from './campaigns.repository';
 

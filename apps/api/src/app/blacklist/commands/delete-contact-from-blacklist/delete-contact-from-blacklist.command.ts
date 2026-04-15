@@ -1,8 +1,8 @@
 import { Command } from '@nestjs/cqrs';
-import { DeleteContactFromBlacklistResponseDto, ReturnDto } from '@pif/contracts';
+import { DeleteContactFromBlacklistResponseDto, ReturnData } from '../../../core/dto';
 
 export class DeleteContactFromBlacklistCommand extends Command<
-	ReturnDto<typeof DeleteContactFromBlacklistResponseDto>
+	ReturnData<typeof DeleteContactFromBlacklistResponseDto>
 > {
 	constructor(
 		public readonly id: string,

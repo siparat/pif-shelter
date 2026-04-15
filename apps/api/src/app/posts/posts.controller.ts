@@ -15,21 +15,21 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiHeader, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { ListPostsResult } from '@pif/contracts';
+import { UserRole } from '@pif/shared';
+import { AuthGuard, AuthService, Session } from '@thallesp/nestjs-better-auth';
+import { ZodValidationPipe } from 'nestjs-zod';
 import {
 	CreatePostRequestDto,
 	CreatePostResponseDto,
 	GetPostResponseDto,
 	ListPostsRequestDto,
 	ListPostsResponseDto,
-	ListPostsResult,
-	ReturnDto,
+	ReturnData,
 	SetPostReactionRequestDto,
 	UpdatePostRequestDto,
 	UpdatePostResponseDto
-} from '@pif/contracts';
-import { UserRole } from '@pif/shared';
-import { AuthGuard, AuthService, Session } from '@thallesp/nestjs-better-auth';
-import { ZodValidationPipe } from 'nestjs-zod';
+} from '../core/dto';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
@@ -87,7 +87,7 @@ export class PostsController {
 		@Param('id', ParseUUIDPipe) id: string,
 		@Headers() headers: HeadersInit,
 		@Headers('X-Anonymous-Visitor-Id') visitorId?: string
-	): Promise<ReturnDto<typeof GetPostResponseDto>> {
+	): Promise<ReturnData<typeof GetPostResponseDto>> {
 		const session = (await this.authService.api.getSession({ headers })) as ISession | undefined;
 		const userId = session?.user?.id ?? null;
 		const userRole = session?.user?.role ?? null;

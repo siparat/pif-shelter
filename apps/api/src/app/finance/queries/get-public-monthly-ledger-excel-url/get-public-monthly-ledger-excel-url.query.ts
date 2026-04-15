@@ -1,8 +1,12 @@
 import { Query } from '@nestjs/cqrs';
-import { PublicMonthlyLedgerExcelUrlQueryDto, PublicMonthlyLedgerExcelUrlResponseDto, ReturnDto } from '@pif/contracts';
+import {
+	PublicMonthlyLedgerExcelUrlQueryDto,
+	PublicMonthlyLedgerExcelUrlResponseDto,
+	ReturnData
+} from '../../../core/dto';
 
 export class GetPublicMonthlyLedgerExcelUrlQuery extends Query<
-	ReturnDto<typeof PublicMonthlyLedgerExcelUrlResponseDto>
+	ReturnData<typeof PublicMonthlyLedgerExcelUrlResponseDto>
 > {
 	constructor(public readonly dto: PublicMonthlyLedgerExcelUrlQueryDto) {
 		super();

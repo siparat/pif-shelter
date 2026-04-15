@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { AnimalDto } from '@pif/contracts';
 import { animalLabelColumns, DatabaseService } from '@pif/database';
+import { AnimalDto } from '../../../core/dto';
 import { AnimalNotFoundException } from '../../exceptions/animal-not-found.exception';
 import { GetAnimalByIdQuery } from './get-animal-by-id.query';
 

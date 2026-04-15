@@ -1,7 +1,7 @@
 import { OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { LinkTelegramResult, ListPostsRequestDto } from '@pif/contracts';
+import { LinkTelegramResult } from '@pif/contracts';
 import {
 	AnimalStatusEnum,
 	GUARDIANSHIP_BOT_LINK_PREFIX,
@@ -14,6 +14,7 @@ import { StorageService } from '@pif/storage';
 import { Logger } from 'nestjs-pino';
 import { Command, Ctx, InjectBot, On, Start, Update } from 'nestjs-telegraf';
 import { Format, Telegraf, TelegramError } from 'telegraf';
+import { ListPostsRequestDto } from '../core/dto';
 import { AppUrlMapper } from '../core/mappers/app-url.mapper';
 import { CancelGuardianshipAsGuardianCommand } from '../guardianship/commands/cancel-guardianship-as-guardian/cancel-guardianship-as-guardian.command';
 import { GetAnimalForGuardianCardQuery } from '../guardianship/queries/get-animal-for-guardian-card/get-animal-for-guardian-card.query';

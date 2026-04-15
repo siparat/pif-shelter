@@ -1,6 +1,6 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { DeleteContactFromBlacklistResponseDto, ReturnDto } from '@pif/contracts';
 import { Logger } from 'nestjs-pino';
+import { DeleteContactFromBlacklistResponseDto, ReturnData } from '../../../core/dto';
 import { BlacklistService } from '../../blacklist.service';
 import { ContactDeletedFromBlacklistEvent } from '../../events/contact-deleted-from-blacklist/contact-deleted-from-blacklist.event';
 import { DeleteContactFromBlacklistCommand } from './delete-contact-from-blacklist.command';
@@ -16,7 +16,7 @@ export class DeleteContactFromBlacklistHandler implements ICommandHandler<Delete
 	async execute({
 		id,
 		moderatorId
-	}: DeleteContactFromBlacklistCommand): Promise<ReturnDto<typeof DeleteContactFromBlacklistResponseDto>> {
+	}: DeleteContactFromBlacklistCommand): Promise<ReturnData<typeof DeleteContactFromBlacklistResponseDto>> {
 		const result = await this.blacklistService.delete(id);
 
 		if (result.ok) {

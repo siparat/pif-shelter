@@ -1,6 +1,12 @@
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ListAnimalsResult } from '@pif/contracts';
+import { UserRole } from '@pif/shared';
+import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+import { ZodValidationPipe } from 'nestjs-zod';
+import { ISession } from '../configs/auth.config';
+import { Roles } from '../core/decorators/roles.decorator';
 import {
 	AnimalDto,
 	AssignAnimalLabelRequestDto,
@@ -12,20 +18,14 @@ import {
 	GetAnimalByIdResponseDto,
 	ListAnimalsRequestDto,
 	ListAnimalsResponseDto,
-	ListAnimalsResult,
-	ReturnDto,
+	ReturnData,
 	SetAnimalCuratorRequestDto,
 	SetAnimalCuratorResponseDto,
 	SetCostOfGuardianshipRequestDto,
 	SetCostOfGuardianshipResponseDto,
 	UpdateAnimalRequestDto,
 	UpdateAnimalResponseDto
-} from '@pif/contracts';
-import { UserRole } from '@pif/shared';
-import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
-import { ZodValidationPipe } from 'nestjs-zod';
-import { ISession } from '../configs/auth.config';
-import { Roles } from '../core/decorators/roles.decorator';
+} from '../core/dto';
 import { RoleGuard } from '../core/guards/role.guard';
 import { AssignAnimalLabelCommand } from './commands/assign-animal-label/assign-animal-label.command';
 import { ChangeAnimalStatusCommand } from './commands/change-status/change-status.command';
@@ -53,7 +53,7 @@ export class AnimalsController {
 	@UseGuards(AuthGuard, RoleGuard)
 	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
 	@Post()
-	async create(@Body() dto: CreateAnimalRequestDto): Promise<ReturnDto<typeof CreateAnimalResponseDto>> {
+	async create(@Body() dto: CreateAnimalRequestDto): Promise<ReturnData<typeof CreateAnimalResponseDto>> {
 		const id = await this.commandBus.execute(new CreateAnimalCommand(dto));
 		return { id };
 	}
@@ -70,7 +70,7 @@ export class AnimalsController {
 	async setCostOfGuardianship(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Body() dto: SetCostOfGuardianshipRequestDto
-	): Promise<ReturnDto<typeof SetCostOfGuardianshipResponseDto>> {
+	): Promise<ReturnData<typeof SetCostOfGuardianshipResponseDto>> {
 		const { newCost, oldCost } = await this.commandBus.execute(new SetCostOfGuardianshipCommand(id, dto));
 		return { animalId: id, newCost, oldCost };
 	}
@@ -98,7 +98,7 @@ export class AnimalsController {
 		@Param('id', ParseUUIDPipe) id: string,
 		@Body() dto: UpdateAnimalRequestDto,
 		@Session() session: ISession
-	): Promise<ReturnDto<typeof UpdateAnimalResponseDto>> {
+	): Promise<ReturnData<typeof UpdateAnimalResponseDto>> {
 		const updatedId = await this.commandBus.execute(
 			new UpdateAnimalCommand(id, dto, session.user.id, session.user.role)
 		);
@@ -114,7 +114,7 @@ export class AnimalsController {
 		@Param('id', ParseUUIDPipe) id: string,
 		@Body() { status }: ChangeAnimalStatusRequestDto,
 		@Session() session: ISession
-	): Promise<ReturnDto<typeof ChangeAnimalStatusResponseDto>> {
+	): Promise<ReturnData<typeof ChangeAnimalStatusResponseDto>> {
 		return this.commandBus.execute(new ChangeAnimalStatusCommand(id, status, session.user.id, session.user.role));
 	}
 
@@ -127,7 +127,7 @@ export class AnimalsController {
 		@Param('id', ParseUUIDPipe) id: string,
 		@Body() { labelId }: AssignAnimalLabelRequestDto,
 		@Session() session: ISession
-	): Promise<ReturnDto<typeof AssignAnimalLabelResponseDto>> {
+	): Promise<ReturnData<typeof AssignAnimalLabelResponseDto>> {
 		await this.commandBus.execute(new AssignAnimalLabelCommand(id, labelId, session.user.id, session.user.role));
 		return { animalId: id, labelId };
 	}
@@ -157,7 +157,7 @@ export class AnimalsController {
 	async setCurator(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Body() dto: SetAnimalCuratorRequestDto
-	): Promise<ReturnDto<typeof SetAnimalCuratorResponseDto>> {
+	): Promise<ReturnData<typeof SetAnimalCuratorResponseDto>> {
 		const { curatorId } = await this.commandBus.execute(new SetAnimalCuratorCommand(id, dto.curatorId));
 		return { animalId: id, curatorId };
 	}

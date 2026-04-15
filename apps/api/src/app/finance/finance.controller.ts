@@ -13,6 +13,10 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
+import { UserRole } from '@pif/shared';
+import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+import type { FastifyReply } from 'fastify';
 import {
 	CreateManualExpenseRequestDto,
 	CreateManualExpenseResponseDto,
@@ -21,17 +25,14 @@ import {
 	GenerateMonthlyFinanceReportResponseDto,
 	ListLedgerForMonthQueryDto,
 	ListLedgerForMonthResponseDto,
-	PublicMonthlyLedgerExcelUrlQueryDto,
-	PublicMonthlyLedgerExcelUrlResponseDto,
 	PublicLedgerReportQueryDto,
 	PublicLedgerReportResponseDto,
-	ReturnDto,
+	PublicMonthlyLedgerExcelUrlQueryDto,
+	PublicMonthlyLedgerExcelUrlResponseDto,
+	ReturnData,
 	UpdateManualExpenseRequestDto,
 	UpdateManualExpenseResponseDto
-} from '@pif/contracts';
-import { UserRole } from '@pif/shared';
-import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
-import type { FastifyReply } from 'fastify';
+} from '../core/dto';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
@@ -39,11 +40,10 @@ import { CreateManualExpenseCommand } from './commands/create-manual-expense/cre
 import { DeleteManualExpenseCommand } from './commands/delete-manual-expense/delete-manual-expense.command';
 import { GenerateMonthlyFinanceReportCommand } from './commands/generate-monthly-finance-report/generate-monthly-finance-report.command';
 import { UpdateManualExpenseCommand } from './commands/update-manual-expense/update-manual-expense.command';
+import { GetMonthlyLedgerQuery } from './queries/get-monthly-ledger/get-monthly-ledger.query';
 import { GetPublicLedgerReceiptRedirectQuery } from './queries/get-public-ledger-receipt-redirect/get-public-ledger-receipt-redirect.query';
 import { GetPublicMonthlyLedgerExcelUrlQuery } from './queries/get-public-monthly-ledger-excel-url/get-public-monthly-ledger-excel-url.query';
-import { GetMonthlyLedgerQuery } from './queries/get-monthly-ledger/get-monthly-ledger.query';
 import { GetPublicMonthlyLedgerQuery } from './queries/get-public-monthly-ledger/get-public-monthly-ledger.query';
-import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('Finance | Книга и расходы')
 @Controller('finance')
@@ -61,7 +61,7 @@ export class FinanceController {
 	async createManualExpense(
 		@Body() dto: CreateManualExpenseRequestDto,
 		@Session() session: ISession
-	): Promise<ReturnDto<typeof CreateManualExpenseResponseDto>> {
+	): Promise<ReturnData<typeof CreateManualExpenseResponseDto>> {
 		return this.commandBus.execute(new CreateManualExpenseCommand(dto, session.user.id));
 	}
 
@@ -73,7 +73,7 @@ export class FinanceController {
 	async updateManualExpense(
 		@Body() dto: UpdateManualExpenseRequestDto,
 		@Session() session: ISession
-	): Promise<ReturnDto<typeof UpdateManualExpenseResponseDto>> {
+	): Promise<ReturnData<typeof UpdateManualExpenseResponseDto>> {
 		return this.commandBus.execute(new UpdateManualExpenseCommand(dto, session.user.id, session.user.role));
 	}
 
@@ -85,7 +85,7 @@ export class FinanceController {
 	async deleteManualExpense(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Session() session: ISession
-	): Promise<ReturnDto<typeof DeleteManualExpenseResponseDto>> {
+	): Promise<ReturnData<typeof DeleteManualExpenseResponseDto>> {
 		return this.commandBus.execute(new DeleteManualExpenseCommand(id, session.user.id, session.user.role));
 	}
 
@@ -96,7 +96,7 @@ export class FinanceController {
 	@Get('monthly-ledger')
 	async getMonthlyLedger(
 		@Query() dto: ListLedgerForMonthQueryDto
-	): Promise<ReturnDto<typeof ListLedgerForMonthResponseDto>> {
+	): Promise<ReturnData<typeof ListLedgerForMonthResponseDto>> {
 		return this.queryBus.execute(new GetMonthlyLedgerQuery(dto));
 	}
 
@@ -105,7 +105,7 @@ export class FinanceController {
 	@Get('public/monthly-ledger')
 	async getPublicMonthlyLedger(
 		@Query() dto: PublicLedgerReportQueryDto
-	): Promise<ReturnDto<typeof PublicLedgerReportResponseDto>> {
+	): Promise<ReturnData<typeof PublicLedgerReportResponseDto>> {
 		return this.queryBus.execute(new GetPublicMonthlyLedgerQuery(dto));
 	}
 
@@ -114,7 +114,7 @@ export class FinanceController {
 	@Get('public/monthly-ledger/excel')
 	async getPublicMonthlyLedgerExcelUrl(
 		@Query() dto: PublicMonthlyLedgerExcelUrlQueryDto
-	): Promise<ReturnDto<typeof PublicMonthlyLedgerExcelUrlResponseDto>> {
+	): Promise<ReturnData<typeof PublicMonthlyLedgerExcelUrlResponseDto>> {
 		return this.queryBus.execute(new GetPublicMonthlyLedgerExcelUrlQuery(dto));
 	}
 
@@ -137,7 +137,7 @@ export class FinanceController {
 	@Post('monthly-ledger/excel/generate')
 	async generateMonthlyLedgerExcel(
 		@Body() dto: GenerateMonthlyFinanceReportRequestDto
-	): Promise<ReturnDto<typeof GenerateMonthlyFinanceReportResponseDto>> {
+	): Promise<ReturnData<typeof GenerateMonthlyFinanceReportResponseDto>> {
 		return this.commandBus.execute(
 			new GenerateMonthlyFinanceReportCommand(dto.year, dto.month, dto.forceRegenerate)
 		);

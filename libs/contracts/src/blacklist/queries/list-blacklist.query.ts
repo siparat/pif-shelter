@@ -1,5 +1,4 @@
 import { BlacklistSource, BlacklistStatus } from '@pif/shared';
-import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 import { createApiPaginatedResponseSchema } from '../../common/base.responses';
 import { paginationSchema } from '../../common/schemas/pagination.schema';
@@ -28,10 +27,6 @@ export const listBlacklistQuerySchema = paginationSchema.omit({ sort: true }).ex
 	source: z.enum(BlacklistSource).optional()
 });
 
-export class ListBlacklistQueryDto extends createZodDto(listBlacklistQuerySchema) {}
-
 export const listBlacklistResponseSchema = createApiPaginatedResponseSchema(blacklistEntrySchema);
-
-export class ListBlacklistResponseDto extends createZodDto(listBlacklistResponseSchema) {}
 
 export type ListBlacklistResult = Omit<z.infer<typeof listBlacklistResponseSchema>, 'success'>;

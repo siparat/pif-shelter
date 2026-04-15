@@ -1,4 +1,4 @@
-import { ListCuratorMeetingRequestsQueryDto } from '@pif/contracts';
+import { ListCuratorMeetingRequestsQueryDto } from '../../../core/dto';
 
 export class ListCuratorMeetingRequestsQuery {
 	constructor(

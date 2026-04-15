@@ -1,8 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
-import { GetPublicWishlistDataDto } from '@pif/contracts';
 import { DatabaseService } from '@pif/database';
 import { WishlistCacheKeys, WishlistItemStatusEnum } from '@pif/shared';
+import { GetPublicWishlistData } from '../../../core/dto';
 import { GetPublicWishlistQuery } from './get-public-wishlist.query';
 
 @QueryHandler(GetPublicWishlistQuery)
@@ -12,8 +12,8 @@ export class GetPublicWishlistHandler implements IQueryHandler<GetPublicWishlist
 		private readonly cache: CacheService
 	) {}
 
-	async execute(): Promise<GetPublicWishlistDataDto> {
-		const cached = await this.cache.get<GetPublicWishlistDataDto>(WishlistCacheKeys.PUBLIC).catch(() => null);
+	async execute(): Promise<GetPublicWishlistData> {
+		const cached = await this.cache.get<GetPublicWishlistData>(WishlistCacheKeys.PUBLIC).catch(() => null);
 		if (cached) {
 			return cached;
 		}
@@ -44,7 +44,7 @@ export class GetPublicWishlistHandler implements IQueryHandler<GetPublicWishlist
 			}))
 			.filter((category) => category.items.length > 0);
 
-		const result: GetPublicWishlistDataDto = { categories };
+		const result: GetPublicWishlistData = { categories };
 		await this.cache.set(WishlistCacheKeys.PUBLIC, result).catch(() => undefined);
 		return result;
 	}

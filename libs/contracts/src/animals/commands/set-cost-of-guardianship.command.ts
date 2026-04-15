@@ -1,12 +1,9 @@
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common';
 
 export const setCostOfGuardianshipRequestSchema = z.object({
 	costOfGuardianship: z.nullable(z.coerce.number().positive().describe('Стоимость опекунства'))
 });
-
-export class SetCostOfGuardianshipRequestDto extends createZodDto(setCostOfGuardianshipRequestSchema) {}
 
 export const setCostOfGuardianshipResponseSchema = createApiSuccessResponseSchema(
 	z.object({
@@ -15,5 +12,3 @@ export const setCostOfGuardianshipResponseSchema = createApiSuccessResponseSchem
 		newCost: z.nullable(z.number().positive()).describe('Новая стоимость опекунства')
 	})
 );
-
-export class SetCostOfGuardianshipResponseDto extends createZodDto(setCostOfGuardianshipResponseSchema) {}

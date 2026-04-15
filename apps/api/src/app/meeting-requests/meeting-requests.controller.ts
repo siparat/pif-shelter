@@ -1,6 +1,8 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { UserRole } from '@pif/shared';
+import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
 import {
 	ConfirmMeetingRequestResponseDto,
 	CreateMeetingRequestDto,
@@ -10,10 +12,8 @@ import {
 	ListCuratorMeetingRequestsResponseDto,
 	RejectMeetingRequestDto,
 	RejectMeetingRequestResponseDto,
-	ReturnDto
-} from '@pif/contracts';
-import { UserRole } from '@pif/shared';
-import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+	ReturnData
+} from '../core/dto';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import { RoleGuard } from '../core/guards/role.guard';
@@ -34,7 +34,7 @@ export class MeetingRequestsController {
 	@ApiOperation({ summary: 'Создать заявку на знакомство' })
 	@ApiCreatedResponse({ type: CreateMeetingRequestResponseDto })
 	@Post()
-	async create(@Body() dto: CreateMeetingRequestDto): Promise<ReturnDto<typeof CreateMeetingRequestResponseDto>> {
+	async create(@Body() dto: CreateMeetingRequestDto): Promise<ReturnData<typeof CreateMeetingRequestResponseDto>> {
 		return this.commandBus.execute(new CreateMeetingRequestCommand(dto));
 	}
 
@@ -46,7 +46,7 @@ export class MeetingRequestsController {
 	async listCurator(
 		@Query() dto: ListCuratorMeetingRequestsQueryDto,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof ListCuratorMeetingRequestsResponseDto>> {
+	): Promise<ReturnData<typeof ListCuratorMeetingRequestsResponseDto>> {
 		return this.queryBus.execute(new ListCuratorMeetingRequestsQuery(dto, user.id));
 	}
 
@@ -58,7 +58,7 @@ export class MeetingRequestsController {
 	async getById(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof GetMeetingRequestByIdResponseDto>> {
+	): Promise<ReturnData<typeof GetMeetingRequestByIdResponseDto>> {
 		return this.queryBus.execute(new GetMeetingRequestByIdQuery(id, user.id));
 	}
 
@@ -70,7 +70,7 @@ export class MeetingRequestsController {
 	async confirm(
 		@Param('id', ParseUUIDPipe) id: string,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof ConfirmMeetingRequestResponseDto>> {
+	): Promise<ReturnData<typeof ConfirmMeetingRequestResponseDto>> {
 		return this.commandBus.execute(new ConfirmMeetingRequestCommand(id, user.id));
 	}
 
@@ -83,7 +83,7 @@ export class MeetingRequestsController {
 		@Param('id', ParseUUIDPipe) id: string,
 		@Body() dto: RejectMeetingRequestDto,
 		@Session() { user }: ISession
-	): Promise<ReturnDto<typeof RejectMeetingRequestResponseDto>> {
+	): Promise<ReturnData<typeof RejectMeetingRequestResponseDto>> {
 		return this.commandBus.execute(new RejectMeetingRequestCommand(id, user.id, dto.reason));
 	}
 }

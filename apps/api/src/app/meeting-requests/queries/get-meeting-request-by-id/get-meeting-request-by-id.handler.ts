@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GetMeetingRequestByIdResponseDto, ReturnDto } from '@pif/contracts';
+import { GetMeetingRequestByIdResponseDto, ReturnData } from '../../../core/dto';
 import { MeetingRequestNotFoundException } from '../../exceptions/meeting-request-not-found.exception';
 import { MeetingRequestsPolicy } from '../../meeting-requests.policy';
 import { DrizzleMeetingRequestsRepository } from '../../repositories/drizzle-meeting-requests.repository';
@@ -15,7 +15,7 @@ export class GetMeetingRequestByIdHandler implements IQueryHandler<GetMeetingReq
 	async execute({
 		id,
 		requesterUserId
-	}: GetMeetingRequestByIdQuery): Promise<ReturnDto<typeof GetMeetingRequestByIdResponseDto>> {
+	}: GetMeetingRequestByIdQuery): Promise<ReturnData<typeof GetMeetingRequestByIdResponseDto>> {
 		const row = await this.repo.getDetailedById(id);
 		if (!row) {
 			throw new MeetingRequestNotFoundException();

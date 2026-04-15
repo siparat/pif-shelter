@@ -1,5 +1,4 @@
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common/base.responses';
 
 export const generateMonthlyFinanceReportRequestSchema = z.object({
@@ -8,8 +7,6 @@ export const generateMonthlyFinanceReportRequestSchema = z.object({
 	forceRegenerate: z.coerce.boolean().optional().default(false)
 });
 
-export class GenerateMonthlyFinanceReportRequestDto extends createZodDto(generateMonthlyFinanceReportRequestSchema) {}
-
 export const generateMonthlyFinanceReportResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		id: z.uuid(),
@@ -17,5 +14,3 @@ export const generateMonthlyFinanceReportResponseSchema = createApiSuccessRespon
 		reused: z.boolean()
 	})
 );
-
-export class GenerateMonthlyFinanceReportResponseDto extends createZodDto(generateMonthlyFinanceReportResponseSchema) {}

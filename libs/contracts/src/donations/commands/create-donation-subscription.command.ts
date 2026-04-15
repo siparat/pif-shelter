@@ -1,5 +1,4 @@
-import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
+import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../common';
 import { donationAmountKopecksSchema } from '../donation-amount.schema';
 
@@ -10,13 +9,9 @@ export const createDonationSubscriptionRequestSchema = z.object({
 	amountPerMonth: donationAmountKopecksSchema.describe('Ежемесячная сумма в копейках')
 });
 
-export class CreateDonationSubscriptionRequestDto extends createZodDto(createDonationSubscriptionRequestSchema) {}
-
 export const createDonationSubscriptionResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		paymentUrl: z.url().describe('URL мок-оплаты первого платежа'),
 		subscriptionId: z.string().min(1).describe('Внешний id подписки для вебхука и мок-PSP')
 	})
 );
-
-export class CreateDonationSubscriptionResponseDto extends createZodDto(createDonationSubscriptionResponseSchema) {}

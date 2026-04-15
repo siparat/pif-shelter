@@ -1,5 +1,5 @@
-import { UpdatePostRequestDto } from '@pif/contracts';
 import { UserRole } from '@pif/shared';
+import { UpdatePostRequestDto } from '../../../core/dto';
 
 export class UpdatePostCommand {
 	constructor(

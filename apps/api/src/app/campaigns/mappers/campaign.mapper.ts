@@ -1,7 +1,7 @@
-import { CreateCampaignRequestDto, UpdateCampaignRequestDto } from '@pif/contracts';
 import { campaigns } from '@pif/database';
 import { CampaignStatus } from '@pif/shared';
 import { PgInsertValue, PgUpdateSetSource } from 'drizzle-orm/pg-core';
+import { CreateCampaignRequestDto, UpdateCampaignRequestDto } from '../../core/dto';
 
 export class CampaignMapper {
 	static toInsert(dto: CreateCampaignRequestDto): PgInsertValue<typeof campaigns> {

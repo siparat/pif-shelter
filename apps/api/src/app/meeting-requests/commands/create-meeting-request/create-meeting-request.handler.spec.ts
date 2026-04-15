@@ -3,14 +3,12 @@ import { ForbiddenException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Test } from '@nestjs/testing';
 import { CacheService } from '@pif/cache';
-import { CreateMeetingRequestDto } from '@pif/contracts';
 import { meetingRequests } from '@pif/database';
 import {
 	BlacklistContext,
 	BlacklistSource,
 	MEETING_FORM_AUTOMATIC_SUSPICION_REASON,
-	MeetingCacheKeys,
-	generateIdempotencyKey
+	MeetingCacheKeys
 } from '@pif/shared';
 import { randomUUID } from 'crypto';
 import dayjs from 'dayjs';
@@ -18,7 +16,9 @@ import utc from 'dayjs/plugin/utc';
 import { Logger } from 'nestjs-pino';
 import { BlacklistService } from '../../../blacklist/blacklist.service';
 import { AutomaticMeetingSuspicionAppliedEvent } from '../../../blacklist/events/automatic-meeting-suspicion-applied/automatic-meeting-suspicion-applied.event';
+import { CreateMeetingRequestDto } from '../../../core/dto/index';
 import { BlacklistPolicy } from '../../../core/policies/blacklist.policy';
+import { generateIdempotencyKey } from '../../../core/utils/generate-idempotency-key';
 import { MeetingRequestCreatedEvent } from '../../events/meeting-request-created/meeting-request-created.event';
 import { MeetingRequestAnimalNotFoundException } from '../../exceptions/meeting-request-animal-not-found.exception';
 import { MeetingRequestCuratorNotAssignedException } from '../../exceptions/meeting-request-curator-not-assigned.exception';
