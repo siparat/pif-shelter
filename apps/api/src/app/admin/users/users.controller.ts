@@ -1,5 +1,5 @@
-import { Body, Controller, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { UserRole } from '@pif/shared';
@@ -9,6 +9,7 @@ import {
 	AcceptInvitationResponseDto,
 	CreateInvitationRequestDto,
 	CreateInvitationResponseDto,
+	ListVolunteersResponseDto,
 	ReturnData,
 	SetTelegramUnreachableRequestDto,
 	SetTelegramUnreachableResponseDto
@@ -18,12 +19,16 @@ import { RoleGuard } from '../../core/guards/role.guard';
 import { AcceptInvitationCommand } from './commands/accept-invitation/accept-invitation.command';
 import { CreateInvitationCommand } from './commands/create-invitation/create-invitation.command';
 import { SetTelegramUnreachableCommand } from './commands/set-telegram-unreachable/set-telegram-unreachable.command';
+import { ListVolunteersQuery } from './queries/list-volunteers/list-volunteers.query';
 
 @ApiTags('Admin Users | Пользователи в админ-панели')
 @UseGuards(AuthGuard, RoleGuard)
 @Controller('admin/users')
 export class AdminUsersController {
-	constructor(private readonly commandBus: CommandBus) {}
+	constructor(
+		private readonly commandBus: CommandBus,
+		private readonly queryBus: QueryBus
+	) {}
 
 	@ApiOperation({ summary: 'Создать приглашение в команду' })
 	@ApiCreatedResponse({ description: 'Приглашение создано', type: CreateInvitationResponseDto })
@@ -55,5 +60,13 @@ export class AdminUsersController {
 		@Body() dto: SetTelegramUnreachableRequestDto
 	): Promise<ReturnData<typeof SetTelegramUnreachableResponseDto>> {
 		return this.commandBus.execute(new SetTelegramUnreachableCommand(userId, dto.unreachable));
+	}
+
+	@ApiOperation({ summary: 'Получить список волонтёров' })
+	@ApiOkResponse({ description: 'Список волонтёров', type: ListVolunteersResponseDto })
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@Get('volunteers')
+	async listVolunteers(): Promise<ReturnData<typeof ListVolunteersResponseDto>> {
+		return this.queryBus.execute(new ListVolunteersQuery());
 	}
 }

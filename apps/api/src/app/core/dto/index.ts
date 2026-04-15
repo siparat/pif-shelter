@@ -71,6 +71,7 @@ import {
 	listCuratorMeetingRequestsResponseSchema,
 	listLedgerForMonthQuerySchema,
 	listLedgerForMonthResponseSchema,
+	listVolunteersResponseSchema,
 	listPostsRequestSchema,
 	listPostsResponseSchema,
 	manageWishlistCategorySchema,
@@ -111,7 +112,8 @@ import {
 	updateWishlistCategoryRequestSchema,
 	updateWishlistCategoryResponseSchema,
 	updateWishlistItemRequestSchema,
-	updateWishlistItemResponseSchema
+	updateWishlistItemResponseSchema,
+	volunteerSummarySchema
 } from '@pif/contracts';
 import { createZodDto } from 'nestjs-zod';
 
@@ -191,6 +193,7 @@ export class ListCuratorMeetingRequestsQueryDto extends createZodDto(listCurator
 export class ListCuratorMeetingRequestsResponseDto extends createZodDto(listCuratorMeetingRequestsResponseSchema) {}
 export class ListLedgerForMonthQueryDto extends createZodDto(listLedgerForMonthQuerySchema) {}
 export class ListLedgerForMonthResponseDto extends createZodDto(listLedgerForMonthResponseSchema) {}
+export class ListVolunteersResponseDto extends createZodDto(listVolunteersResponseSchema) {}
 export class ListPostsRequestDto extends createZodDto(listPostsRequestSchema) {}
 export class ListPostsResponseDto extends createZodDto(listPostsResponseSchema) {}
 export class ManageWishlistCategoryDto extends createZodDto(manageWishlistCategorySchema) {}
@@ -234,4 +237,5 @@ export class UpdateWishlistCategoryRequestDto extends createZodDto(updateWishlis
 export class UpdateWishlistCategoryResponseDto extends createZodDto(updateWishlistCategoryResponseSchema) {}
 export class UpdateWishlistItemRequestDto extends createZodDto(updateWishlistItemRequestSchema) {}
 export class UpdateWishlistItemResponseDto extends createZodDto(updateWishlistItemResponseSchema) {}
+export class VolunteerSummaryDto extends createZodDto(volunteerSummarySchema) {}
 export * from '@pif/contracts';
