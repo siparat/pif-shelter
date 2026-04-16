@@ -6,6 +6,8 @@ export const createApiSuccessResponseSchema = <T extends z.ZodTypeAny>(dataSchem
 		data: dataSchema
 	});
 
+export type ApiSuccessResponse<T> = z.infer<ReturnType<typeof createApiSuccessResponseSchema>> & { data: T };
+
 export const createApiPaginatedResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
 	z.object({
 		success: z.boolean().default(true).describe('Статус успешности запроса'),
@@ -17,6 +19,8 @@ export const createApiPaginatedResponseSchema = <T extends z.ZodTypeAny>(dataSch
 			totalPages: z.number().describe('Всего страниц')
 		})
 	});
+
+export type ApiPaginatedResponse<T> = z.infer<ReturnType<typeof createApiPaginatedResponseSchema>> & { data: T[] };
 
 export const apiErrorSchema = z.object({
 	success: z.literal(false).default(false).describe('Статус неуспешности запроса'),
@@ -34,3 +38,5 @@ export const apiErrorSchema = z.object({
 			.describe('Детализированный список ошибок (например, для валидации)')
 	})
 });
+
+export type ApiErrorResponse = z.infer<typeof apiErrorSchema>;
