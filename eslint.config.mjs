@@ -90,7 +90,8 @@ export default [
 			'**/jest.preset.js',
 			'**/webpack.config.js',
 			'**/drizzle.config.ts',
-			'eslint.config.mjs'
+			'eslint.config.mjs',
+			'apps/admin/**/hooks.ts'
 		],
 		rules: {
 			'@typescript-eslint/explicit-function-return-type': 'off',

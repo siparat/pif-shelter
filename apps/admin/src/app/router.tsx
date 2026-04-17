@@ -2,7 +2,7 @@ import { JSX, lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { Layout } from '../widgets/layout';
 import { ProtectedRoute } from './providers/ProtectedRoute';
-import { adminRoutes } from '../shared/config';
+import { adminRoutes, ROUTES } from '../shared/config';
 import { Loader2 } from 'lucide-react';
 
 const LoginPage = lazy(() => import('../pages/login/ui/LoginPage/LoginPage'));
@@ -18,15 +18,15 @@ const PageFallback = (): JSX.Element => (
 );
 
 const routeComponentByPath: Record<string, JSX.Element> = {
-	'/': <DashboardPage />,
-	'/animals': <AnimalsPage />,
-	'/guardianships': <GuardianshipsPage />,
-	'/meetings': <MeetingsPage />
+	[ROUTES.dashboard]: <DashboardPage />,
+	[ROUTES.animals]: <AnimalsPage />,
+	[ROUTES.guardianships]: <GuardianshipsPage />,
+	[ROUTES.meetings]: <MeetingsPage />
 };
 
 export const router = createBrowserRouter([
 	{
-		path: '/login',
+		path: ROUTES.login,
 		element: (
 			<Suspense fallback={<PageFallback />}>
 				<LoginPage />

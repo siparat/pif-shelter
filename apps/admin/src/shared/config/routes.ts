@@ -1,6 +1,6 @@
-import { type LucideIcon, LayoutDashboard, MessageSquare, PawPrint, Users } from 'lucide-react';
+import { type LucideIcon, LayoutDashboard, LogIn, MessageSquare, PawPrint, User, Users } from 'lucide-react';
 
-export type RouteKey = 'dashboard' | 'animals' | 'guardianships' | 'meetings';
+export type RouteKey = 'dashboard' | 'animals' | 'guardianships' | 'meetings' | 'user' | 'login';
 
 export interface MenuItem {
 	Icon: LucideIcon;
@@ -51,5 +51,31 @@ export const adminRoutes: AdminRoute[] = [
 		Icon: MessageSquare,
 		preload: () => import('../../pages/meetings/ui/MeetingsPage/MeetingsPage'),
 		showInMenu: true
+	},
+	{
+		key: 'user',
+		path: '/user/:id',
+		name: 'Пользователь',
+		shortName: 'Пользователь',
+		Icon: User,
+		preload: () => Promise.resolve(),
+		showInMenu: false
+	},
+	{
+		key: 'login',
+		path: '/login',
+		name: 'Вход',
+		shortName: 'Вход',
+		Icon: LogIn,
+		preload: () => import('../../pages/login/ui/LoginPage/LoginPage'),
+		showInMenu: false
 	}
 ];
+
+export const ROUTES = adminRoutes.reduce(
+	(acc, route) => {
+		acc[route.key] = route.path;
+		return acc;
+	},
+	{} as Record<RouteKey, string>
+);

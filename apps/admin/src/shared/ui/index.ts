@@ -8,3 +8,4 @@ export * from './Pagination/Pagination';
 export * from './Select/Select';
 export * from './SectionPlaceholder/SectionPlaceholder';
 export * from './PageTitle/PageTitle';
+export * from './Badger/Badger';

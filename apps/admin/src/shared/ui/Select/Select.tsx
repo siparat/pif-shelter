@@ -2,19 +2,19 @@ import { ChevronDown } from 'lucide-react';
 import { JSX, SelectHTMLAttributes, useCallback, useEffect, useId, useRef, useState } from 'react';
 import { cn } from '../../lib';
 
-export interface ISelectOption<T extends string = string> {
+export interface ISelectOption<T extends string | number = string> {
 	value: T;
 	label: string;
 }
 
-interface Props<T extends string> extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'children'> {
+interface Props<T extends string | number> extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'children'> {
 	label?: string;
 	error?: string;
 	options: ISelectOption<T>[];
 	placeholder?: string;
 }
 
-export const Select = <T extends string>({
+export const Select = <T extends string | number>({
 	label,
 	error,
 	options,
@@ -63,7 +63,7 @@ export const Select = <T extends string>({
 				onClick={() => setIsOpen((state) => !state)}
 				id={id}
 				className={cn(
-					'cursor-pointer w-full appearance-none bg-(--color-bg-primary) border rounded-xl py-3 px-4 text-(--color-text-primary) focus:outline-none transition-all',
+					'cursor-pointer w-full appearance-none bg-(--color-bg-primary) border rounded-xl py-3 px-4 pr-10 text-(--color-text-primary) focus:outline-none transition-all',
 					error ? 'border-red-400' : 'border-(--color-border) focus:border-(--color-brand-orange)',
 					className
 				)}>
