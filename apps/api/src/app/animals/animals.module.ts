@@ -27,6 +27,8 @@ import { DrizzleAnimalsRepository } from './repositories/drizzle-animals.reposit
 import { SetCostOfGuardianshipHandler } from './commands/set-cost-of-guardianship/set-cost-of-guardianship.handler';
 import { SetAnimalCuratorHandler } from './commands/set-animal-curator/set-animal-curator.handler';
 import { PaymentModule } from '@pif/payment';
+import { AnimalLabelDeletedHandler } from './events/animal-label-deleted/animal-label-deleted.handler';
+import { AnimalLabelCreatedHandler } from './events/animal-label-created/animal-label-created.handler';
 
 @Module({
 	imports: [CqrsModule, PaymentModule],
@@ -47,6 +49,8 @@ import { PaymentModule } from '@pif/payment';
 		SendEmailAboutCostGuardianshipHandler,
 		SetCostOfGuardianshipHandler,
 		SetAnimalCuratorHandler,
+		AnimalLabelDeletedHandler,
+		AnimalLabelCreatedHandler,
 
 		GetAnimalByIdHandler,
 		ListAnimalsHandler,

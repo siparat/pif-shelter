@@ -1,4 +1,11 @@
-import { AnimalGenderEnum, AnimalSpeciesEnum, AnimalStatusEnum, GuardianshipStatusEnum } from '@pif/shared';
+import {
+	AnimalCoatEnum,
+	AnimalGenderEnum,
+	AnimalSizeEnum,
+	AnimalSpeciesEnum,
+	AnimalStatusEnum,
+	GuardianshipStatusEnum
+} from '@pif/shared';
 import { z } from 'zod';
 
 export const animalLabelSchema = z
@@ -19,7 +26,17 @@ export const animalWithLabelsSchema = z
 		gender: z.enum(AnimalGenderEnum),
 		status: z.enum(AnimalStatusEnum),
 		species: z.enum(AnimalSpeciesEnum),
-		labels: z.array(animalLabelSchema).optional()
+		labels: z.array(animalLabelSchema).optional(),
+		birthDate: z.iso.date(),
+		size: z.enum(AnimalSizeEnum),
+		coat: z.enum(AnimalCoatEnum),
+		color: z.string(),
+		tags: z.array(z.string()).nullable(),
+		isSterilized: z.boolean(),
+		isVaccinated: z.boolean(),
+		isParasiteTreated: z.boolean(),
+		costOfGuardianship: z.number().nullable(),
+		curatorId: z.string().nullable()
 	})
 	.loose();
 
