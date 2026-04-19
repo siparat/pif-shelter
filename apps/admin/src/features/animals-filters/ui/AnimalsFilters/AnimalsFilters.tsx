@@ -229,7 +229,8 @@ export const AnimalsFilters = ({ initialValues, isLoading, onApply, onReset }: P
 			<div className="flex flex-col md:flex-row gap-3 md:justify-end">
 				<Button
 					type="button"
-					className="mt-0 md:w-auto px-6 py-2 bg-transparent text-(--color-text-primary) border border-(--color-border) shadow-none hover:bg-(--color-bg-primary)"
+					appearance="ghost"
+					className="mt-0 md:w-auto px-6 py-2"
 					onClick={() => {
 						onReset();
 						reset({});

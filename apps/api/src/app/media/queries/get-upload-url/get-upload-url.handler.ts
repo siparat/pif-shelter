@@ -1,5 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import {
+	ALLOW_IMAGE_EXT,
 	DEFAULT_IMAGE_MAX_BYTES,
 	IMAGE_MIME_TYPES,
 	PRESIGNED_EXPIRES_SECONDS,
@@ -19,7 +20,8 @@ export class GetUploadUrlHandler implements IQueryHandler<GetUploadUrlQuery> {
 		dto: { ext, type, space }
 	}: GetUploadUrlQuery): Promise<ReturnData<typeof GetUploadUrlResponseDto>> {
 		const key = `${space}/${randomUUID()}.${ext}`;
-		const contentType = type === 'image' ? IMAGE_MIME_TYPES[ext] : VIDEO_MIME_TYPES[ext];
+		const contentType =
+			type === 'image' ? IMAGE_MIME_TYPES[ext as (typeof ALLOW_IMAGE_EXT)[number]] : VIDEO_MIME_TYPES[ext];
 		const maxSize = UPLOAD_MAX_BYTES[space][type] ?? DEFAULT_IMAGE_MAX_BYTES;
 		const expires = PRESIGNED_EXPIRES_SECONDS[type];
 

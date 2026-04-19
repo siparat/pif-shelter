@@ -1,9 +1,9 @@
-import { getUploadUrlRequestSchema, getUploadUrlResponseSchema } from '@pif/contracts';
+import { ApiSuccessResponse, getUploadUrlRequestSchema, getUploadUrlResponseSchema } from '@pif/contracts';
 import { z } from 'zod';
 import { api } from '../../../shared/api';
 
 export type GetUploadUrlRequest = z.input<typeof getUploadUrlRequestSchema>;
-export type GetUploadUrlResponse = z.infer<typeof getUploadUrlResponseSchema>['data'];
+export type GetUploadUrlResponse = ApiSuccessResponse<z.infer<typeof getUploadUrlResponseSchema>['data']>;
 
 export const getUploadUrl = async (payload: GetUploadUrlRequest): Promise<GetUploadUrlResponse> => {
 	const searchParams = Object.fromEntries(Object.entries(payload).map(([key, value]) => [key, String(value)]));
@@ -13,12 +13,12 @@ export const getUploadUrl = async (payload: GetUploadUrlRequest): Promise<GetUpl
 export const uploadFileToS3 = async (uploadData: GetUploadUrlResponse, file: File): Promise<void> => {
 	const formData = new FormData();
 
-	Object.entries(uploadData.fields).forEach(([key, value]) => {
+	Object.entries(uploadData.data.fields).forEach(([key, value]) => {
 		formData.append(key, value);
 	});
 	formData.append('file', file);
 
-	const response = await fetch(uploadData.url, {
+	const response = await fetch(uploadData.data.url, {
 		method: 'POST',
 		body: formData
 	});

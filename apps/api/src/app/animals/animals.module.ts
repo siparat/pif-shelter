@@ -12,9 +12,6 @@ import { UnassignAnimalLabelHandler } from './commands/unassign-animal-label/una
 import { UpdateAnimalLabelHandler } from './commands/update-animal-label/update-animal-label.handler';
 import { UpdateAnimalHandler } from './commands/update-animal/update-animal.handler';
 import { SendEmailAboutCostGuardianshipHandler } from './events/animal-cost-of-guardianship-set/send-email-about-cost-guardianship.handler';
-import { AnimalLabelAssignedHandler } from './events/animal-label-assigned/animal-label-assigned.handler';
-import { AnimalCuratorSetHandler } from './events/animal-curator-set/animal-curator-set.handler';
-import { AnimalLabelUnassignedHandler } from './events/animal-label-unassigned/animal-label-unassigned.handler';
 import { OnAnimalStatusAdoptedOrRainbowHandler } from './events/animal-status-changed/on-animal-status-adopted-or-rainbow.handler';
 import { GetAnimalByIdHandler } from './queries/get-animal-by-id/get-animal-by-id.handler';
 import { ListAnimalLabelsHandler } from './queries/list-animal-labels/list-animal-labels.handler';
@@ -29,9 +26,11 @@ import { SetAnimalCuratorHandler } from './commands/set-animal-curator/set-anima
 import { PaymentModule } from '@pif/payment';
 import { AnimalLabelDeletedHandler } from './events/animal-label-deleted/animal-label-deleted.handler';
 import { AnimalLabelCreatedHandler } from './events/animal-label-created/animal-label-created.handler';
+import { InvalidateAnimalsCacheHandler } from './events/invalidate-animals-cache.handler';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-	imports: [CqrsModule, PaymentModule],
+	imports: [CqrsModule, PaymentModule, UsersModule],
 	controllers: [AnimalLabelsController, AnimalsController],
 	exports: [AnimalsService],
 	providers: [
@@ -51,14 +50,11 @@ import { AnimalLabelCreatedHandler } from './events/animal-label-created/animal-
 		SetAnimalCuratorHandler,
 		AnimalLabelDeletedHandler,
 		AnimalLabelCreatedHandler,
+		InvalidateAnimalsCacheHandler,
 
 		GetAnimalByIdHandler,
 		ListAnimalsHandler,
 		ListAnimalLabelsHandler,
-
-		AnimalLabelAssignedHandler,
-		AnimalCuratorSetHandler,
-		AnimalLabelUnassignedHandler,
 		OnAnimalStatusAdoptedOrRainbowHandler,
 
 		{

@@ -8,7 +8,7 @@ export const s3ImageKeySchema = z
 	.refine(
 		(val) => {
 			const ext = val.split('.').pop()?.toLowerCase();
-			return ext && ALLOW_IMAGE_EXT.includes(ext);
+			return ext && ALLOW_IMAGE_EXT.includes(ext as (typeof ALLOW_IMAGE_EXT)[number]);
 		},
 		{
 			message: `Недопустимый формат файла. Разрешены: ${ALLOW_IMAGE_EXT.join(', ')}`

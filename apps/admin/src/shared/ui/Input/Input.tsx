@@ -7,9 +7,10 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
 	error?: string;
 	classNameBlock?: string;
 	Icon?: ForwardRefExoticComponent<Omit<LucideProps, 'ref'>>;
+	small?: boolean;
 }
 
-export const Input = ({ className, classNameBlock, Icon, type, error, label, ...props }: Props): JSX.Element => {
+export const Input = ({ className, classNameBlock, Icon, type, error, label, small, ...props }: Props): JSX.Element => {
 	const id = useId();
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -40,6 +41,7 @@ export const Input = ({ className, classNameBlock, Icon, type, error, label, ...
 					type={type == 'password' ? (showPassword ? 'text' : 'password') : type}
 					className={cn(
 						'w-full bg-(--color-bg-primary) border rounded-xl py-3 px-4 text-(--color-text-primary) focus:outline-none transition-all',
+						small && 'py-2.5 px-3 text-sm',
 						error ? 'border-red-400' : 'border-(--color-border) focus:border-(--color-brand-orange)',
 						Icon && 'pl-12',
 						className

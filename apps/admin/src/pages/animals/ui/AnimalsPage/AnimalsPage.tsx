@@ -5,6 +5,7 @@ import { AnimalItem, AnimalsTable, useAnimalLabels, useAnimalsList } from '../..
 import { useSession } from '../../../../entities/session/model/hooks';
 import { useVolunteers } from '../../../../entities/volunteer';
 import { LabelsCatalogManager } from '../../../../features/animal-actions';
+import { AnimalEditorModal } from '../../../../features/animal-editor';
 import { AnimalsFilters } from '../../../../features/animals-filters';
 import { Button, EmptyState, ErrorState, PageTitle, Pagination, Select } from '../../../../shared/ui';
 import { useAnimalsPageFilters } from '../../model/use-animals-page-filters';
@@ -97,6 +98,26 @@ export const AnimalsPage = (): JSX.Element => {
 			/>
 
 			{isManager && <LabelsCatalogManager />}
+
+			{isCreateOpen && (
+				<AnimalEditorModal
+					mode="create"
+					animal={null}
+					labels={availableLabels}
+					volunteers={availableVolunteers}
+					onClose={() => setIsCreateOpen(false)}
+				/>
+			)}
+
+			{editingAnimal && (
+				<AnimalEditorModal
+					mode="edit"
+					animal={editingAnimal}
+					labels={availableLabels}
+					volunteers={availableVolunteers}
+					onClose={() => setEditingAnimal(null)}
+				/>
+			)}
 		</div>
 	);
 };

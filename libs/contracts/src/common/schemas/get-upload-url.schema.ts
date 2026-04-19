@@ -19,7 +19,10 @@ export const getUploadUrlRequestSchema = z
 		})
 	})
 	.refine(
-		(data) => (data.type === 'image' ? ALLOW_IMAGE_EXT.includes(data.ext) : ALLOW_VIDEO_EXT.includes(data.ext)),
+		(data) =>
+			data.type === 'image'
+				? ALLOW_IMAGE_EXT.includes(data.ext as (typeof ALLOW_IMAGE_EXT)[number])
+				: ALLOW_VIDEO_EXT.includes(data.ext),
 		{
 			message:
 				'Расширение файла не соответствует типу загрузки (image: ' +

@@ -12,6 +12,7 @@ interface Props<T extends string | number> extends Omit<SelectHTMLAttributes<HTM
 	error?: string;
 	options: ISelectOption<T>[];
 	placeholder?: string;
+	small?: boolean;
 }
 
 export const Select = <T extends string | number>({
@@ -20,6 +21,7 @@ export const Select = <T extends string | number>({
 	options,
 	className,
 	placeholder,
+	small,
 	...props
 }: Props<T>): JSX.Element => {
 	const id = useId();
@@ -64,6 +66,7 @@ export const Select = <T extends string | number>({
 				id={id}
 				className={cn(
 					'cursor-pointer w-full appearance-none bg-(--color-bg-primary) border rounded-xl py-3 px-4 pr-10 text-(--color-text-primary) focus:outline-none transition-all',
+					small && 'py-2.5 px-3 text-sm',
 					error ? 'border-red-400' : 'border-(--color-border) focus:border-(--color-brand-orange)',
 					className
 				)}>
@@ -74,7 +77,7 @@ export const Select = <T extends string | number>({
 					</option>
 				))}
 			</select>
-			<label htmlFor={id} className="absolute bottom-3 right-3 pointer-events-none">
+			<label htmlFor={id} className={cn('absolute bottom-3 right-3 pointer-events-none', small && 'bottom-2')}>
 				<ChevronDown className={cn('transition-transform', isOpen && 'rotate-180')} size={24} />
 			</label>
 			{error && <span className="text-xs text-red-400 px-1 font-medium">{error}</span>}

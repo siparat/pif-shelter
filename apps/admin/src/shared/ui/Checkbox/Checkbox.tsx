@@ -16,7 +16,10 @@ export const Checkbox = ({ label, description, className, ...props }: Props): JS
 			<input
 				{...props}
 				type="checkbox"
-				className="mt-1 h-4 w-4 cursor-pointer accent-(--color-brand-orange) rounded border-(--color-border)"
+				className={cn(
+					'mt-1 h-4 w-4 cursor-pointer accent-(--color-brand-orange) rounded border-(--color-border)',
+					!description && 'mt-0.5'
+				)}
 			/>
 			<span className="flex flex-col">
 				<span className="text-sm font-medium">{label}</span>

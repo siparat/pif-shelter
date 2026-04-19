@@ -9,3 +9,4 @@ export * from './Select/Select';
 export * from './SectionPlaceholder/SectionPlaceholder';
 export * from './PageTitle/PageTitle';
 export * from './Badger/Badger';
+export * from './Textarea/Textarea';
