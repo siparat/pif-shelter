@@ -1,5 +1,15 @@
 import { ChevronDown } from 'lucide-react';
-import { JSX, SelectHTMLAttributes, useCallback, useEffect, useId, useRef, useState } from 'react';
+import {
+	type Ref,
+	type RefObject,
+	JSX,
+	SelectHTMLAttributes,
+	useCallback,
+	useEffect,
+	useId,
+	useRef,
+	useState
+} from 'react';
 import { cn } from '../../lib';
 
 export interface ISelectOption<T extends string | number = string> {
@@ -7,7 +17,8 @@ export interface ISelectOption<T extends string | number = string> {
 	label: string;
 }
 
-interface Props<T extends string | number> extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'children'> {
+interface Props<T extends string | number> extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'children' | 'ref'> {
+	ref?: Ref<HTMLSelectElement>;
 	label?: string;
 	error?: string;
 	options: ISelectOption<T>[];
@@ -22,11 +33,28 @@ export const Select = <T extends string | number>({
 	className,
 	placeholder,
 	small,
-	...props
+	ref: refFromProps,
+	onClick: onClickFromProps,
+	...selectProps
 }: Props<T>): JSX.Element => {
 	const id = useId();
 	const [isOpen, setIsOpen] = useState<boolean>(false);
-	const trigger = useRef<HTMLSelectElement>(null);
+	const trigger = useRef<HTMLSelectElement | null>(null);
+
+	const mergedRef = useCallback(
+		(node: HTMLSelectElement | null) => {
+			trigger.current = node;
+			if (!refFromProps) {
+				return;
+			}
+			if (typeof refFromProps === 'function') {
+				refFromProps(node);
+				return;
+			}
+			(refFromProps as RefObject<HTMLSelectElement | null>).current = node;
+		},
+		[refFromProps]
+	);
 
 	const closeContext = useCallback(
 		(e: MouseEvent) => {
@@ -48,8 +76,8 @@ export const Select = <T extends string | number>({
 	);
 
 	useEffect(() => {
-		document.addEventListener('mousedown', closeContext);
-		return () => document.removeEventListener('mousedown', closeContext);
+		window.addEventListener('mousedown', closeContext);
+		return () => window.removeEventListener('mousedown', closeContext);
 	}, [closeContext]);
 
 	return (
@@ -60,9 +88,12 @@ export const Select = <T extends string | number>({
 				</label>
 			)}
 			<select
-				{...props}
-				ref={trigger}
-				onClick={() => setIsOpen((state) => !state)}
+				{...selectProps}
+				ref={mergedRef}
+				onClick={(event) => {
+					setIsOpen((state) => !state);
+					onClickFromProps?.(event);
+				}}
 				id={id}
 				className={cn(
 					'cursor-pointer w-full appearance-none bg-(--color-bg-primary) border rounded-xl py-3 px-4 pr-10 text-(--color-text-primary) focus:outline-none transition-all',
@@ -77,7 +108,13 @@ export const Select = <T extends string | number>({
 					</option>
 				))}
 			</select>
-			<label htmlFor={id} className={cn('absolute bottom-3 right-3 pointer-events-none', small && 'bottom-2')}>
+			<label
+				htmlFor={id}
+				className={cn(
+					'absolute top-10.5 right-3 pointer-events-none',
+					small && 'top-9.5',
+					!label && '-translate-y-7'
+				)}>
 				<ChevronDown className={cn('transition-transform', isOpen && 'rotate-180')} size={24} />
 			</label>
 			{error && <span className="text-xs text-red-400 px-1 font-medium">{error}</span>}

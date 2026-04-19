@@ -26,7 +26,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps): JSX.Element =
 				<div className="max-w-md w-full border border-red-400/20 bg-red-400/10 text-red-300 rounded-2xl p-6 text-center">
 					<p className="font-bold mb-2">Не удалось проверить сессию</p>
 					<p className="text-sm opacity-80 mb-4">Проверьте соединение и попробуйте снова</p>
-					<Button className="mt-0" onClick={() => void refetch()}>
+					<Button className="w-full mt-0" onClick={() => void refetch()}>
 						Повторить
 					</Button>
 				</div>

@@ -1,13 +1,12 @@
-import { listVolunteersResponseSchema } from '@pif/contracts';
 import { AnimalGenderNames, AnimalSpeciesNames, UserRole } from '@pif/shared';
 import dayjs from 'dayjs';
 import { HTMLAttributes, JSX, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import z from 'zod';
 import { ROUTES } from '../../../../shared/config';
 import { cn } from '../../../../shared/lib';
 import { Badger, Button } from '../../../../shared/ui';
 import { useSession } from '../../../session/model/hooks';
+import { useVolunteers } from '../../../volunteer';
 import { AnimalItem } from '../../model/types';
 import { AnimalAvatar } from '../AnimalAvatar/AnimalAvatar';
 import { AnimalStatusBadge } from '../AnimalStatusBadge/AnimalStatusBadge';
@@ -15,12 +14,12 @@ import { Characteristics } from './Characteristics';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
 	animals: AnimalItem[];
-	volunteers: z.infer<typeof listVolunteersResponseSchema>['data'];
 	setEditingAnimal: (animal: AnimalItem) => void;
 }
 
-export const AnimalsTable = ({ animals, setEditingAnimal, volunteers, className, ...props }: Props): JSX.Element => {
+export const AnimalsTable = ({ animals, setEditingAnimal, className, ...props }: Props): JSX.Element => {
 	const { data: session } = useSession();
+	const { data: volunteers = [] } = useVolunteers();
 
 	const canEdit = useMemo(() => {
 		if (!session?.user) {
@@ -59,7 +58,13 @@ export const AnimalsTable = ({ animals, setEditingAnimal, volunteers, className,
 							<tr key={animal.id} className="border-b border-(--color-border) last:border-0">
 								<td className="p-3">
 									<div className="flex items-center gap-3">
-										<AnimalAvatar animal={animal} width={52} height={52} rounded />
+										<AnimalAvatar
+											className="shrink-0"
+											animal={animal}
+											width={52}
+											height={52}
+											rounded
+										/>
 										<div>
 											<h4 className="font-semibold">{animal.name}</h4>
 											<div className="text-xs text-(--color-text-secondary)">

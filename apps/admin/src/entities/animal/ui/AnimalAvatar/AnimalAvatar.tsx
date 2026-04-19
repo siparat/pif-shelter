@@ -9,18 +9,9 @@ interface Props extends ImgHTMLAttributes<HTMLImageElement> {
 	width?: number;
 	height?: number;
 	rounded?: boolean;
-	fullUrl?: boolean;
 }
 
-export const AnimalAvatar = ({
-	animal,
-	className,
-	width = 52,
-	height = 52,
-	rounded,
-	fullUrl = false,
-	...props
-}: Props): JSX.Element => {
+export const AnimalAvatar = ({ animal, className, width = 52, height = 52, rounded, ...props }: Props): JSX.Element => {
 	if (animal.avatarUrl) {
 		return (
 			<div
@@ -29,7 +20,11 @@ export const AnimalAvatar = ({
 				<img
 					{...props}
 					loading="lazy"
-					src={!fullUrl ? getMediaUrl(animal.avatarUrl) : animal.avatarUrl}
+					src={
+						animal.avatarUrl.startsWith('http') || animal.avatarUrl.startsWith('blob:')
+							? animal.avatarUrl
+							: getMediaUrl(animal.avatarUrl)
+					}
 					alt={animal.name}
 					className={cn(className, `object-cover w-full h-full`)}
 				/>

@@ -73,8 +73,8 @@ export const AnimalsFilters = ({ initialValues, isLoading, onApply, onReset }: P
 		onApply(values);
 	};
 
-	const minAgeValue = watch('minAge', 0);
-	const maxAgeValue = watch('maxAge', 0);
+	const minAgeValue = watch('minAge', 0) || null;
+	const maxAgeValue = watch('maxAge', 0) || null;
 
 	return (
 		<form

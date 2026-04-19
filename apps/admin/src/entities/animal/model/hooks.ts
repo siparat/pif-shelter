@@ -44,7 +44,10 @@ export const useAnimalDetails = (id: string | null) =>
 export const useAnimalLabels = () =>
 	useQuery({
 		queryKey: animalsKeys.labels(),
-		queryFn: getAnimalLabels
+		queryFn: getAnimalLabels,
+		staleTime: 1000 * 60 * 5,
+		gcTime: 1000 * 60 * 10,
+		refetchOnWindowFocus: false
 	});
 
 const invalidateAnimals = async (queryClient: ReturnType<typeof useQueryClient>): Promise<void> => {

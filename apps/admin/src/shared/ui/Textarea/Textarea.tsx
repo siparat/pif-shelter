@@ -22,6 +22,7 @@ export const Textarea = ({ className, classNameBlock, error, label, ...props }: 
 				id={id}
 				className={cn(
 					'w-full rounded-xl border border-(--color-border) bg-(--color-bg-primary) py-2.5 px-3 text-sm',
+					error && 'border-red-400',
 					className
 				)}
 			/>

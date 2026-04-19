@@ -44,9 +44,6 @@ export const AnimalsPage = (): JSX.Element => {
 		}
 	}
 
-	const availableLabels = labelsQuery.data ?? [];
-	const availableVolunteers = volunteersQuery.data ?? [];
-
 	return (
 		<div className="space-y-6 pb-10">
 			<PageTitle title="Животные" subtitle="Управление карточками животных, статусами, кураторами и ярлыками.">
@@ -88,7 +85,7 @@ export const AnimalsPage = (): JSX.Element => {
 					onAction={resetFilters}
 				/>
 			) : (
-				<AnimalsTable volunteers={availableVolunteers} setEditingAnimal={setEditingAnimal} animals={animals} />
+				<AnimalsTable setEditingAnimal={setEditingAnimal} animals={animals} />
 			)}
 
 			<Pagination
@@ -99,24 +96,10 @@ export const AnimalsPage = (): JSX.Element => {
 
 			{isManager && <LabelsCatalogManager />}
 
-			{isCreateOpen && (
-				<AnimalEditorModal
-					mode="create"
-					animal={null}
-					labels={availableLabels}
-					volunteers={availableVolunteers}
-					onClose={() => setIsCreateOpen(false)}
-				/>
-			)}
+			{isCreateOpen && <AnimalEditorModal mode="create" animal={null} onClose={() => setIsCreateOpen(false)} />}
 
 			{editingAnimal && (
-				<AnimalEditorModal
-					mode="edit"
-					animal={editingAnimal}
-					labels={availableLabels}
-					volunteers={availableVolunteers}
-					onClose={() => setEditingAnimal(null)}
-				/>
+				<AnimalEditorModal mode="edit" animal={editingAnimal} onClose={() => setEditingAnimal(null)} />
 			)}
 		</div>
 	);
