@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { JSX } from 'react';
-import { Button } from '../../../../shared/ui';
+import { Button, PageTitle } from '../../../../shared/ui';
 import { getDashboardSummary } from '../../api/get-summary';
 import { AlertsBlock } from '../AlertsBlock/AlertsBlock';
 import { TasksBlock } from '../TasksBlock/TasksBlock';
@@ -38,10 +38,7 @@ export const DashboardPage = (): JSX.Element => {
 
 	return (
 		<div className="flex flex-col gap-8 pb-10">
-			<div className="flex flex-col gap-2">
-				<h1 className="text-3xl font-bold tracking-tight">Обзор</h1>
-				<p className="text-(--color-text-secondary)">Оперативная информация на сегодня</p>
-			</div>
+			<PageTitle title="Обзор" subtitle="Оперативная информация на сегодня" />
 
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 				<AlertsBlock sosCount={data.wishlist.sosCount} activeItemsCount={data.wishlist.activeItemsCount} />

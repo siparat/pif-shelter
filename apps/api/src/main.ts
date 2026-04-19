@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import { apiErrorSchema } from '@pif/contracts';
 import { AUTH_PREFIX } from '@pif/shared';
 import { AuthService } from '@thallesp/nestjs-better-auth';
 import dayjs from 'dayjs';
@@ -9,13 +10,11 @@ import duration from 'dayjs/plugin/duration';
 import utc from 'dayjs/plugin/utc';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { Logger } from 'nestjs-pino';
-import { ZodValidationPipe } from 'nestjs-zod';
+import { createZodDto, ZodValidationPipe } from 'nestjs-zod';
 import { AppModule } from './app/app.module';
 import type { AppAuth } from './app/configs/auth.config';
 import { handleBetterAuthRequest } from './app/core/auth/better-auth-fastify.handler';
 import { GlobalDeserializerInterceptor } from './app/core/interceptors/global-deserializer.interceptor';
-import { apiErrorSchema } from '@pif/contracts';
-import { createZodDto } from 'nestjs-zod';
 
 dayjs.locale('ru');
 dayjs.extend(utc);
@@ -30,7 +29,12 @@ async function bootstrap(): Promise<void> {
 
 	app.enableShutdownHooks();
 	app.useLogger(app.get(Logger));
-	app.enableCors({ origin: ['http://localhost:4200', 'http://localhost:5173'], credentials: true });
+	app.enableCors({
+		origin: ['http://localhost:4200', 'http://localhost:5173'],
+		credentials: true,
+		methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+		allowedHeaders: ['Content-Type', 'Authorization']
+	});
 
 	await app.register(require('@fastify/helmet'));
 

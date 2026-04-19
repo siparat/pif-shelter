@@ -11,7 +11,7 @@ export const createAnimalRequestSchema = z.object({
 		.describe('Имя питомца'),
 	species: z.enum(AnimalSpeciesEnum, 'Укажите вид питомца').describe('Вид животного'),
 	gender: z.enum(AnimalGenderEnum, 'Мальчик или девочка?').describe('Пол животного'),
-	birthDate: z.iso.date().describe('Дата рождения питомца в формате YYYY-MM-DD'),
+	birthDate: z.iso.date('Некорректная дата рождения').describe('Дата рождения питомца в формате YYYY-MM-DD'),
 	size: z.enum(AnimalSizeEnum, 'Неправильно указан размер питомца').describe('Размер питомца'),
 	coat: z.enum(AnimalCoatEnum, 'Неправильно указана шерсть питомца').describe('Тип шерсти'),
 	color: z

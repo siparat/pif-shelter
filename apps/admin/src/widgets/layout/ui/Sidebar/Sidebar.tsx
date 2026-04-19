@@ -2,8 +2,8 @@ import { JSX } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { MENU } from '../../../../shared/config';
 import { cn } from '../../../../shared/lib';
+import { Logo } from '../Logo/Logo';
 import { LogoutButton } from './LogoutButton';
-import { SidebarLogo } from './SidebarLogo';
 
 export const Sidebar = (): JSX.Element => {
 	const location = useLocation();
@@ -11,7 +11,7 @@ export const Sidebar = (): JSX.Element => {
 	return (
 		<aside className="w-72 h-screen hidden md:flex flex-col bg-(--color-bg-secondary) border-r border-(--color-border) sticky top-0">
 			<div className="p-8">
-				<SidebarLogo />
+				<Logo />
 			</div>
 
 			<div className="flex-1 p-6 flex flex-col gap-2">

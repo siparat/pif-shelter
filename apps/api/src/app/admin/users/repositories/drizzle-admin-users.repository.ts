@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService, Invitation, invitations } from '@pif/database';
-import { and, eq, gt, isNull } from 'drizzle-orm';
+import { DatabaseService, Invitation, invitations, users } from '@pif/database';
+import { UserRole } from '@pif/shared';
+import { and, eq, gt, inArray, isNull } from 'drizzle-orm';
 import { CreateInvitationRequestDto } from '../../../core/dto';
-import { AdminUsersRepository } from './admin-users.repository';
+import { AdminUsersRepository, VolunteerSummary } from './admin-users.repository';
 
 @Injectable()
 export class DrizzleAdminUsersRepository implements AdminUsersRepository {
@@ -64,5 +65,28 @@ export class DrizzleAdminUsersRepository implements AdminUsersRepository {
 
 			return newInvitation;
 		});
+	}
+
+	async listVolunteers(): Promise<VolunteerSummary[]> {
+		const volunteers = await this.db.client
+			.select({
+				id: users.id,
+				avatar: users.image,
+				name: users.name,
+				role: users.role,
+				position: users.position,
+				telegram: users.telegram,
+				telegramUnreachable: users.telegramUnreachable
+			})
+			.from(users)
+			.where(
+				and(
+					inArray(users.role, [UserRole.VOLUNTEER, UserRole.SENIOR_VOLUNTEER, UserRole.ADMIN]),
+					eq(users.banned, false),
+					isNull(users.deletedAt)
+				)
+			);
+
+		return volunteers;
 	}
 }

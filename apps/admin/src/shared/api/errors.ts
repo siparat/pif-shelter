@@ -16,13 +16,13 @@ export const getErrorMessage = async (error: unknown): Promise<string> => {
 	}
 
 	try {
-		const payload = await error.response.clone().json();
-		const parsed = apiErrorSchema.safeParse(payload);
+		const parsed = apiErrorSchema.safeParse(error.data);
 
 		if (parsed.success) {
 			return parsed.data.error.message;
 		}
 	} catch (parseError) {
+		console.error(parseError);
 		if (parseError instanceof Error) {
 			return error.message || DEFAULT_ERROR_MESSAGE;
 		}
