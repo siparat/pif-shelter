@@ -8,6 +8,7 @@ import { Loader2 } from 'lucide-react';
 const LoginPage = lazy(() => import('../pages/login/ui/LoginPage/LoginPage'));
 const DashboardPage = lazy(() => import('../pages/dashboard/ui/DashboardPage/DashboardPage'));
 const AnimalsPage = lazy(() => import('../pages/animals/ui/AnimalsPage/AnimalsPage'));
+const AnimalPage = lazy(() => import('../pages/animal/ui/AnimalPage/AnimalPage'));
 const GuardianshipsPage = lazy(() => import('../pages/guardianships/ui/GuardianshipsPage/GuardianshipsPage'));
 const MeetingsPage = lazy(() => import('../pages/meetings/ui/MeetingsPage/MeetingsPage'));
 
@@ -20,6 +21,7 @@ const PageFallback = (): JSX.Element => (
 const routeComponentByPath: Record<string, JSX.Element> = {
 	[ROUTES.dashboard]: <DashboardPage />,
 	[ROUTES.animals]: <AnimalsPage />,
+	[ROUTES.animalDetails]: <AnimalPage />,
 	[ROUTES.guardianships]: <GuardianshipsPage />,
 	[ROUTES.meetings]: <MeetingsPage />
 };

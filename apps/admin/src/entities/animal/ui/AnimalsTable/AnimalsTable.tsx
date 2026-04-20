@@ -58,15 +58,21 @@ export const AnimalsTable = ({ animals, setEditingAnimal, className, ...props }:
 							<tr key={animal.id} className="border-b border-(--color-border) last:border-0">
 								<td className="p-3">
 									<div className="flex items-center gap-3">
-										<AnimalAvatar
-											className="shrink-0"
-											animal={animal}
-											width={52}
-											height={52}
-											rounded
-										/>
+										<Link to={ROUTES.animalDetails.replace(':id', animal.id)}>
+											<AnimalAvatar
+												className="shrink-0"
+												animal={animal}
+												width={52}
+												height={52}
+												rounded
+											/>
+										</Link>
 										<div>
-											<h4 className="font-semibold">{animal.name}</h4>
+											<Link
+												to={ROUTES.animalDetails.replace(':id', animal.id)}
+												className="font-semibold hover:underline">
+												{animal.name}
+											</Link>
 											<div className="text-xs text-(--color-text-secondary)">
 												<span>{AnimalSpeciesNames[animal.species]}</span> ·{' '}
 												<span>{AnimalGenderNames[animal.gender]}</span> ·{' '}
@@ -133,9 +139,15 @@ export const AnimalsTable = ({ animals, setEditingAnimal, className, ...props }:
 						key={animal.id}
 						className="rounded-2xl border border-(--color-border) bg-(--color-bg-secondary) p-4 space-y-3">
 						<div className="flex items-start gap-3">
-							<AnimalAvatar animal={animal} width={74} height={74} rounded />
+							<Link to={ROUTES.animalDetails.replace(':id', animal.id)}>
+								<AnimalAvatar animal={animal} width={74} height={74} rounded />
+							</Link>
 							<div className="flex-1">
-								<p className="font-semibold">{animal.name}</p>
+								<Link
+									to={ROUTES.animalDetails.replace(':id', animal.id)}
+									className="font-semibold hover:underline">
+									{animal.name}
+								</Link>
 								<p className="text-xs text-(--color-text-secondary)">
 									{AnimalSpeciesNames[animal.species]} · {AnimalGenderNames[animal.gender]} ·{' '}
 									{dayjs().diff(dayjs(animal.birthDate), 'year') + ' г.'}
