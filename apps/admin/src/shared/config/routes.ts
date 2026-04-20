@@ -1,6 +1,14 @@
 import { type LucideIcon, LayoutDashboard, LogIn, MessageSquare, PawPrint, User, Users } from 'lucide-react';
 
-export type RouteKey = 'dashboard' | 'animals' | 'animalDetails' | 'guardianships' | 'meetings' | 'user' | 'login';
+export type RouteKey =
+	| 'dashboard'
+	| 'animals'
+	| 'animalDetails'
+	| 'animalEdit'
+	| 'guardianships'
+	| 'meetings'
+	| 'user'
+	| 'login';
 
 export interface MenuItem {
 	Icon: LucideIcon;
@@ -41,6 +49,15 @@ export const adminRoutes: AdminRoute[] = [
 		shortName: 'Карточка',
 		Icon: PawPrint,
 		preload: () => import('../../pages/animal/ui/AnimalPage/AnimalPage'),
+		showInMenu: false
+	},
+	{
+		key: 'animalEdit',
+		path: '/animals/:id/edit',
+		name: 'Редактирование животного',
+		shortName: 'Редактирование',
+		Icon: PawPrint,
+		preload: () => import('../../pages/animal-edit/ui/AnimalEditPage/AnimalEditPage'),
 		showInMenu: false
 	},
 	{
