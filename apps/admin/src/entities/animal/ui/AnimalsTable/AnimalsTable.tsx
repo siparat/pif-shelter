@@ -163,6 +163,7 @@ export const AnimalsTable = ({ animals, setEditingAnimal, className, ...props }:
 									: 'Не назначены'}
 							</p>
 						</div>
+						<Characteristics animal={animal} />
 						{canEdit(animal) && (
 							<Button type="button" className="mt-0 px-4 py-2" onClick={() => setEditingAnimal(animal)}>
 								Редактировать

@@ -15,6 +15,7 @@ import {
 	ChangeAnimalStatusResponseDto,
 	CreateAnimalRequestDto,
 	CreateAnimalResponseDto,
+	DeleteAnimalResponseDto,
 	GetAnimalByIdResponseDto,
 	ListAnimalsRequestDto,
 	ListAnimalsResponseDto,
@@ -30,6 +31,7 @@ import { RoleGuard } from '../core/guards/role.guard';
 import { AssignAnimalLabelCommand } from './commands/assign-animal-label/assign-animal-label.command';
 import { ChangeAnimalStatusCommand } from './commands/change-status/change-status.command';
 import { CreateAnimalCommand } from './commands/create-animal/create-animal.command';
+import { DeleteAnimalCommand } from './commands/delete-animal/delete-animal.command';
 import { SetAnimalCuratorCommand } from './commands/set-animal-curator/set-animal-curator.command';
 import { SetCostOfGuardianshipCommand } from './commands/set-cost-of-guardianship/set-cost-of-guardianship.command';
 import { UnassignAnimalLabelCommand } from './commands/unassign-animal-label/unassign-animal-label.command';
@@ -87,6 +89,16 @@ export class AnimalsController {
 	@Get(':id')
 	async getById(@Param('id', ParseUUIDPipe) id: string): Promise<AnimalDto> {
 		return this.queryBus.execute(new GetAnimalByIdQuery(id));
+	}
+
+	@ApiOperation({ summary: 'Удалить животное', description: 'Удаляет карточку животного по ID.' })
+	@ApiOkResponse({ description: 'Животное удалено', type: DeleteAnimalResponseDto })
+	@UseGuards(AuthGuard, RoleGuard)
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@Delete(':id')
+	async delete(@Param('id', ParseUUIDPipe) id: string): Promise<ReturnData<typeof DeleteAnimalResponseDto>> {
+		await this.commandBus.execute(new DeleteAnimalCommand(id));
+		return { id };
 	}
 
 	@ApiOperation({ summary: 'Обновление данных питомца', description: 'Обновляет данные питомца по ID.' })

@@ -25,6 +25,7 @@ import {
 	createAnimalLabelResponseSchema,
 	createAnimalRequestSchema,
 	createAnimalResponseSchema,
+	deleteAnimalResponseSchema,
 	createCampaignRequestSchema,
 	createCampaignResponseSchema,
 	createDonationSubscriptionRequestSchema,
@@ -147,6 +148,7 @@ export class CreateAnimalLabelRequestDto extends createZodDto(createAnimalLabelR
 export class CreateAnimalLabelResponseDto extends createZodDto(createAnimalLabelResponseSchema) {}
 export class CreateAnimalRequestDto extends createZodDto(createAnimalRequestSchema) {}
 export class CreateAnimalResponseDto extends createZodDto(createAnimalResponseSchema) {}
+export class DeleteAnimalResponseDto extends createZodDto(deleteAnimalResponseSchema) {}
 export class CreateCampaignRequestDto extends createZodDto(createCampaignRequestSchema) {}
 export class CreateCampaignResponseDto extends createZodDto(createCampaignResponseSchema) {}
 export class CreateDonationSubscriptionRequestDto extends createZodDto(createDonationSubscriptionRequestSchema) {}

@@ -3,6 +3,7 @@ import {
 	changeAnimalStatusResponseSchema,
 	createAnimalLabelResponseSchema,
 	createAnimalResponseSchema,
+	deleteAnimalResponseSchema,
 	getAnimalByIdResponseSchema,
 	listAnimalLabelsResponseSchema,
 	listAnimalsRequestSchema,
@@ -22,6 +23,7 @@ export type AnimalDetails = z.infer<typeof getAnimalByIdResponseSchema>['data'];
 export type AnimalLabel = z.infer<typeof listAnimalLabelsResponseSchema>['data'][number];
 
 export type CreateAnimalPayload = z.infer<typeof createAnimalResponseSchema>['data'];
+export type DeleteAnimalPayload = z.infer<typeof deleteAnimalResponseSchema>['data'];
 export type UpdateAnimalPayload = z.infer<typeof updateAnimalResponseSchema>['data'];
 export type ChangeAnimalStatusPayload = z.infer<typeof changeAnimalStatusResponseSchema>['data'];
 export type SetAnimalCuratorPayload = z.infer<typeof setAnimalCuratorResponseSchema>['data'];

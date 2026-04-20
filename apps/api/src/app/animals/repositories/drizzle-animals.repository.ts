@@ -50,6 +50,10 @@ export class DrizzleAnimalsRepository implements AnimalsRepository {
 		return updated.id;
 	}
 
+	async delete(id: string): Promise<void> {
+		await this.db.client.delete(animals).where(eq(animals.id, id));
+	}
+
 	async assignLabel(animalId: string, labelId: string): Promise<void> {
 		await this.db.client.insert(animalsToAnimalLabels).values({ animalId, labelId }).onConflictDoNothing();
 	}

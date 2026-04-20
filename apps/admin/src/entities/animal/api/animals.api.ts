@@ -3,6 +3,7 @@ import {
 	assignAnimalLabelRequestSchema,
 	changeAnimalStatusRequestSchema,
 	createAnimalRequestSchema,
+	deleteAnimalResponseSchema,
 	setAnimalCuratorRequestSchema,
 	setCostOfGuardianshipRequestSchema,
 	updateAnimalRequestSchema
@@ -17,6 +18,7 @@ import {
 	AssignAnimalLabelPayload,
 	ChangeAnimalStatusPayload,
 	CreateAnimalPayload,
+	DeleteAnimalPayload,
 	SetAnimalCuratorPayload,
 	SetCostOfGuardianshipPayload,
 	UpdateAnimalPayload
@@ -40,6 +42,10 @@ export const getAnimalById = async (id: string): Promise<AnimalDetails> => {
 export type CreateAnimalRequest = z.input<typeof createAnimalRequestSchema>;
 export const createAnimal = async (payload: CreateAnimalRequest): Promise<CreateAnimalPayload> => {
 	return (await api.post('animals', { json: payload }).json<ApiSuccessResponse<CreateAnimalPayload>>()).data;
+};
+
+export const deleteAnimal = async (id: string): Promise<DeleteAnimalPayload> => {
+	return (await api.delete(`animals/${id}`).json<z.infer<typeof deleteAnimalResponseSchema>>()).data;
 };
 
 export type UpdateAnimalRequest = z.input<typeof updateAnimalRequestSchema>;

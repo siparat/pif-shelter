@@ -14,6 +14,7 @@ import {
 	ChangeAnimalStatusRequest,
 	createAnimal,
 	CreateAnimalRequest,
+	deleteAnimal,
 	getAnimalById,
 	getAnimals,
 	setAnimalCurator,
@@ -25,7 +26,13 @@ import {
 	UpdateAnimalRequest
 } from '../api/animals.api';
 import { animalsKeys } from './query-keys';
-import { AnimalsListParams, CreateAnimalPayload, SetAnimalCuratorPayload, SetCostOfGuardianshipPayload } from './types';
+import {
+	AnimalsListParams,
+	CreateAnimalPayload,
+	DeleteAnimalPayload,
+	SetAnimalCuratorPayload,
+	SetCostOfGuardianshipPayload
+} from './types';
 
 export const useAnimalsList = (params: AnimalsListParams) =>
 	useQuery({
@@ -69,6 +76,14 @@ export const useUpdateAnimalMutation = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: ({ id, payload }: { id: string; payload: UpdateAnimalRequest }) => updateAnimal(id, payload),
+		onSuccess: () => invalidateAnimals(queryClient)
+	});
+};
+
+export const useDeleteAnimalMutation = () => {
+	const queryClient = useQueryClient();
+	return useMutation<DeleteAnimalPayload, Error, string>({
+		mutationFn: (id: string) => deleteAnimal(id),
 		onSuccess: () => invalidateAnimals(queryClient)
 	});
 };

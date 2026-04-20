@@ -7,6 +7,7 @@ import { AssignAnimalLabelHandler } from './commands/assign-animal-label/assign-
 import { ChangeAnimalStatusHandler } from './commands/change-status/change-status.handler';
 import { CreateAnimalLabelHandler } from './commands/create-animal-label/create-animal-label.handler';
 import { CreateAnimalHandler } from './commands/create-animal/create-animal.handler';
+import { DeleteAnimalHandler } from './commands/delete-animal/delete-animal.handler';
 import { DeleteAnimalLabelHandler } from './commands/delete-animal-label/delete-animal-label.handler';
 import { UnassignAnimalLabelHandler } from './commands/unassign-animal-label/unassign-animal-label.handler';
 import { UpdateAnimalLabelHandler } from './commands/update-animal-label/update-animal-label.handler';
@@ -38,6 +39,7 @@ import { UsersModule } from '../users/users.module';
 		CanEditAnimalPolicy,
 
 		CreateAnimalHandler,
+		DeleteAnimalHandler,
 		UpdateAnimalHandler,
 		ChangeAnimalStatusHandler,
 		CreateAnimalLabelHandler,

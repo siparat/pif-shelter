@@ -6,7 +6,8 @@ import {
 	AnimalGenderEnum,
 	AnimalSizeEnum,
 	AnimalSpeciesEnum,
-	IMAGE_MIME_TYPES
+	IMAGE_MIME_TYPES,
+	UserRole
 } from '@pif/shared';
 import { Loader2 } from 'lucide-react';
 import { JSX, useEffect, useMemo, useRef } from 'react';
@@ -19,12 +20,14 @@ import {
 	useAssignAnimalLabelMutation,
 	useChangeAnimalStatusMutation,
 	useCreateAnimalMutation,
+	useDeleteAnimalMutation,
 	useSetAnimalCuratorMutation,
 	useSetCostOfGuardianshipMutation,
 	useUnassignAnimalLabelMutation,
 	useUpdateAnimalMutation
 } from '../../../../entities/animal';
 import { getUploadUrl, uploadFileToS3 } from '../../../../entities/animal/api/media.api';
+import { useSession } from '../../../../entities/session/model/hooks';
 import { getErrorMessage } from '../../../../shared/api';
 import { getMediaUrl } from '../../../../shared/lib';
 import { Button, Checkbox, ErrorState, Modal } from '../../../../shared/ui';
@@ -78,11 +81,14 @@ const buildEditAnimalEditorValues = (source: AnimalDetails): AnimalEditorValues 
 export const AnimalEditorModal = ({ mode, animal, onClose }: Props): JSX.Element => {
 	const createMutation = useCreateAnimalMutation();
 	const updateMutation = useUpdateAnimalMutation();
+	const deleteMutation = useDeleteAnimalMutation();
 	const statusMutation = useChangeAnimalStatusMutation();
 	const curatorMutation = useSetAnimalCuratorMutation();
 	const costMutation = useSetCostOfGuardianshipMutation();
 	const assignLabelMutation = useAssignAnimalLabelMutation();
 	const unassignLabelMutation = useUnassignAnimalLabelMutation();
+	const { data: session } = useSession();
+	const canDeleteAnimal = session?.user.role === UserRole.ADMIN || session?.user.role === UserRole.SENIOR_VOLUNTEER;
 
 	const animalId = mode === 'edit' && animal ? animal.id : null;
 	const {
@@ -158,6 +164,7 @@ export const AnimalEditorModal = ({ mode, animal, onClose }: Props): JSX.Element
 		isUploading ||
 		createMutation.isPending ||
 		updateMutation.isPending ||
+		deleteMutation.isPending ||
 		statusMutation.isPending ||
 		curatorMutation.isPending ||
 		costMutation.isPending;
@@ -273,6 +280,25 @@ export const AnimalEditorModal = ({ mode, animal, onClose }: Props): JSX.Element
 		}
 	};
 
+	const handleDelete = async (): Promise<void> => {
+		if (mode !== 'edit' || !detailAnimal) {
+			return;
+		}
+		const isConfirmed = window.confirm(`Удалить животное "${detailAnimal.name}"? Действие нельзя отменить.`);
+		if (!isConfirmed) {
+			return;
+		}
+
+		try {
+			await deleteMutation.mutateAsync(detailAnimal.id);
+			toast.success('Животное удалено');
+			onClose();
+		} catch (error) {
+			const message = await getErrorMessage(error);
+			toast.error(message);
+		}
+	};
+
 	const showDetailLoader = mode === 'edit' && Boolean(animal) && !detailAnimal && isDetailPending;
 	const showDetailError = mode === 'edit' && Boolean(animal) && !detailAnimal && isDetailError;
 	const showForm = mode === 'create' || Boolean(detailAnimal);
@@ -334,6 +360,16 @@ export const AnimalEditorModal = ({ mode, animal, onClose }: Props): JSX.Element
 						/>
 					)}
 					<div className="flex flex-col md:flex-row justify-end gap-3">
+						{mode === 'edit' && canDeleteAnimal && (
+							<Button
+								type="button"
+								appearance="red"
+								className="mt-0 md:w-auto px-6 py-2 md:mr-auto"
+								onClick={() => void handleDelete()}
+								isLoading={deleteMutation.isPending}>
+								Удалить
+							</Button>
+						)}
 						<Button type="button" appearance="ghost" className="mt-0 md:w-auto px-6 py-2" onClick={onClose}>
 							Отменить
 						</Button>

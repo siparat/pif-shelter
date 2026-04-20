@@ -5,6 +5,8 @@ import {
 	AnimalCoatNames,
 	AnimalGenderEnum,
 	AnimalGenderNames,
+	AnimalSizeEnum,
+	AnimalSizeNames,
 	AnimalSpeciesEnum,
 	AnimalSpeciesNames,
 	AnimalStatusEnum,
@@ -19,9 +21,11 @@ import { Button, Checkbox, Input, Select } from '../../../../shared/ui';
 
 const animalsFiltersSchema = listAnimalsRequestSchema.pick({
 	q: true,
+	sort: true,
 	status: true,
 	species: true,
 	gender: true,
+	size: true,
 	coat: true,
 	isSterilized: true,
 	isVaccinated: true,
@@ -54,10 +58,24 @@ const GENDER_OPTIONS = Object.values(AnimalGenderEnum).map((value) => ({
 	label: AnimalGenderNames[value]
 }));
 
+const SIZE_OPTIONS = Object.values(AnimalSizeEnum).map((value) => ({
+	value,
+	label: AnimalSizeNames[value][AnimalGenderEnum.MALE]
+}));
+
 const COAT_OPTIONS = Object.values(AnimalCoatEnum).map((value) => ({
 	value,
 	label: AnimalCoatNames[value]
 }));
+
+const SORT_OPTIONS = [
+	{ value: 'createdAt:desc', label: 'Сначала новые' },
+	{ value: 'createdAt:asc', label: 'Сначала старые' },
+	{ value: 'birthDate:desc', label: 'Сначала младше' },
+	{ value: 'birthDate:asc', label: 'Сначала старше' },
+	{ value: 'name:asc', label: 'Имя А-Я' },
+	{ value: 'name:desc', label: 'Имя Я-А' }
+];
 
 export const AnimalsFilters = ({ initialValues, isLoading, onApply, onReset }: Props): JSX.Element => {
 	const { handleSubmit, reset, control, watch } = useForm<AnimalsFiltersFormValues>({
@@ -70,11 +88,16 @@ export const AnimalsFilters = ({ initialValues, isLoading, onApply, onReset }: P
 	}, [initialValues, reset]);
 
 	const onSubmit = (values: AnimalsFiltersFormValues): void => {
+		if (isInvalidAgeRange) {
+			return;
+		}
 		onApply(values);
 	};
 
 	const minAgeValue = watch('minAge', 0) || null;
 	const maxAgeValue = watch('maxAge', 0) || null;
+	const isInvalidAgeRange =
+		typeof minAgeValue == 'number' && typeof maxAgeValue == 'number' && minAgeValue > maxAgeValue;
 
 	return (
 		<form
@@ -140,6 +163,19 @@ export const AnimalsFilters = ({ initialValues, isLoading, onApply, onReset }: P
 
 				<Controller
 					control={control}
+					name="sort"
+					render={({ field: { value, ...field } }) => (
+						<Select
+							{...field}
+							value={value ?? 'createdAt:desc'}
+							label="Сортировка"
+							options={SORT_OPTIONS}
+						/>
+					)}
+				/>
+
+				<Controller
+					control={control}
 					name="coat"
 					render={({ field: { value, ...field } }) => (
 						<Select
@@ -148,6 +184,19 @@ export const AnimalsFilters = ({ initialValues, isLoading, onApply, onReset }: P
 							placeholder="Любая шерсть"
 							label="Шерсть"
 							options={COAT_OPTIONS}
+						/>
+					)}
+				/>
+				<Controller
+					control={control}
+					name="size"
+					render={({ field: { value, ...field } }) => (
+						<Select
+							{...field}
+							value={value ?? ''}
+							placeholder="Любой размер"
+							label="Размер"
+							options={SIZE_OPTIONS}
 						/>
 					)}
 				/>
@@ -222,7 +271,7 @@ export const AnimalsFilters = ({ initialValues, isLoading, onApply, onReset }: P
 				/>
 			</div>
 
-			{typeof minAgeValue == 'number' && typeof maxAgeValue == 'number' && minAgeValue > maxAgeValue && (
+			{isInvalidAgeRange && (
 				<p className="text-sm text-red-500">Минимальный возраст не может быть больше максимального.</p>
 			)}
 
@@ -237,7 +286,7 @@ export const AnimalsFilters = ({ initialValues, isLoading, onApply, onReset }: P
 					}}>
 					Сбросить
 				</Button>
-				<Button type="submit" className="mt-0 md:w-auto px-6 py-2" disabled={isLoading}>
+				<Button type="submit" className="mt-0 md:w-auto px-6 py-2" disabled={isLoading || isInvalidAgeRange}>
 					Применить
 				</Button>
 			</div>
