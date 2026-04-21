@@ -247,7 +247,7 @@ export const AnimalEditPage = (): JSX.Element => {
 			]);
 
 			toast.success('Изменения сохранены');
-			await refetchDetail();
+			navigate(ROUTES.animalDetails.replace(':id', detailAnimal.id));
 		} catch (error) {
 			const message = await getErrorMessage(error);
 			toast.error(message);

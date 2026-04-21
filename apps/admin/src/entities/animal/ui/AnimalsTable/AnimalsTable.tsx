@@ -1,10 +1,9 @@
-import { AnimalGenderNames, AnimalSpeciesNames, UserRole } from '@pif/shared';
-import dayjs from 'dayjs';
+import { AnimalGenderNames, AnimalSpeciesNames, getAgeAtNow, UserRole } from '@pif/shared';
 import { HTMLAttributes, JSX, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../../../../shared/config';
 import { cn } from '../../../../shared/lib';
-import { Badger, Button } from '../../../../shared/ui';
+import { Badge, Button } from '../../../../shared/ui';
 import { useSession } from '../../../session/model/hooks';
 import { useVolunteers } from '../../../volunteer';
 import { AnimalItem } from '../../model/types';
@@ -76,7 +75,7 @@ export const AnimalsTable = ({ animals, setEditingAnimal, className, ...props }:
 											<div className="text-xs text-(--color-text-secondary)">
 												<span>{AnimalSpeciesNames[animal.species]}</span> ·{' '}
 												<span>{AnimalGenderNames[animal.gender]}</span> ·{' '}
-												<span>{dayjs().diff(dayjs(animal.birthDate), 'year') + ' г.'}</span>
+												<span>{getAgeAtNow(animal.birthDate).years + ' г.'}</span>
 											</div>
 										</div>
 									</div>
@@ -94,9 +93,9 @@ export const AnimalsTable = ({ animals, setEditingAnimal, className, ...props }:
 									<div className="flex flex-wrap gap-1 max-w-md">
 										{animal.labels?.length ? (
 											animal.labels.map((label) => (
-												<Badger color={label.color} key={label.id}>
+												<Badge color={label.color} key={label.id}>
 													{label.name}
-												</Badger>
+												</Badge>
 											))
 										) : (
 											<span className="text-(--color-text-secondary)">—</span>
@@ -150,7 +149,7 @@ export const AnimalsTable = ({ animals, setEditingAnimal, className, ...props }:
 								</Link>
 								<p className="text-xs text-(--color-text-secondary)">
 									{AnimalSpeciesNames[animal.species]} · {AnimalGenderNames[animal.gender]} ·{' '}
-									{dayjs().diff(dayjs(animal.birthDate), 'year') + ' г.'}
+									{getAgeAtNow(animal.birthDate).years + ' г.'}
 								</p>
 								<AnimalStatusBadge className="mt-2 inline-block" status={animal.status} />
 							</div>

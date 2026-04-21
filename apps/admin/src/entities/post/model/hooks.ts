@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
-import { getPostById, getPosts } from '../api/posts.api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createPost, getPostById, getPosts } from '../api/posts.api';
 import { postsKeys } from './query-keys';
-import { PostsListParams } from './types';
+import { CreatePostPayload, PostsListParams } from './types';
 
 export const usePostsList = (params: PostsListParams) =>
 	useQuery({
@@ -42,3 +42,14 @@ export const usePostDetails = (id: string | null) =>
 		queryFn: () => getPostById(id as string),
 		enabled: Boolean(id)
 	});
+
+export const useCreatePostMutation = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (payload: CreatePostPayload) => createPost(payload),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: postsKeys.all });
+		}
+	});
+};

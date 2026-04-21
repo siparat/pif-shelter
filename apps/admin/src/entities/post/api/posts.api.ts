@@ -1,6 +1,6 @@
 import { ApiSuccessResponse } from '@pif/contracts';
 import { api } from '../../../shared/api';
-import { PostDetails, PostsListData, PostsListParams } from '../model/types';
+import { CreatePostPayload, CreatePostResponseData, PostDetails, PostsListData, PostsListParams } from '../model/types';
 
 const buildSearchParams = (params: PostsListParams): Record<string, string> => {
 	const rawEntries = Object.entries(params).filter(
@@ -15,4 +15,9 @@ export const getPosts = async (params: PostsListParams): Promise<PostsListData> 
 
 export const getPostById = async (id: string): Promise<PostDetails> => {
 	return (await api.get(`posts/${id}`).json<ApiSuccessResponse<PostDetails>>()).data;
+};
+
+export const createPost = async (payload: CreatePostPayload): Promise<CreatePostResponseData> => {
+	const response = await api.post('posts', { json: payload }).json<ApiSuccessResponse<CreatePostResponseData>>();
+	return response.data;
 };

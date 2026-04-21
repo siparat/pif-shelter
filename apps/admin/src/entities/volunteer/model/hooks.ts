@@ -5,12 +5,13 @@ import { getVolunteers } from '../api/volunteers.api';
 
 export type VolunteerOption = z.infer<typeof volunteerSummarySchema>;
 
-export const useVolunteers = (): UseQueryResult<VolunteerOption[], Error> => {
+export const useVolunteers = (options?: { enabled?: boolean }): UseQueryResult<VolunteerOption[], Error> => {
 	return useQuery({
 		queryKey: ['volunteers'],
 		queryFn: getVolunteers,
 		staleTime: 1000 * 60 * 5,
 		gcTime: 1000 * 60 * 10,
-		refetchOnWindowFocus: false
+		refetchOnWindowFocus: false,
+		enabled: options?.enabled ?? true
 	});
 };

@@ -1,12 +1,16 @@
 import dayjs from 'dayjs';
+import { Plus } from 'lucide-react';
 import { JSX } from 'react';
+import { Link } from 'react-router-dom';
+import { ROUTES } from '../../../../shared/config';
 import { useAnimalPosts } from '../../model/hooks';
 
 interface Props {
 	animalId: string;
+	canCreate?: boolean;
 }
 
-export const AnimalPostsBlock = ({ animalId }: Props): JSX.Element => {
+export const AnimalPostsBlock = ({ animalId, canCreate = false }: Props): JSX.Element => {
 	const { data, isLoading, isError, error } = useAnimalPosts(animalId);
 	const posts = data?.data ?? [];
 	const total = data?.meta.total ?? 0;
@@ -15,13 +19,14 @@ export const AnimalPostsBlock = ({ animalId }: Props): JSX.Element => {
 		<div className="rounded-2xl border border-(--color-border) bg-(--color-bg-secondary) p-4 md:p-6 space-y-4">
 			<div className="flex items-center justify-between gap-3">
 				<h2 className="text-xl font-semibold">Посты ({total})</h2>
-				<button
-					type="button"
-					className="rounded-xl border border-(--color-border) px-4 py-2 text-sm text-(--color-text-secondary) cursor-not-allowed opacity-70"
-					disabled
-					title="Страница создания поста будет добавлена в следующей итерации">
-					Создать пост
-				</button>
+				{canCreate && (
+					<Link
+						to={ROUTES.postCreate.replace(':id', animalId)}
+						className="inline-flex items-center gap-2 rounded-xl bg-(--color-brand-orange) hover:bg-(--color-brand-orange)-hover text-white px-4 py-2 text-sm font-semibold transition-colors">
+						<Plus size={16} />
+						Создать пост
+					</Link>
+				)}
 			</div>
 
 			{isLoading && <p className="text-(--color-text-secondary)">Загрузка постов...</p>}
