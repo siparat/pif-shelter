@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { createApiPaginatedResponseSchema } from '../../common/base.responses';
 import { paginationSchema } from '../../common/schemas/pagination.schema';
-import { postResponseSchema } from './get-post.query';
+import { postListItemResponseSchema } from './get-post.query';
 
 export const listPostsRequestSchema = paginationSchema
 	.extend({
@@ -14,6 +14,6 @@ export const listPostsRequestSchema = paginationSchema
 		path: ['fromDate']
 	});
 
-export const listPostsResponseSchema = createApiPaginatedResponseSchema(postResponseSchema);
+export const listPostsResponseSchema = createApiPaginatedResponseSchema(postListItemResponseSchema);
 
 export type ListPostsResult = Omit<z.infer<typeof listPostsResponseSchema>, 'success'>;

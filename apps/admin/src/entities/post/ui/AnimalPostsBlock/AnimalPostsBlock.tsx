@@ -47,7 +47,9 @@ export const AnimalPostsBlock = ({ animalId, canCreate = false }: Props): JSX.El
 									{dayjs(post.createdAt).format('DD.MM.YYYY HH:mm')}
 								</span>
 							</div>
-							<p className="text-sm text-(--color-text-secondary) line-clamp-2">{post.body}</p>
+							{post.media.length > 0 && (
+								<p className="text-sm text-(--color-text-secondary)">Вложений: {post.media.length}</p>
+							)}
 							<p className="text-xs text-(--color-text-secondary)">
 								Видимость: {post.visibility === 'PUBLIC' ? 'Публичный' : 'Приватный'}
 							</p>

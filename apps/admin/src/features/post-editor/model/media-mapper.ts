@@ -1,5 +1,4 @@
-import { EditorMediaDraft } from '../ui/PostMediaGallery/PostMediaGallery';
-import { PostEditorInitialMediaDraft, PostEditorMediaItem } from './types';
+import { EditorMediaDraft, PostEditorInitialMediaDraft, PostEditorMediaItem } from './types';
 
 export const toMediaDraft = (item: PostEditorInitialMediaDraft, order: number): EditorMediaDraft => ({
 	localId: Math.random().toString(36).slice(2),

@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { MaxPostMediaItems, PostVisibilityEnum } from '@pif/shared';
 import { JSX, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import z from 'zod';
 import { CreatePostPayload } from '../../../../entities/post';
 import { Button, Input, Select } from '../../../../shared/ui';
 import { sanitizeEditorHtml } from '../../lib/sanitize';
@@ -11,10 +10,12 @@ import {
 	buildEmptyPostEditorValues,
 	EditorMediaDraft,
 	postEditorFormSchema,
+	PostEditorFormFieldValues,
 	PostEditorInitialMediaDraft,
 	PostEditorValues
 } from '../../model/types';
 import { PostMediaGallery } from '../PostMediaGallery/PostMediaGallery';
+import { RichTextEditor } from '../RichTextEditor/RichTextEditor';
 
 interface Props {
 	animalId: string;
@@ -56,7 +57,7 @@ export const PostEditor = ({
 		control,
 		setValue,
 		formState: { errors, isSubmitting: isFormSubmitting }
-	} = useForm<z.input<typeof postEditorFormSchema>, any, z.output<typeof postEditorFormSchema>>({
+	} = useForm<PostEditorFormFieldValues, undefined, PostEditorValues>({
 		resolver: zodResolver(postEditorFormSchema),
 		defaultValues: {
 			...buildEmptyPostEditorValues(),
@@ -92,7 +93,7 @@ export const PostEditor = ({
 		<form
 			onSubmit={submit}
 			noValidate
-			className="space-y-6 rounded-2xl border border-(--color-border) bg-(--color-bg-secondary) p-4 md:p-6">
+			className="min-w-0 space-y-6 rounded-2xl border border-(--color-border) bg-(--color-bg-secondary) p-4 md:p-6">
 			<Input
 				{...register('title')}
 				label="Заголовок"
@@ -100,6 +101,21 @@ export const PostEditor = ({
 				error={errors.title?.message}
 				maxLength={200}
 				disabled={isBusy}
+			/>
+
+			<Controller
+				name="body"
+				control={control}
+				render={({ field }) => (
+					<RichTextEditor
+						label="Текст поста"
+						value={field.value ?? ''}
+						onChange={field.onChange}
+						placeholder="Расскажите новости об этом животном..."
+						error={errors.body?.message}
+						disabled={isBusy}
+					/>
+				)}
 			/>
 
 			<Controller

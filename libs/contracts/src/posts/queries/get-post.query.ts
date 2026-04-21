@@ -31,4 +31,6 @@ export const postResponseSchema = z.object({
 	updatedAt: z.string()
 });
 
+export const postListItemResponseSchema = postResponseSchema.omit({ body: true });
+
 export const getPostResponseSchema = createApiSuccessResponseSchema(postResponseSchema);

@@ -10,7 +10,8 @@ export const postEditorFormSchema = createPostRequestSchema.pick({
 });
 
 export type PostEditorMediaItem = z.infer<typeof postMediaItemSchema>;
-export type PostEditorValues = z.infer<typeof postEditorFormSchema>;
+export type PostEditorValues = z.output<typeof postEditorFormSchema>;
+export type PostEditorFormFieldValues = z.input<typeof postEditorFormSchema>;
 
 export const buildEmptyPostEditorValues = (): PostEditorValues => ({
 	title: '',

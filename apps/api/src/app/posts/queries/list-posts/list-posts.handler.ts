@@ -4,7 +4,7 @@ import { ListPostsResult } from '@pif/contracts';
 import { DatabaseService, getSortOrder, guardianshipPortalAccessWhere, guardianships, posts } from '@pif/database';
 import { PostCacheKeys, PostVisibilityEnum, STAFF_ROLES, UserRole } from '@pif/shared';
 import { and, count, eq } from 'drizzle-orm';
-import { PostMapper, PostResponseDto } from '../../mappers/post.mapper';
+import { PostListItemResponseDto, PostMapper } from '../../mappers/post.mapper';
 import { PostReactionsRepository } from '../../repositories/post-reactions.repository';
 import { ListPostsBuilder } from './list-posts.builder';
 import { ListPostsQuery } from './list-posts.query';
@@ -72,14 +72,19 @@ export class ListPostsHandler implements IQueryHandler<ListPostsQuery> {
 
 		const postIds = rows.map((r) => r.id);
 		const countsMap = await this.postReactionsRepository.getCountsByPostIds(postIds, visitorId);
-		const data = rows.map((row) => PostMapper.toResponse(row, countsMap.get(row.id) ?? []));
+		const data = rows.map((row) => PostMapper.toListItemResponse(row, countsMap.get(row.id) ?? []));
 		const total = totalResult.count;
 		const result = this.buildResult(data, total, page, perPage);
 		await this.cache.set(cacheKey, result).catch(() => undefined);
 		return result;
 	}
 
-	private buildResult(data: PostResponseDto[], total: number, page: number, perPage: number): ListPostsResult {
+	private buildResult(
+		data: PostListItemResponseDto[],
+		total: number,
+		page: number,
+		perPage: number
+	): ListPostsResult {
 		return {
 			data,
 			meta: {

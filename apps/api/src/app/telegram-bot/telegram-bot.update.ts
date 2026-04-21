@@ -19,6 +19,7 @@ import { AppUrlMapper } from '../core/mappers/app-url.mapper';
 import { CancelGuardianshipAsGuardianCommand } from '../guardianship/commands/cancel-guardianship-as-guardian/cancel-guardianship-as-guardian.command';
 import { GetAnimalForGuardianCardQuery } from '../guardianship/queries/get-animal-for-guardian-card/get-animal-for-guardian-card.query';
 import { GetMyGaurdianshipsQuery } from '../guardianship/queries/get-my-guardianships/get-my-guardianships.query';
+import { GetPostQuery } from '../posts/queries/get-post/get-post.query';
 import { ListPostsQuery } from '../posts/queries/list-posts/list-posts.query';
 import { UsersService } from '../users/users.service';
 import { LinkTelegramByTokenCommand } from './commands/link-telegram-by-token/link-telegram-by-token.command';
@@ -311,6 +312,8 @@ export class TelegramBotUpdate implements OnModuleInit {
 				return;
 			}
 
+			const postWithBody = await this.queryBus.execute(new GetPostQuery(post.id, user.id, user.role, user.id));
+
 			const totalPosts = result.meta.total;
 			const baseUrl = this.config.getOrThrow<string>('APP_BASE_URL');
 			const fullPostUrl = AppUrlMapper.getPostUrl(baseUrl, post.id);
@@ -320,7 +323,7 @@ export class TelegramBotUpdate implements OnModuleInit {
 				animalName: animal.name,
 				postId: post.id,
 				postTitle: post.title,
-				postBodyHtml: post.body,
+				postBodyHtml: postWithBody.body,
 				postCreatedAt: post.createdAt,
 				position,
 				totalPosts,

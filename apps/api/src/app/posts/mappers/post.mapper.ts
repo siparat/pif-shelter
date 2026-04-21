@@ -1,4 +1,4 @@
-import { postResponseSchema } from '@pif/contracts';
+import { postListItemResponseSchema, postResponseSchema } from '@pif/contracts';
 import { postMedia, posts } from '@pif/database';
 import { InferInsertModel } from 'drizzle-orm';
 import { z } from 'zod';
@@ -10,6 +10,7 @@ type PostInsertModel = InferInsertModel<typeof posts>;
 type PostMediaInsertModel = InferInsertModel<typeof postMedia>;
 type PostUpdateModel = Partial<typeof posts.$inferInsert>;
 export type PostResponseDto = z.infer<typeof postResponseSchema>;
+export type PostListItemResponseDto = z.infer<typeof postListItemResponseSchema>;
 
 export class PostMapper {
 	static toPostUpdate(dto: UpdatePostRequestDto): PostUpdateModel {
@@ -63,6 +64,24 @@ export class PostMapper {
 			animalAgeMonths: post.animalAgeMonths,
 			createdAt: typeof post.createdAt === 'string' ? post.createdAt : (post.createdAt?.toISOString() ?? ''),
 			updatedAt: typeof post.updatedAt === 'string' ? post.updatedAt : (post.updatedAt?.toISOString() ?? '')
+		};
+	}
+
+	static toListItemResponse(post: PostWithMedia, reactions: PostReactionCount[] = []): PostListItemResponseDto {
+		const r = PostMapper.toResponse(post, reactions);
+		return {
+			id: r.id,
+			animalId: r.animalId,
+			authorId: r.authorId,
+			title: r.title,
+			visibility: r.visibility,
+			media: r.media,
+			reactions: r.reactions,
+			campaignId: r.campaignId,
+			animalAgeYears: r.animalAgeYears,
+			animalAgeMonths: r.animalAgeMonths,
+			createdAt: r.createdAt,
+			updatedAt: r.updatedAt
 		};
 	}
 }
