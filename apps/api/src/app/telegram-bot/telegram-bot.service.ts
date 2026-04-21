@@ -61,13 +61,13 @@ export class TelegramBotService {
 		});
 
 		const isCutText = markup != null;
-
 		const media = await this.constructMediaGroup(isCutText, text, payload.media);
 
 		if (media.length > 0) {
 			await this.bot.telegram.sendMediaGroup(chatId, media);
 		}
-		if (isCutText) {
+
+		if (isCutText || media.length == 0) {
 			await this.bot.telegram.sendMessage(chatId, text, {
 				parse_mode: 'HTML',
 				link_preview_options: { is_disabled: true },
@@ -75,30 +75,34 @@ export class TelegramBotService {
 			});
 		}
 	}
+
 	async constructMediaGroup(
 		isCutText: boolean,
 		text: string,
 		media: Array<{ type: PostMediaTypeEnum; storageKey: string }>
 	): Promise<(InputMediaPhoto | InputMediaVideo)[]> {
+		const s3Endpoint = this.config.getOrThrow<string>('S3_PUBLIC_ENDPOINT');
 		const mediaGroup: (InputMediaPhoto | InputMediaVideo)[] = [];
 		const handledMedia = await Promise.all(
 			media.map(async (m) => ({
 				...m,
-				metadata: await this.storage.getMetadata(m.storageKey),
-				presignedUrl: await this.storage.getSignedUrl(m.storageKey)
+				metadata: await this.storage.getMetadata(m.storageKey)
 			}))
 		);
 
 		let isSettedCaption = false;
 		for (const m of handledMedia) {
-			if (m.type == PostMediaTypeEnum.VIDEO && (!m.metadata.size || m.metadata.size >= 10 * 1024 * 1024)) {
+			const isVideo = m.type == PostMediaTypeEnum.VIDEO;
+			if (isVideo && (!m.metadata.size || m.metadata.size >= 10 * 1024 * 1024)) {
 				continue;
 			}
 			mediaGroup.push({
-				type: m.type === PostMediaTypeEnum.IMAGE ? ('photo' as const) : ('video' as const),
-				media: m.presignedUrl,
+				type: isVideo ? 'video' : 'photo',
+				media: !isVideo
+					? { source: await this.storage.getObjectBuffer(m.storageKey) }
+					: { url: s3Endpoint + '/' + m.storageKey },
 				caption: !isCutText && !isSettedCaption ? text : undefined,
-				parse_mode: 'HTML'
+				parse_mode: !isCutText && !isSettedCaption ? 'HTML' : undefined
 			});
 			isSettedCaption = true;
 		}

@@ -24,6 +24,7 @@ export const envSchema = z.object({
 	S3_REGION: z.string(),
 	S3_ENDPOINT: z.url(),
 	S3_ACCESS_TOKEN: z.string(),
+	S3_PUBLIC_ENDPOINT: z.string(),
 	S3_ACCESS_SECRET_TOKEN: z.string(),
 	S3_BUCKET: z.string(),
 	QUEUE_REDIS_URL: z.string(),
