@@ -8,8 +8,13 @@ import { useSession } from '../../../../entities/session/model/hooks';
 import { useVolunteers } from '../../../../entities/volunteer/model/hooks';
 import { ROUTES } from '../../../../shared/config';
 import { Button, ErrorState, PageTitle } from '../../../../shared/ui';
+import { AnimalCharacteristics } from './AnimalCharacteristics';
+import { AnimalDescription } from './AnimalDescription';
+import { AnimalGallery } from './AnimalGallery';
 import { AnimalMainInfo } from './AnimalMainInfo';
+import { AnimalMeta } from './AnimalMeta';
 import { AnimalStatuses } from './AnimalStatuses';
+import { AnimalTags } from './AnimalTags';
 
 export const AnimalPage = (): JSX.Element => {
 	const { id } = useParams<{ id: string }>();
@@ -85,9 +90,20 @@ export const AnimalPage = (): JSX.Element => {
 
 			<AnimalMainInfo animal={detailAnimal} curatorName={curatorName ?? 'Не назначен'} />
 
-			<AnimalStatuses animal={detailAnimal} />
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+				<AnimalCharacteristics animal={detailAnimal} />
+				<AnimalStatuses animal={detailAnimal} />
+			</div>
+
+			<AnimalTags tags={detailAnimal.tags} />
+
+			<AnimalDescription animalId={detailAnimal.id} description={detailAnimal.description} canEdit={canEdit} />
+
+			<AnimalGallery animalId={detailAnimal.id} urls={detailAnimal.galleryUrls} canEdit={canEdit} />
 
 			<AnimalPostsBlock animalId={detailAnimal.id} canCreate={canCreatePost} />
+
+			{canManage && <AnimalMeta createdAt={detailAnimal.createdAt} updatedAt={detailAnimal.updatedAt} />}
 		</div>
 	);
 };

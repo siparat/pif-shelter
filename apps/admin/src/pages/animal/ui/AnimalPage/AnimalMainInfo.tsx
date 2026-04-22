@@ -1,4 +1,4 @@
-import { AnimalGenderNames, AnimalSpeciesNames, getAgeAtNow } from '@pif/shared';
+import { AnimalGenderNames, AnimalSpeciesNames, formatAnimalAge } from '@pif/shared';
 import { HTMLAttributes, JSX } from 'react';
 import { AnimalItem } from '../../../../entities/animal/model/types';
 import { AnimalAvatar } from '../../../../entities/animal/ui/AnimalAvatar/AnimalAvatar';
@@ -33,7 +33,7 @@ export const AnimalMainInfo = ({ animal, curatorName, className, ...props }: Pro
 						</div>
 						<p className="mt-2 text-sm text-(--color-text-secondary)">
 							{AnimalSpeciesNames[animal.species]} · {AnimalGenderNames[animal.gender]} ·{' '}
-							{getAgeAtNow(animal.birthDate).years} г.
+							{formatAnimalAge(animal.birthDate)}
 						</p>
 					</div>
 				</div>

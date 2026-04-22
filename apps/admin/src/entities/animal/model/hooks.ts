@@ -20,6 +20,8 @@ import {
 	getAnimals,
 	setAnimalCurator,
 	SetAnimalCuratorRequest,
+	setAnimalGallery,
+	SetAnimalGalleryRequest,
 	setCostOfGuardianship,
 	SetCostOfGuardianshipRequest,
 	unassignAnimalLabel,
@@ -34,6 +36,7 @@ import {
 	CreateAnimalPayload,
 	DeleteAnimalPayload,
 	SetAnimalCuratorPayload,
+	SetAnimalGalleryPayload,
 	SetCostOfGuardianshipPayload
 } from './types';
 
@@ -162,6 +165,41 @@ export const useSetAnimalCuratorMutation = () => {
 	return useMutation<SetAnimalCuratorPayload, Error, { id: string; payload: SetAnimalCuratorRequest }>({
 		mutationFn: ({ id, payload }) => setAnimalCurator(id, payload),
 		onSuccess: () => invalidateAnimals(queryClient)
+	});
+};
+
+interface SetGalleryMutationContext {
+	prevDetail: AnimalDetails | undefined;
+}
+
+export const useSetAnimalGalleryMutation = () => {
+	const queryClient = useQueryClient();
+	return useMutation<
+		SetAnimalGalleryPayload,
+		Error,
+		{ id: string; payload: SetAnimalGalleryRequest },
+		SetGalleryMutationContext
+	>({
+		mutationFn: ({ id, payload }) => setAnimalGallery(id, payload),
+		onMutate: async ({ id, payload }) => {
+			await queryClient.cancelQueries({ queryKey: animalsKeys.detail(id) });
+			const prevDetail = queryClient.getQueryData<AnimalDetails>(animalsKeys.detail(id));
+			if (prevDetail) {
+				queryClient.setQueryData<AnimalDetails>(animalsKeys.detail(id), {
+					...prevDetail,
+					galleryUrls: payload.galleryKeys
+				});
+			}
+			return { prevDetail };
+		},
+		onError: (_error, { id }, context) => {
+			if (context?.prevDetail) {
+				queryClient.setQueryData(animalsKeys.detail(id), context.prevDetail);
+			}
+		},
+		onSettled: (_data, _error, { id }) => {
+			void queryClient.invalidateQueries({ queryKey: animalsKeys.detail(id) });
+		}
 	});
 };
 

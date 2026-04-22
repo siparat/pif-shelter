@@ -12,4 +12,5 @@ export abstract class AnimalsRepository {
 	abstract assignLabel(animalId: string, labelId: string): Promise<void>;
 	abstract unassignLabel(animalId: string, labelId: string): Promise<void>;
 	abstract setCurator(animalId: string, curatorUserId: string | null): Promise<void>;
+	abstract setGallery(id: string, galleryUrls: string[]): Promise<void>;
 }

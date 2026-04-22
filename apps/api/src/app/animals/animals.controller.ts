@@ -22,6 +22,8 @@ import {
 	ReturnData,
 	SetAnimalCuratorRequestDto,
 	SetAnimalCuratorResponseDto,
+	SetAnimalGalleryRequestDto,
+	SetAnimalGalleryResponseDto,
 	SetCostOfGuardianshipRequestDto,
 	SetCostOfGuardianshipResponseDto,
 	UpdateAnimalRequestDto,
@@ -33,6 +35,7 @@ import { ChangeAnimalStatusCommand } from './commands/change-status/change-statu
 import { CreateAnimalCommand } from './commands/create-animal/create-animal.command';
 import { DeleteAnimalCommand } from './commands/delete-animal/delete-animal.command';
 import { SetAnimalCuratorCommand } from './commands/set-animal-curator/set-animal-curator.command';
+import { SetAnimalGalleryCommand } from './commands/set-animal-gallery/set-animal-gallery.command';
 import { SetCostOfGuardianshipCommand } from './commands/set-cost-of-guardianship/set-cost-of-guardianship.command';
 import { UnassignAnimalLabelCommand } from './commands/unassign-animal-label/unassign-animal-label.command';
 import { UpdateAnimalCommand } from './commands/update-animal/update-animal.command';
@@ -172,5 +175,25 @@ export class AnimalsController {
 	): Promise<ReturnData<typeof SetAnimalCuratorResponseDto>> {
 		const { curatorId } = await this.commandBus.execute(new SetAnimalCuratorCommand(id, dto.curatorId));
 		return { animalId: id, curatorId };
+	}
+
+	@ApiOperation({
+		summary: 'Обновить галерею животного',
+		description:
+			'Заменяет массив фото галереи новым упорядоченным набором ключей. Доступно администраторам, старшим волонтёрам и куратору животного.'
+	})
+	@ApiOkResponse({ description: 'Галерея обновлена', type: SetAnimalGalleryResponseDto })
+	@UseGuards(AuthGuard, RoleGuard)
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER, UserRole.VOLUNTEER])
+	@Patch(':id/gallery')
+	async setGallery(
+		@Param('id', ParseUUIDPipe) id: string,
+		@Body() { galleryKeys }: SetAnimalGalleryRequestDto,
+		@Session() session: ISession
+	): Promise<ReturnData<typeof SetAnimalGalleryResponseDto>> {
+		const { animalId, galleryUrls } = await this.commandBus.execute(
+			new SetAnimalGalleryCommand(id, galleryKeys, session.user.id, session.user.role)
+		);
+		return { animalId, galleryUrls };
 	}
 }

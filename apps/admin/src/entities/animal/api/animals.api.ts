@@ -5,6 +5,7 @@ import {
 	createAnimalRequestSchema,
 	deleteAnimalResponseSchema,
 	setAnimalCuratorRequestSchema,
+	setAnimalGalleryRequestSchema,
 	setCostOfGuardianshipRequestSchema,
 	updateAnimalRequestSchema
 } from '@pif/contracts';
@@ -20,6 +21,7 @@ import {
 	CreateAnimalPayload,
 	DeleteAnimalPayload,
 	SetAnimalCuratorPayload,
+	SetAnimalGalleryPayload,
 	SetCostOfGuardianshipPayload,
 	UpdateAnimalPayload
 } from '../model/types';
@@ -70,6 +72,16 @@ export const setAnimalCurator = async (
 ): Promise<SetAnimalCuratorPayload> => {
 	return (
 		await api.patch(`animals/${id}/curator`, { json: payload }).json<ApiSuccessResponse<SetAnimalCuratorPayload>>()
+	).data;
+};
+
+export type SetAnimalGalleryRequest = z.input<typeof setAnimalGalleryRequestSchema>;
+export const setAnimalGallery = async (
+	id: string,
+	payload: SetAnimalGalleryRequest
+): Promise<SetAnimalGalleryPayload> => {
+	return (
+		await api.patch(`animals/${id}/gallery`, { json: payload }).json<ApiSuccessResponse<SetAnimalGalleryPayload>>()
 	).data;
 };
 

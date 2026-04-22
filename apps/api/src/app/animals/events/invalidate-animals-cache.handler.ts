@@ -5,6 +5,7 @@ import { Logger } from 'nestjs-pino';
 import { AnimalCostOfGuardianshipSetEvent } from './animal-cost-of-guardianship-set/animal-cost-of-guardianship-set.event';
 import { AnimalCreatedEvent } from './animal-created/animal-created.event';
 import { AnimalCuratorSetEvent } from './animal-curator-set/animal-curator-set.event';
+import { AnimalGalleryUpdatedEvent } from './animal-gallery-updated/animal-gallery-updated.event';
 import { AnimalLabelUnassignedEvent } from './animal-label-unassigned/animal-label-unassigned.event';
 import { AnimalStatusChangedEvent } from './animal-status-changed/animal-status-changed.event';
 import { AnimalUpdatedEvent } from './animal-updated/animal-updated.event';
@@ -15,7 +16,8 @@ import { AnimalUpdatedEvent } from './animal-updated/animal-updated.event';
 	AnimalLabelUnassignedEvent,
 	AnimalCuratorSetEvent,
 	AnimalCreatedEvent,
-	AnimalCostOfGuardianshipSetEvent
+	AnimalCostOfGuardianshipSetEvent,
+	AnimalGalleryUpdatedEvent
 )
 export class InvalidateAnimalsCacheHandler implements IEventHandler<{ animalId: string }> {
 	constructor(

@@ -9,6 +9,7 @@ import {
 	listAnimalsRequestSchema,
 	ListAnimalsResult,
 	setAnimalCuratorResponseSchema,
+	setAnimalGalleryResponseSchema,
 	setCostOfGuardianshipResponseSchema,
 	updateAnimalLabelResponseSchema,
 	updateAnimalResponseSchema
@@ -27,6 +28,7 @@ export type DeleteAnimalPayload = z.infer<typeof deleteAnimalResponseSchema>['da
 export type UpdateAnimalPayload = z.infer<typeof updateAnimalResponseSchema>['data'];
 export type ChangeAnimalStatusPayload = z.infer<typeof changeAnimalStatusResponseSchema>['data'];
 export type SetAnimalCuratorPayload = z.infer<typeof setAnimalCuratorResponseSchema>['data'];
+export type SetAnimalGalleryPayload = z.infer<typeof setAnimalGalleryResponseSchema>['data'];
 export type SetCostOfGuardianshipPayload = z.infer<typeof setCostOfGuardianshipResponseSchema>['data'];
 export type AssignAnimalLabelPayload = z.infer<typeof assignAnimalLabelResponseSchema>['data'];
 export type CreateAnimalLabelPayload = z.infer<typeof createAnimalLabelResponseSchema>['data'];

@@ -90,6 +90,8 @@ import {
 	searchCampaignsResponseSchema,
 	setAnimalCuratorRequestSchema,
 	setAnimalCuratorResponseSchema,
+	setAnimalGalleryRequestSchema,
+	setAnimalGalleryResponseSchema,
 	setCostOfGuardianshipRequestSchema,
 	setCostOfGuardianshipResponseSchema,
 	setPostReactionRequestSchema,
@@ -213,6 +215,8 @@ export class SearchCampaignsRequestDto extends createZodDto(searchCampaignsReque
 export class SearchCampaignsResponseDto extends createZodDto(searchCampaignsResponseSchema) {}
 export class SetAnimalCuratorRequestDto extends createZodDto(setAnimalCuratorRequestSchema) {}
 export class SetAnimalCuratorResponseDto extends createZodDto(setAnimalCuratorResponseSchema) {}
+export class SetAnimalGalleryRequestDto extends createZodDto(setAnimalGalleryRequestSchema) {}
+export class SetAnimalGalleryResponseDto extends createZodDto(setAnimalGalleryResponseSchema) {}
 export class SetCostOfGuardianshipRequestDto extends createZodDto(setCostOfGuardianshipRequestSchema) {}
 export class SetCostOfGuardianshipResponseDto extends createZodDto(setCostOfGuardianshipResponseSchema) {}
 export class SetPostReactionRequestDto extends createZodDto(setPostReactionRequestSchema) {}

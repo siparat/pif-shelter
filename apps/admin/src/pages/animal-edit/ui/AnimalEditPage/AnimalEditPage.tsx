@@ -14,11 +14,12 @@ import { Loader2 } from 'lucide-react';
 import { JSX, useEffect, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
 	AnimalDetails,
 	useAnimalDetails,
 	useAssignAnimalLabelMutation,
+	useCanEditAnimal,
 	useChangeAnimalStatusMutation,
 	useDeleteAnimalMutation,
 	useSetAnimalCuratorMutation,
@@ -37,6 +38,7 @@ import { Button, Checkbox, ErrorState, PageTitle } from '../../../../shared/ui';
 import { AnimalEditorValues, editAnimalEditorSchema } from '../../../../features/animal-editor/model/types';
 import { AnimalEditPropsBlock } from '../../../../features/animal-editor/ui/AnimalEditorModal/AnimalEditPropsBlock';
 import { AnimalMainPropsBlock } from '../../../../features/animal-editor/ui/AnimalEditorModal/AnimalMainPropsBlock';
+import { AnimalGalleryEditor } from '../../../../features/animal-gallery-editor';
 import { useUploader } from '../../../../features/upload/model/hooks';
 import { Uploader } from '../../../../features/upload/ui/Uploader';
 
@@ -78,6 +80,7 @@ const buildEditAnimalEditorValues = (source: AnimalDetails): AnimalEditorValues 
 export const AnimalEditPage = (): JSX.Element => {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { data: session } = useSession();
 
 	const updateMutation = useUpdateAnimalMutation();
@@ -144,7 +147,18 @@ export const AnimalEditPage = (): JSX.Element => {
 	const selectedCost = watch('costOfGuardianship');
 	const role = session?.user.role;
 	const canManage = role === UserRole.ADMIN || role === UserRole.SENIOR_VOLUNTEER;
-	const canEdit = canManage || (role === UserRole.VOLUNTEER && detailAnimal?.curatorId === session?.user.id);
+	const canEdit = useCanEditAnimal({ curatorId: detailAnimal?.curatorId ?? null });
+
+	useEffect(() => {
+		if (!detailAnimal || location.hash !== '#gallery') return;
+		const timer = window.setTimeout(() => {
+			const node = document.getElementById('gallery');
+			if (node) {
+				node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+		}, 0);
+		return () => window.clearTimeout(timer);
+	}, [detailAnimal, location.hash]);
 
 	const isBusy =
 		isSubmitting ||
@@ -346,6 +360,16 @@ export const AnimalEditPage = (): JSX.Element => {
 						isUploading={isUploading}
 					/>
 				</div>
+
+				<section
+					id="gallery"
+					className="rounded-2xl border border-(--color-border) bg-(--color-bg-secondary) p-4 md:p-6 scroll-mt-6">
+					<AnimalGalleryEditor
+						animalId={detailAnimal.id}
+						galleryUrls={detailAnimal.galleryUrls}
+						disabled={!canEdit}
+					/>
+				</section>
 
 				<div className="rounded-2xl border border-(--color-border) bg-(--color-bg-secondary) p-4 md:p-6">
 					<AnimalEditPropsBlock

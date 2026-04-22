@@ -71,4 +71,16 @@ export class DrizzleAnimalsRepository implements AnimalsRepository {
 			.where(eq(animals.id, animalId))
 			.returning({ id: animals.id });
 	}
+
+	async setGallery(id: string, galleryUrls: string[]): Promise<void> {
+		const [updated] = await this.db.client
+			.update(animals)
+			.set({ galleryUrls })
+			.where(eq(animals.id, id))
+			.returning({ id: animals.id });
+
+		if (!updated) {
+			throw new AnimalNotFoundException(id);
+		}
+	}
 }
