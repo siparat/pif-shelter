@@ -64,9 +64,9 @@ export const PostCreatePage = (): JSX.Element => {
 
 	const handleSubmit = async (payload: CreatePostPayload): Promise<void> => {
 		try {
-			await createMutation.mutateAsync(payload);
+			const result = await createMutation.mutateAsync(payload);
 			toast.success('Пост создан');
-			navigate(ROUTES.animalDetails.replace(':id', animal.id));
+			navigate(ROUTES.postDetails.replace(':animalId', animal.id).replace(':postId', result.id));
 		} catch (error) {
 			const message = await getErrorMessage(error);
 			toast.error(message);

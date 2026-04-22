@@ -11,6 +11,8 @@ const AnimalsPage = lazy(() => import('../pages/animals/ui/AnimalsPage/AnimalsPa
 const AnimalPage = lazy(() => import('../pages/animal/ui/AnimalPage/AnimalPage'));
 const AnimalEditPage = lazy(() => import('../pages/animal-edit/ui/AnimalEditPage/AnimalEditPage'));
 const PostCreatePage = lazy(() => import('../pages/post-create/ui/PostCreatePage/PostCreatePage'));
+const PostDetailPage = lazy(() => import('../pages/post-detail/ui/PostDetailPage/PostDetailPage'));
+const PostEditPage = lazy(() => import('../pages/post-edit/ui/PostEditPage/PostEditPage'));
 const GuardianshipsPage = lazy(() => import('../pages/guardianships/ui/GuardianshipsPage/GuardianshipsPage'));
 const MeetingsPage = lazy(() => import('../pages/meetings/ui/MeetingsPage/MeetingsPage'));
 
@@ -26,6 +28,8 @@ const routeComponentByPath: Record<string, JSX.Element> = {
 	[ROUTES.animalDetails]: <AnimalPage />,
 	[ROUTES.animalEdit]: <AnimalEditPage />,
 	[ROUTES.postCreate]: <PostCreatePage />,
+	[ROUTES.postDetails]: <PostDetailPage />,
+	[ROUTES.postEdit]: <PostEditPage />,
 	[ROUTES.guardianships]: <GuardianshipsPage />,
 	[ROUTES.meetings]: <MeetingsPage />
 };

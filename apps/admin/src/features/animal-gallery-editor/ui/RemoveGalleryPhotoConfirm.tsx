@@ -16,7 +16,7 @@ export const RemoveGalleryPhotoConfirm = ({ previewUrl, isPending, onConfirm, on
 		<Modal title="Удалить фото из галереи?" onClose={onCancel}>
 			<div className="space-y-5">
 				<div className="flex items-start gap-4 max-md:flex-col">
-					<div className="relative w-36 h-36 overflow-hidden rounded-xl border border-(--color-border) bg-(--color-bg-primary) flex-shrink-0">
+					<div className="relative w-36 h-36 overflow-hidden rounded-xl border border-(--color-border) bg-(--color-bg-primary) shrink-0">
 						{isBroken ? (
 							<div className="absolute inset-0 flex items-center justify-center text-(--color-text-secondary)">
 								<ImageOff size={32} />

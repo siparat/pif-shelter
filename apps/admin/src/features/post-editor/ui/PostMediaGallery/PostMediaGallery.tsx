@@ -185,7 +185,6 @@ export const PostMediaGallery = ({
 		(event: DragEndEvent) => {
 			setIsDndActive(false);
 			const { active, over } = event;
-			console.log(active, over, items);
 			if (!over || active.id === over.id) return;
 			const oldIndex = items.findIndex((item) => item.localId === active.id);
 			const newIndex = items.findIndex((item) => item.localId === over.id);

@@ -3,7 +3,9 @@ import {
 	createPostResponseSchema,
 	listPostsRequestSchema,
 	ListPostsResult,
-	postResponseSchema
+	postResponseSchema,
+	updatePostRequestSchema,
+	updatePostResponseSchema
 } from '@pif/contracts';
 import { z } from 'zod';
 
@@ -14,3 +16,6 @@ export type PostDetails = z.infer<typeof postResponseSchema>;
 
 export type CreatePostPayload = z.input<typeof createPostRequestSchema>;
 export type CreatePostResponseData = z.infer<typeof createPostResponseSchema>['data'];
+
+export type UpdatePostPayload = z.input<typeof updatePostRequestSchema>;
+export type UpdatePostResponseData = z.infer<typeof updatePostResponseSchema>['data'];

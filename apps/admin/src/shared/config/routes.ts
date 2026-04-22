@@ -6,6 +6,8 @@ export type RouteKey =
 	| 'animalDetails'
 	| 'animalEdit'
 	| 'postCreate'
+	| 'postDetails'
+	| 'postEdit'
 	| 'guardianships'
 	| 'meetings'
 	| 'user'
@@ -68,6 +70,24 @@ export const adminRoutes: AdminRoute[] = [
 		shortName: 'Новый пост',
 		Icon: MessageSquare,
 		preload: () => import('../../pages/post-create/ui/PostCreatePage/PostCreatePage'),
+		showInMenu: false
+	},
+	{
+		key: 'postDetails',
+		path: '/animals/:animalId/posts/:postId',
+		name: 'Пост',
+		shortName: 'Пост',
+		Icon: MessageSquare,
+		preload: () => import('../../pages/post-detail/ui/PostDetailPage/PostDetailPage'),
+		showInMenu: false
+	},
+	{
+		key: 'postEdit',
+		path: '/animals/:animalId/posts/:postId/edit',
+		name: 'Редактирование поста',
+		shortName: 'Редактирование',
+		Icon: MessageSquare,
+		preload: () => import('../../pages/post-edit/ui/PostEditPage/PostEditPage'),
 		showInMenu: false
 	},
 	{
