@@ -6,6 +6,7 @@ import { useSession } from '../../../../entities/session/model/hooks';
 import { useVolunteers } from '../../../../entities/volunteer';
 import { LabelsCatalogManager } from '../../../../features/animal-actions';
 import { AnimalEditorModal } from '../../../../features/animal-editor';
+import { AnimalStatusQuickChange } from '../../../../features/animal-status-quick-change';
 import { AnimalsFilters } from '../../../../features/animals-filters';
 import { Button, EmptyState, ErrorState, PageTitle, Pagination, Select } from '../../../../shared/ui';
 import { useAnimalsPageFilters } from '../../model/use-animals-page-filters';
@@ -85,7 +86,20 @@ export const AnimalsPage = (): JSX.Element => {
 					onAction={resetFilters}
 				/>
 			) : (
-				<AnimalsTable setEditingAnimal={setEditingAnimal} animals={animals} />
+				<AnimalsTable
+					setEditingAnimal={setEditingAnimal}
+					animals={animals}
+					renderStatus={(animal) => (
+						<AnimalStatusQuickChange
+							animal={{
+								id: animal.id,
+								status: animal.status,
+								avatarUrl: animal.avatarUrl,
+								curatorId: animal.curatorId
+							}}
+						/>
+					)}
+				/>
 			)}
 
 			<Pagination

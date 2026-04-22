@@ -1,5 +1,5 @@
 import { AnimalGenderNames, AnimalSpeciesNames, getAgeAtNow, UserRole } from '@pif/shared';
-import { HTMLAttributes, JSX, useMemo } from 'react';
+import { HTMLAttributes, JSX, ReactNode, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../../../../shared/config';
 import { cn } from '../../../../shared/lib';
@@ -14,9 +14,10 @@ import { Characteristics } from './Characteristics';
 interface Props extends HTMLAttributes<HTMLDivElement> {
 	animals: AnimalItem[];
 	setEditingAnimal: (animal: AnimalItem) => void;
+	renderStatus?: (animal: AnimalItem) => ReactNode;
 }
 
-export const AnimalsTable = ({ animals, setEditingAnimal, className, ...props }: Props): JSX.Element => {
+export const AnimalsTable = ({ animals, setEditingAnimal, renderStatus, className, ...props }: Props): JSX.Element => {
 	const { data: session } = useSession();
 	const { data: volunteers = [] } = useVolunteers();
 
@@ -33,6 +34,9 @@ export const AnimalsTable = ({ animals, setEditingAnimal, className, ...props }:
 			return role === UserRole.VOLUNTEER && animal.curatorId === session.user.id;
 		};
 	}, [session]);
+
+	const renderStatusCell = (animal: AnimalItem): ReactNode =>
+		renderStatus ? renderStatus(animal) : <AnimalStatusBadge status={animal.status} />;
 	return (
 		<>
 			<div
@@ -81,9 +85,7 @@ export const AnimalsTable = ({ animals, setEditingAnimal, className, ...props }:
 									</div>
 								</td>
 
-								<td className="p-3">
-									<AnimalStatusBadge status={animal.status} />
-								</td>
+								<td className="p-3">{renderStatusCell(animal)}</td>
 
 								<td className="p-3">
 									<Characteristics animal={animal} />
@@ -151,7 +153,7 @@ export const AnimalsTable = ({ animals, setEditingAnimal, className, ...props }:
 									{AnimalSpeciesNames[animal.species]} · {AnimalGenderNames[animal.gender]} ·{' '}
 									{getAgeAtNow(animal.birthDate).years + ' г.'}
 								</p>
-								<AnimalStatusBadge className="mt-2 inline-block" status={animal.status} />
+								<div className="mt-2">{renderStatusCell(animal)}</div>
 							</div>
 						</div>
 						<div className="text-xs text-(--color-text-secondary)">

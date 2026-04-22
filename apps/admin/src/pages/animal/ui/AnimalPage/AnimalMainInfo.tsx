@@ -1,8 +1,8 @@
 import { AnimalGenderNames, AnimalSpeciesNames, getAgeAtNow } from '@pif/shared';
 import { HTMLAttributes, JSX } from 'react';
-import { AnimalStatusBadge } from '../../../../entities/animal';
 import { AnimalItem } from '../../../../entities/animal/model/types';
 import { AnimalAvatar } from '../../../../entities/animal/ui/AnimalAvatar/AnimalAvatar';
+import { AnimalStatusQuickChange } from '../../../../features/animal-status-quick-change';
 import { cn } from '../../../../shared/lib';
 import { Badge } from '../../../../shared/ui';
 
@@ -21,7 +21,16 @@ export const AnimalMainInfo = ({ animal, curatorName, className, ...props }: Pro
 					<AnimalAvatar animal={animal} width={96} height={96} rounded />
 					<div>
 						<p className="text-xl font-semibold">{animal.name}</p>
-						<AnimalStatusBadge status={animal.status} />
+						<div className="mt-1">
+							<AnimalStatusQuickChange
+								animal={{
+									id: animal.id,
+									status: animal.status,
+									avatarUrl: animal.avatarUrl,
+									curatorId: animal.curatorId
+								}}
+							/>
+						</div>
 						<p className="mt-2 text-sm text-(--color-text-secondary)">
 							{AnimalSpeciesNames[animal.species]} · {AnimalGenderNames[animal.gender]} ·{' '}
 							{getAgeAtNow(animal.birthDate).years} г.

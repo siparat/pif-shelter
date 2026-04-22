@@ -2,7 +2,7 @@ import { UserRole } from '@pif/shared';
 import { Loader2 } from 'lucide-react';
 import { JSX, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAnimalDetails } from '../../../../entities/animal';
+import { useAnimalDetails, useCanEditAnimal } from '../../../../entities/animal';
 import { AnimalPostsBlock } from '../../../../entities/post';
 import { useSession } from '../../../../entities/session/model/hooks';
 import { useVolunteers } from '../../../../entities/volunteer/model/hooks';
@@ -26,8 +26,8 @@ export const AnimalPage = (): JSX.Element => {
 
 	const role = session?.user.role;
 	const canManage = role === UserRole.ADMIN || role === UserRole.SENIOR_VOLUNTEER;
-	const canEdit = canManage || (role === UserRole.VOLUNTEER && detailAnimal?.curatorId === session?.user.id);
-	const canCreatePost = canManage || (role === UserRole.VOLUNTEER && detailAnimal?.curatorId === session?.user.id);
+	const canEdit = useCanEditAnimal({ curatorId: detailAnimal?.curatorId ?? null });
+	const canCreatePost = canEdit;
 
 	const { data: volunteers } = useVolunteers({ enabled: canManage });
 	const curatorName = useMemo(() => {

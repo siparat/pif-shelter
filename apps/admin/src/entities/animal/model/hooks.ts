@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AnimalStatusEnum } from '@pif/shared';
+import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
 	createAnimalLabel,
 	CreateAnimalLabelRequest,
@@ -27,6 +28,8 @@ import {
 } from '../api/animals.api';
 import { animalsKeys } from './query-keys';
 import {
+	AnimalDetails,
+	AnimalsListData,
 	AnimalsListParams,
 	CreateAnimalPayload,
 	DeleteAnimalPayload,
@@ -88,12 +91,69 @@ export const useDeleteAnimalMutation = () => {
 	});
 };
 
+interface ChangeStatusMutationContext {
+	prevDetail: AnimalDetails | undefined;
+	prevLists: Array<[readonly unknown[], AnimalsListData | undefined]>;
+}
+
+const patchAnimalStatusInLists = (
+	queryClient: QueryClient,
+	animalId: string,
+	nextStatus: AnimalStatusEnum
+): Array<[readonly unknown[], AnimalsListData | undefined]> => {
+	const lists = queryClient.getQueriesData<AnimalsListData>({ queryKey: [...animalsKeys.all, 'list'] });
+	for (const [queryKey, data] of lists) {
+		if (!data) {
+			continue;
+		}
+		const nextData: AnimalsListData = {
+			...data,
+			data: data.data.map((item) => (item.id === animalId ? { ...item, status: nextStatus } : item))
+		};
+		queryClient.setQueryData(queryKey, nextData);
+	}
+	return lists;
+};
+
 export const useChangeAnimalStatusMutation = () => {
 	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: ({ id, payload }: { id: string; payload: ChangeAnimalStatusRequest }) =>
-			changeAnimalStatus(id, payload),
-		onSuccess: () => invalidateAnimals(queryClient)
+	return useMutation<
+		Awaited<ReturnType<typeof changeAnimalStatus>>,
+		Error,
+		{ id: string; payload: ChangeAnimalStatusRequest },
+		ChangeStatusMutationContext
+	>({
+		mutationFn: ({ id, payload }) => changeAnimalStatus(id, payload),
+		onMutate: async ({ id, payload }) => {
+			await queryClient.cancelQueries({ queryKey: animalsKeys.all });
+
+			const prevDetail = queryClient.getQueryData<AnimalDetails>(animalsKeys.detail(id));
+			if (prevDetail) {
+				queryClient.setQueryData<AnimalDetails>(animalsKeys.detail(id), {
+					...prevDetail,
+					status: payload.status
+				});
+			}
+
+			const prevLists = patchAnimalStatusInLists(queryClient, id, payload.status);
+
+			return { prevDetail, prevLists };
+		},
+		onError: (_error, { id }, context) => {
+			if (!context) {
+				return;
+			}
+			if (context.prevDetail) {
+				queryClient.setQueryData(animalsKeys.detail(id), context.prevDetail);
+			}
+			for (const [queryKey, data] of context.prevLists) {
+				queryClient.setQueryData(queryKey, data);
+			}
+		},
+		onSettled: (_data, _error, { id }) => {
+			void queryClient.invalidateQueries({ queryKey: animalsKeys.detail(id) });
+			void queryClient.invalidateQueries({ queryKey: [...animalsKeys.all, 'list'] });
+		}
 	});
 };
 

@@ -2,6 +2,7 @@ export * from './api/animals.api';
 export * from './api/animal-labels.api';
 export * from './api/media.api';
 export * from './model/hooks';
+export * from './model/permissions';
 export * from './model/query-keys';
 export * from './model/types';
 export * from './ui/AnimalsTable/AnimalsTable';
