@@ -42,6 +42,10 @@ export class UsersService {
 		}
 	}
 
+	async setBanned(userId: string, value: boolean): Promise<void> {
+		await this.repository.setBanned(userId, value);
+	}
+
 	async findByTelegramBotLinkToken(token: string): Promise<typeof users.$inferSelect | undefined> {
 		return this.repository.findByTelegramBotLinkToken(token);
 	}

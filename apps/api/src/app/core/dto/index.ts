@@ -49,6 +49,7 @@ import {
 	deleteManualExpenseResponseSchema,
 	generateMonthlyFinanceReportRequestSchema,
 	generateMonthlyFinanceReportResponseSchema,
+	getAdminUserResponseSchema,
 	getAdminDashboardSummaryResponseSchema,
 	getAnimalByIdRequestSchema,
 	getAnimalByIdResponseSchema,
@@ -101,6 +102,8 @@ import {
 	setCostOfGuardianshipRequestSchema,
 	setCostOfGuardianshipResponseSchema,
 	setPostReactionRequestSchema,
+	setUserBannedRequestSchema,
+	setUserBannedResponseSchema,
 	setTelegramUnreachableRequestSchema,
 	setTelegramUnreachableResponseSchema,
 	startGuardianshipAuthenticatedRequestSchema,
@@ -180,6 +183,7 @@ export class DeleteManualExpenseRequestDto extends createZodDto(deleteManualExpe
 export class DeleteManualExpenseResponseDto extends createZodDto(deleteManualExpenseResponseSchema) {}
 export class GenerateMonthlyFinanceReportRequestDto extends createZodDto(generateMonthlyFinanceReportRequestSchema) {}
 export class GenerateMonthlyFinanceReportResponseDto extends createZodDto(generateMonthlyFinanceReportResponseSchema) {}
+export class GetAdminUserResponseDto extends createZodDto(getAdminUserResponseSchema) {}
 export class GetAdminDashboardSummaryResponseDto extends createZodDto(getAdminDashboardSummaryResponseSchema) {}
 export class GetAnimalByIdRequestDto extends createZodDto(getAnimalByIdRequestSchema) {}
 export class GetAnimalByIdResponseDto extends createZodDto(getAnimalByIdResponseSchema) {}
@@ -232,6 +236,8 @@ export class SetAnimalGalleryResponseDto extends createZodDto(setAnimalGalleryRe
 export class SetCostOfGuardianshipRequestDto extends createZodDto(setCostOfGuardianshipRequestSchema) {}
 export class SetCostOfGuardianshipResponseDto extends createZodDto(setCostOfGuardianshipResponseSchema) {}
 export class SetPostReactionRequestDto extends createZodDto(setPostReactionRequestSchema) {}
+export class SetUserBannedRequestDto extends createZodDto(setUserBannedRequestSchema) {}
+export class SetUserBannedResponseDto extends createZodDto(setUserBannedResponseSchema) {}
 export class SetTelegramUnreachableRequestDto extends createZodDto(setTelegramUnreachableRequestSchema) {}
 export class SetTelegramUnreachableResponseDto extends createZodDto(setTelegramUnreachableResponseSchema) {}
 export class StartGuardianshipAuthenticatedRequestDto extends createZodDto(

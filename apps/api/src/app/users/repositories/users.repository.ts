@@ -10,4 +10,5 @@ export abstract class UsersRepository {
 	abstract setTelegramBotLinkToken(userId: string, token: string | null): Promise<void>;
 	abstract linkTelegramChat(userId: string, telegramChatId: string): Promise<void>;
 	abstract setTelegramUnreachable(userId: string, value: boolean): Promise<void>;
+	abstract setBanned(userId: string, value: boolean): Promise<void>;
 }

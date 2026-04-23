@@ -1,8 +1,12 @@
 import { UserRole } from '@pif/shared';
-import { AlertTriangle, Calendar, Mail, MessageCircle } from 'lucide-react';
+import { AlertTriangle, Ban, Calendar, Link2, Mail, MessageCircle } from 'lucide-react';
 import { JSX } from 'react';
+import { Link } from 'react-router-dom';
 import { GuardianProfileUser } from '../../../../entities/guardian';
+import { useSession } from '../../../../entities/session/model/hooks';
+import { UserBannedToggle } from '../../../../features/user-banned';
 import { TelegramUnreachableToggle } from '../../../../features/user-telegram-unreachable';
+import { ROUTES } from '../../../../shared/config';
 import { getUserTelegramLink } from '../../../../shared/lib';
 import { Badge } from '../../../../shared/ui';
 
@@ -44,8 +48,27 @@ const getInitials = (name: string): string => {
 };
 
 export const GuardianProfileCard = ({ user }: Props): JSX.Element => {
+	const { data: session } = useSession();
+	const staffRole = session?.user.role as UserRole | undefined;
+	const canOpenUserCard = staffRole === UserRole.ADMIN || staffRole === UserRole.SENIOR_VOLUNTEER;
 	return (
 		<div className="rounded-2xl border border-(--color-border) bg-(--color-bg-secondary) p-4 md:p-6">
+			{user.banned && (
+				<div className="mb-4 flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+					<Ban size={16} className="shrink-0" />
+					Вход в личный кабинет заблокирован
+				</div>
+			)}
+			{canOpenUserCard && (
+				<div className="mb-4">
+					<Link
+						to={ROUTES.user.replace(':id', user.id)}
+						className="inline-flex items-center gap-1.5 text-sm text-(--color-brand-orange) hover:underline">
+						<Link2 size={14} />
+						Карточка пользователя
+					</Link>
+				</div>
+			)}
 			<div className="flex flex-col md:flex-row md:items-start gap-4 md:gap-6">
 				<div className="flex items-center gap-4 md:flex-col md:items-center md:gap-3">
 					{user.image ? (
@@ -119,6 +142,14 @@ export const GuardianProfileCard = ({ user }: Props): JSX.Element => {
 						</div>
 					)}
 				</div>
+			</div>
+
+			<div className="mt-4 pt-4 border-t border-(--color-border) space-y-2">
+				<p className="text-sm font-medium">Блокировка опекуна</p>
+				<p className="text-xs text-(--color-text-secondary)">
+					Один профиль: блокировка совпадает с карточкой пользователя.
+				</p>
+				<UserBannedToggle userId={user.id} banned={user.banned} targetRole={user.role} variant="guardian" />
 			</div>
 		</div>
 	);

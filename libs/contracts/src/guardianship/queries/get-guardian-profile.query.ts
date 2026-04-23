@@ -17,6 +17,7 @@ export const guardianProfileUserSchema = z
 		telegram: z.string().nullable(),
 		telegramChatId: z.string().nullable(),
 		telegramUnreachable: z.boolean(),
+		banned: z.boolean().describe('Доступ в систему заблокирован'),
 		telegramChatIdUpdatedAt: z.string().nullable(),
 		createdAt: z.string(),
 		updatedAt: z.string().nullable()

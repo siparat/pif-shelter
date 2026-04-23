@@ -144,7 +144,7 @@ export const adminRoutes: AdminRoute[] = [
 		name: 'Пользователь',
 		shortName: 'Пользователь',
 		Icon: User,
-		preload: () => Promise.resolve(),
+		preload: () => import('../../pages/user/ui/UserPage/UserPage'),
 		showInMenu: false
 	},
 	{

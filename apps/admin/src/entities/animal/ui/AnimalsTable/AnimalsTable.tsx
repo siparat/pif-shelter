@@ -35,6 +35,8 @@ export const AnimalsTable = ({ animals, setEditingAnimal, renderStatus, classNam
 		};
 	}, [session]);
 
+	const canOpenUserPage = session?.user.role === UserRole.ADMIN || session?.user.role === UserRole.SENIOR_VOLUNTEER;
+
 	const renderStatusCell = (animal: AnimalItem): ReactNode =>
 		renderStatus ? renderStatus(animal) : <AnimalStatusBadge status={animal.status} />;
 	return (
@@ -107,11 +109,17 @@ export const AnimalsTable = ({ animals, setEditingAnimal, renderStatus, classNam
 
 								<td className="p-3">
 									{animal.curatorId ? (
-										<Link
-											to={ROUTES.user.replace(':id', animal.curatorId)}
-											className="hover:underline text-xs">
-											{findVolunteerName(volunteers, animal.curatorId)}
-										</Link>
+										canOpenUserPage ? (
+											<Link
+												to={ROUTES.user.replace(':id', animal.curatorId)}
+												className="hover:underline text-xs">
+												{findVolunteerName(volunteers, animal.curatorId)}
+											</Link>
+										) : (
+											<span className="text-xs">
+												{findVolunteerName(volunteers, animal.curatorId)}
+											</span>
+										)
 									) : (
 										<span className="text-(--color-text-secondary)">Не назначен</span>
 									)}
@@ -160,11 +168,15 @@ export const AnimalsTable = ({ animals, setEditingAnimal, renderStatus, classNam
 							<p>
 								Куратор:{' '}
 								{animal.curatorId ? (
-									<Link
-										to={ROUTES.user.replace(':id', animal.curatorId)}
-										className="hover:underline text-(--color-text-primary)">
-										{findVolunteerName(volunteers, animal.curatorId)}
-									</Link>
+									canOpenUserPage ? (
+										<Link
+											to={ROUTES.user.replace(':id', animal.curatorId)}
+											className="hover:underline text-(--color-text-primary)">
+											{findVolunteerName(volunteers, animal.curatorId)}
+										</Link>
+									) : (
+										<span>{findVolunteerName(volunteers, animal.curatorId)}</span>
+									)
 								) : (
 									<span>Не назначен</span>
 								)}

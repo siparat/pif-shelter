@@ -59,4 +59,8 @@ export class DrizzleUsersRepository implements UsersRepository {
 	async setTelegramUnreachable(userId: string, value: boolean): Promise<void> {
 		await this.db.client.update(users).set({ telegramUnreachable: value }).where(eq(users.id, userId));
 	}
+
+	async setBanned(userId: string, value: boolean): Promise<void> {
+		await this.db.client.update(users).set({ banned: value }).where(eq(users.id, userId));
+	}
 }

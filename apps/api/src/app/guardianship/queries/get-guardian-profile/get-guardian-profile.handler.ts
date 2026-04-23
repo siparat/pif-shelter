@@ -95,6 +95,7 @@ export class GetGuardianProfileHandler implements IQueryHandler<GetGuardianProfi
 				telegram: user.telegram,
 				telegramChatId: user.telegramChatId,
 				telegramUnreachable: user.telegramUnreachable,
+				banned: user.banned,
 				telegramChatIdUpdatedAt: user.telegramChatIdUpdatedAt?.toISOString() ?? null,
 				createdAt: user.createdAt.toISOString(),
 				updatedAt: user.updatedAt?.toISOString() ?? null
