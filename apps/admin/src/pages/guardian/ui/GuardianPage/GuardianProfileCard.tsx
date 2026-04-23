@@ -2,6 +2,7 @@ import { UserRole } from '@pif/shared';
 import { AlertTriangle, Calendar, Mail, MessageCircle } from 'lucide-react';
 import { JSX } from 'react';
 import { GuardianProfileUser } from '../../../../entities/guardian';
+import { TelegramUnreachableToggle } from '../../../../features/user-telegram-unreachable';
 import { getUserTelegramLink } from '../../../../shared/lib';
 import { Badge } from '../../../../shared/ui';
 
@@ -79,7 +80,7 @@ export const GuardianProfileCard = ({ user }: Props): JSX.Element => {
 
 					<div className="flex items-start gap-2">
 						<MessageCircle size={16} className="mt-0.5 text-(--color-text-secondary) shrink-0" />
-						<div className="min-w-0">
+						<div className="min-w-0 flex-1">
 							<p className="text-(--color-text-secondary) text-xs">Telegram</p>
 							<a
 								href={getUserTelegramLink(user.telegram)}
@@ -94,6 +95,9 @@ export const GuardianProfileCard = ({ user }: Props): JSX.Element => {
 									Недоступен — бот заблокирован
 								</p>
 							)}
+							<div className="mt-2">
+								<TelegramUnreachableToggle userId={user.id} isUnreachable={user.telegramUnreachable} />
+							</div>
 						</div>
 					</div>
 

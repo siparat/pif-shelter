@@ -1,8 +1,10 @@
 import { AnimalGenderNames, AnimalSpeciesNames, formatAnimalAge } from '@pif/shared';
 import { HTMLAttributes, JSX } from 'react';
+import { Link } from 'react-router-dom';
 import { AnimalItem } from '../../../../entities/animal/model/types';
 import { AnimalAvatar } from '../../../../entities/animal/ui/AnimalAvatar/AnimalAvatar';
 import { AnimalStatusQuickChange } from '../../../../features/animal-status-quick-change';
+import { ROUTES } from '../../../../shared/config';
 import { cn } from '../../../../shared/lib';
 import { Badge } from '../../../../shared/ui';
 
@@ -39,7 +41,16 @@ export const AnimalMainInfo = ({ animal, curatorName, className, ...props }: Pro
 				</div>
 				<div className="text-sm text-(--color-text-secondary) space-y-1">
 					<p>
-						Куратор: <span className="text-(--color-text-primary)">{curatorName ?? 'Не назначен'}</span>
+						Куратор:{' '}
+						{animal.curatorId ? (
+							<Link
+								to={ROUTES.user.replace(':id', animal.curatorId)}
+								className="hover:underline text-(--color-text-primary)">
+								{curatorName ?? 'Не назначен'}
+							</Link>
+						) : (
+							<span>Не назначен</span>
+						)}
 					</p>
 					<p>
 						Стоимость опекунства:{' '}

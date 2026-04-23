@@ -11,6 +11,7 @@ import { Button, ErrorState, PageTitle } from '../../../../shared/ui';
 import { AnimalCharacteristics } from './AnimalCharacteristics';
 import { AnimalDescription } from './AnimalDescription';
 import { AnimalGallery } from './AnimalGallery';
+import { AnimalGuardianSection } from './AnimalGuardianSection';
 import { AnimalMainInfo } from './AnimalMainInfo';
 import { AnimalMeta } from './AnimalMeta';
 import { AnimalStatuses } from './AnimalStatuses';
@@ -89,6 +90,12 @@ export const AnimalPage = (): JSX.Element => {
 			</PageTitle>
 
 			<AnimalMainInfo animal={detailAnimal} curatorName={curatorName ?? 'Не назначен'} />
+
+			<AnimalGuardianSection
+				animalId={detailAnimal.id}
+				animalName={detailAnimal.name}
+				animalCuratorId={detailAnimal.curatorId}
+			/>
 
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 				<AnimalCharacteristics animal={detailAnimal} />

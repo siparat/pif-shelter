@@ -45,6 +45,7 @@ export const useGuardianshipsPageFilters = (): UseGuardianshipsPageFiltersResult
 			animalId: searchParams.get('animalId') ?? undefined,
 			curatorId: searchParams.get('curatorId') ?? undefined,
 			guardianUserId: searchParams.get('guardianUserId') ?? undefined,
+			search: searchParams.get('search') ?? undefined,
 			sort: searchParams.get('sort') ?? 'startedAt:desc'
 		};
 	}, [searchParams]);
@@ -69,6 +70,9 @@ export const useGuardianshipsPageFilters = (): UseGuardianshipsPageFiltersResult
 			}
 			if (next.guardianUserId) {
 				params.set('guardianUserId', next.guardianUserId);
+			}
+			if (next.search) {
+				params.set('search', next.search);
 			}
 			if (next.sort && next.sort !== 'startedAt:desc') {
 				params.set('sort', next.sort);

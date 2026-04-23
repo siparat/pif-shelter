@@ -111,7 +111,7 @@ export const PostDetailPage = (): JSX.Element => {
 						</span>
 						{(post.animalAgeYears > 0 || post.animalAgeMonths > 0) && (
 							<span title="Возраст животного на момент публикации">
-								· Возраст: {post.animalAgeYears} л. {post.animalAgeMonths} мес.
+								· Возраст: {post.animalAgeYears} л. {post.animalAgeMonths % 12} мес.
 							</span>
 						)}
 					</div>

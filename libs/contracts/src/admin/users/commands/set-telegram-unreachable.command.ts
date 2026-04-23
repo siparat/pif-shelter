@@ -13,3 +13,6 @@ export const setTelegramUnreachableResponseSchema = createApiSuccessResponseSche
 		telegramUnreachable: z.boolean()
 	})
 );
+
+export type SetTelegramUnreachableRequest = z.infer<typeof setTelegramUnreachableRequestSchema>;
+export type SetTelegramUnreachableResult = z.infer<typeof setTelegramUnreachableResponseSchema>;

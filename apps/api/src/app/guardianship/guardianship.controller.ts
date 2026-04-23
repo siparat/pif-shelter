@@ -16,6 +16,7 @@ import {
 	GetGuardianProfileResult,
 	GetGuardianshipByAnimalResponseDto,
 	GetMyGaurdianshipsResponseDto,
+	ListGuardianReportsResponseDto,
 	ListGuardianshipsRequestDto,
 	ListGuardianshipsResponseDto,
 	ReturnData,
@@ -33,6 +34,7 @@ import { GuardianshipNotFoundException } from './exceptions/guardianship-not-fou
 import { GetGuardianProfileQuery } from './queries/get-guardian-profile/get-guardian-profile.query';
 import { GetGuardianshipByAnimalQuery } from './queries/get-guardianship-by-animal/get-guardianship-by-animal.query';
 import { GetMyGaurdianshipsQuery } from './queries/get-my-guardianships/get-my-guardianships.query';
+import { ListGuardianReportsQuery } from './queries/list-guardian-reports/list-guardian-reports.query';
 import { ListGuardianshipsQuery } from './queries/list-guardianships/list-guardianships.query';
 
 @ApiTags('Guardianship | Опекунство')
@@ -145,6 +147,28 @@ export class GuardianshipController {
 	): Promise<ReturnData<GetGuardianProfileResult>> {
 		const curatorFilterId = session.user.role === UserRole.VOLUNTEER ? session.user.id : null;
 		return this.queryBus.execute(new GetGuardianProfileQuery(userId, curatorFilterId));
+	}
+
+	@ApiOperation({
+		summary: 'История отчётов, доступных опекуну',
+		description:
+			'Возвращает все приватные посты-отчёты по животным, которые опекун опекал или опекает сейчас. Учитывает интервал действия опекунства и период сохранения привилегий. ADMIN/SENIOR_VOLUNTEER видят любого; VOLUNTEER — только если опекун связан хотя бы с одним из подопечных куратора.'
+	})
+	@ApiOkResponse({ description: 'Список отчётов', type: ListGuardianReportsResponseDto })
+	@UseGuards(AuthGuard, RoleGuard)
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER, UserRole.VOLUNTEER])
+	@Get('guardian/:userId/reports')
+	async listGuardianReports(
+		@Param('userId') userId: string,
+		@Query('page') pageParam: string | undefined,
+		@Query('perPage') perPageParam: string | undefined,
+		@Session() session: ISession
+	): Promise<ListGuardianReportsResponseDto> {
+		const page = Math.max(1, Number.parseInt(pageParam ?? '1', 10) || 1);
+		const perPageRaw = Number.parseInt(perPageParam ?? '20', 10) || 20;
+		const perPage = Math.min(100, Math.max(1, perPageRaw));
+		const curatorFilterId = session.user.role === UserRole.VOLUNTEER ? session.user.id : null;
+		return this.queryBus.execute(new ListGuardianReportsQuery(userId, page, perPage, curatorFilterId));
 	}
 
 	@ApiOperation({

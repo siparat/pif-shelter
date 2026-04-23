@@ -31,7 +31,7 @@ const formatAgeAtPost = (years: number, months: number): string | null => {
 export const PostCard = ({ post, authorName, onOpen, actionsSlot, className }: Props): JSX.Element => {
 	const isPrivate = post.visibility === PostVisibilityEnum.PRIVATE;
 	const totalReactions = post.reactions.reduce((sum, r) => sum + r.count, 0);
-	const ageLabel = formatAgeAtPost(post.animalAgeYears, post.animalAgeMonths);
+	const ageLabel = formatAgeAtPost(post.animalAgeYears, post.animalAgeMonths % 12);
 
 	return (
 		<article

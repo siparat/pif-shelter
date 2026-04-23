@@ -12,7 +12,8 @@ export const listGuardianshipsRequestSchema = paginationSchema.extend({
 		.min(1)
 		.optional()
 		.describe('Фильтр по куратору животного (для VOLUNTEER проставляется автоматически в своего)'),
-	guardianUserId: z.string().trim().min(1).optional().describe('Фильтр по опекуну')
+	guardianUserId: z.string().trim().min(1).optional().describe('Фильтр по опекуну'),
+	search: z.string().trim().min(1).max(100).optional().describe('Поиск по имени/email/Telegram опекуна (ILIKE)')
 });
 
 export const listGuardianshipsAnimalSchema = z

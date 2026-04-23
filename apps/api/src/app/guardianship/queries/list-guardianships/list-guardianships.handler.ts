@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { ListGuardianshipsResult } from '@pif/contracts';
 import { animals, DatabaseService, guardianships, users } from '@pif/database';
-import { and, asc, count, desc, eq, SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, or, SQL } from 'drizzle-orm';
 import { ListGuardianshipsQuery } from './list-guardianships.query';
 
 const SORT_FIELDS = ['startedAt', 'paidPeriodEndAt', 'cancelledAt'] as const;
@@ -27,7 +27,7 @@ export class ListGuardianshipsHandler implements IQueryHandler<ListGuardianships
 	constructor(private readonly db: DatabaseService) {}
 
 	async execute({ dto }: ListGuardianshipsQuery): Promise<ListGuardianshipsResult> {
-		const { page = 1, perPage = 20, status, animalId, curatorId, guardianUserId } = dto;
+		const { page = 1, perPage = 20, status, animalId, curatorId, guardianUserId, search } = dto;
 		const { field: sortField, direction } = parseSort(dto.sort);
 		const sortColumn = guardianships[sortField];
 		const orderBy = direction === 'asc' ? asc(sortColumn) : desc(sortColumn);
@@ -44,6 +44,13 @@ export class ListGuardianshipsHandler implements IQueryHandler<ListGuardianships
 		}
 		if (curatorId != null) {
 			conditions.push(eq(animals.curatorId, curatorId));
+		}
+		if (search != null) {
+			const term = `%${search}%`;
+			const searchCondition = or(ilike(users.name, term), ilike(users.email, term), ilike(users.telegram, term));
+			if (searchCondition) {
+				conditions.push(searchCondition);
+			}
 		}
 
 		const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -66,6 +73,7 @@ export class ListGuardianshipsHandler implements IQueryHandler<ListGuardianships
 				.select({ value: count() })
 				.from(guardianships)
 				.innerJoin(animals, eq(guardianships.animalId, animals.id))
+				.innerJoin(users, eq(guardianships.guardianUserId, users.id))
 				.where(whereClause)
 		]);
 

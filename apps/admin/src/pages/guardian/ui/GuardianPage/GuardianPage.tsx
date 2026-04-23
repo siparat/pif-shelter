@@ -1,14 +1,29 @@
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Heart, Loader2, MessageSquare } from 'lucide-react';
 import { JSX, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { GuardianProfileGuardianship, useGuardianProfile } from '../../../../entities/guardian';
 import { CancelGuardianshipModal } from '../../../../features/guardianship-cancel';
 import { SendReportModal } from '../../../../features/guardianship-send-report';
 import { ROUTES } from '../../../../shared/config';
+import { cn } from '../../../../shared/lib';
 import { Button, ErrorState, PageTitle } from '../../../../shared/ui';
 import { GuardianGuardianshipsList } from './GuardianGuardianshipsList';
 import { GuardianProfileCard } from './GuardianProfileCard';
+import { GuardianReportsList } from './GuardianReportsList';
 import { GuardianStatsGrid } from './GuardianStatsGrid';
+
+type TabKey = 'guardianships' | 'reports';
+
+interface Tab {
+	key: TabKey;
+	label: string;
+	Icon: typeof Heart;
+}
+
+const TABS: Tab[] = [
+	{ key: 'guardianships', label: 'Опекунства', Icon: Heart },
+	{ key: 'reports', label: 'История отчётов', Icon: MessageSquare }
+];
 
 export const GuardianPage = (): JSX.Element => {
 	const { id } = useParams<{ id: string }>();
@@ -16,6 +31,7 @@ export const GuardianPage = (): JSX.Element => {
 
 	const [reportTarget, setReportTarget] = useState<GuardianProfileGuardianship | null>(null);
 	const [cancelTarget, setCancelTarget] = useState<GuardianProfileGuardianship | null>(null);
+	const [activeTab, setActiveTab] = useState<TabKey>('guardianships');
 
 	const query = useGuardianProfile(id);
 
@@ -63,13 +79,49 @@ export const GuardianPage = (): JSX.Element => {
 			<GuardianProfileCard user={user} />
 			<GuardianStatsGrid stats={stats} />
 
-			<section className="space-y-3">
-				<h2 className="text-lg font-semibold">Опекунства ({guardianships.length})</h2>
-				<GuardianGuardianshipsList
-					items={guardianships}
-					onSendReport={(item) => setReportTarget(item)}
-					onCancel={(item) => setCancelTarget(item)}
-				/>
+			<section className="space-y-4">
+				<div className="flex flex-wrap gap-2 border-b border-(--color-border)">
+					{TABS.map(({ key, label, Icon }) => {
+						const isActive = activeTab === key;
+						const count = key === 'guardianships' ? guardianships.length : null;
+						return (
+							<button
+								key={key}
+								type="button"
+								onClick={() => setActiveTab(key)}
+								className={cn(
+									'flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px',
+									isActive
+										? 'text-(--color-brand-orange) border-(--color-brand-orange)'
+										: 'text-(--color-text-secondary) border-transparent hover:text-(--color-text-primary)'
+								)}>
+								<Icon size={16} />
+								{label}
+								{count !== null && (
+									<span
+										className={cn(
+											'inline-flex items-center justify-center min-w-5 px-1.5 text-[11px] font-semibold rounded-full',
+											isActive
+												? 'bg-(--color-brand-orange) text-white'
+												: 'bg-(--color-bg-secondary) text-(--color-text-secondary)'
+										)}>
+										{count}
+									</span>
+								)}
+							</button>
+						);
+					})}
+				</div>
+
+				{activeTab === 'guardianships' && (
+					<GuardianGuardianshipsList
+						items={guardianships}
+						onSendReport={(item) => setReportTarget(item)}
+						onCancel={(item) => setCancelTarget(item)}
+					/>
+				)}
+
+				{activeTab === 'reports' && <GuardianReportsList userId={id} />}
 			</section>
 
 			{reportTarget && (

@@ -59,8 +59,10 @@ export const AllGuardianshipsPage = (): JSX.Element => {
 			<GuardianshipsFilters
 				status={filters.status}
 				curatorId={filters.curatorId}
+				search={filters.search}
 				onStatusChange={(status) => patchFilters({ status, page: 1 })}
 				onCuratorChange={(curatorId) => patchFilters({ curatorId, page: 1 })}
+				onSearchChange={(search) => patchFilters({ search, page: 1 })}
 				onReset={resetFilters}
 			/>
 

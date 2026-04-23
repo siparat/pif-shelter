@@ -72,6 +72,8 @@ import {
 	listBlacklistResponseSchema,
 	listCuratorMeetingRequestsQuerySchema,
 	listCuratorMeetingRequestsResponseSchema,
+	listGuardianReportsRequestSchema,
+	listGuardianReportsResponseSchema,
 	listGuardianshipsRequestSchema,
 	listGuardianshipsResponseSchema,
 	listLedgerForMonthQuerySchema,
@@ -201,6 +203,8 @@ export class ListBlacklistQueryDto extends createZodDto(listBlacklistQuerySchema
 export class ListBlacklistResponseDto extends createZodDto(listBlacklistResponseSchema) {}
 export class ListCuratorMeetingRequestsQueryDto extends createZodDto(listCuratorMeetingRequestsQuerySchema) {}
 export class ListCuratorMeetingRequestsResponseDto extends createZodDto(listCuratorMeetingRequestsResponseSchema) {}
+export class ListGuardianReportsRequestDto extends createZodDto(listGuardianReportsRequestSchema) {}
+export class ListGuardianReportsResponseDto extends createZodDto(listGuardianReportsResponseSchema) {}
 export class ListGuardianshipsRequestDto extends createZodDto(listGuardianshipsRequestSchema) {}
 export class ListGuardianshipsResponseDto extends createZodDto(listGuardianshipsResponseSchema) {}
 export class ListLedgerForMonthQueryDto extends createZodDto(listLedgerForMonthQuerySchema) {}
