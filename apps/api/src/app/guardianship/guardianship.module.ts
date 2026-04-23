@@ -32,6 +32,7 @@ import { GuardianshipReservationHandler } from './events/guardianship-created/gu
 import { ScheduleTelegramReminderHandler } from './events/guardianship-activated/schedule-telegram-reminder.handler';
 import { GuardianshipProcessor } from './guardianship.processor';
 import { GetMyGaurdianshipsHandler } from './queries/get-my-guardianships/get-my-guardianships.handler';
+import { ListGuardianshipsHandler } from './queries/list-guardianships/list-guardianships.handler';
 
 @Module({
 	imports: [
@@ -66,6 +67,7 @@ import { GetMyGaurdianshipsHandler } from './queries/get-my-guardianships/get-my
 		ScheduleTelegramReminderHandler,
 		GuardianshipReservationHandler,
 		GetMyGaurdianshipsHandler,
+		ListGuardianshipsHandler,
 		GuardianshipProcessor,
 		{
 			provide: GuardianshipRepository,

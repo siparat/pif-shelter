@@ -1,7 +1,7 @@
 import { JSX } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { MENU } from '../../../../shared/config';
-import { cn } from '../../../../shared/lib';
+import { cn, isRouteActive } from '../../../../shared/lib';
 import { Logo } from '../Logo/Logo';
 import { LogoutButton } from './LogoutButton';
 
@@ -19,29 +19,30 @@ export const Sidebar = (): JSX.Element => {
 					Меню управления
 				</p>
 
-				{MENU.map(({ Icon, name, path, preload }) => (
-					<Link
-						key={path}
-						to={path}
-						onMouseEnter={() => void preload()}
-						onFocus={() => void preload()}
-						className={cn(
-							'flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group',
-							location.pathname === path
-								? 'bg-(--color-brand-orange) text-white shadow-lg shadow-(--color-brand-orange)/20'
-								: 'text-(--color-text-secondary) hover:bg-(--color-bg-primary) hover:text-(--color-text-primary)'
-						)}>
-						<Icon
-							size={20}
-							className={
-								location.pathname === path
-									? 'text-white'
-									: 'group-hover:text-(--color-brand-orange) transition-colors'
-							}
-						/>
-						<span>{name}</span>
-					</Link>
-				))}
+				{MENU.map(({ Icon, name, path, preload }) => {
+					const active = isRouteActive(location.pathname, path);
+					return (
+						<Link
+							key={path}
+							to={path}
+							onMouseEnter={() => void preload()}
+							onFocus={() => void preload()}
+							className={cn(
+								'flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group',
+								active
+									? 'bg-(--color-brand-orange) text-white shadow-lg shadow-(--color-brand-orange)/20'
+									: 'text-(--color-text-secondary) hover:bg-(--color-bg-primary) hover:text-(--color-text-primary)'
+							)}>
+							<Icon
+								size={20}
+								className={
+									active ? 'text-white' : 'group-hover:text-(--color-brand-orange) transition-colors'
+								}
+							/>
+							<span>{name}</span>
+						</Link>
+					);
+				})}
 			</div>
 
 			<div className="p-6 border-t border-(--color-border)">

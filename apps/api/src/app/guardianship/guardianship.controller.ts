@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GuardianshipStatusEnum, UserRole } from '@pif/shared';
 import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+import { ZodValidationPipe } from 'nestjs-zod';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import {
@@ -13,6 +14,8 @@ import {
 	CancelGuardianshipResponseDto,
 	GetGuardianshipByAnimalResponseDto,
 	GetMyGaurdianshipsResponseDto,
+	ListGuardianshipsRequestDto,
+	ListGuardianshipsResponseDto,
 	ReturnData,
 	StartGuardianshipAuthenticatedRequestDto,
 	StartGuardianshipRequestDto,
@@ -27,6 +30,7 @@ import { StartGuardianshipCommand } from './commands/start-guardianship/start-gu
 import { GuardianshipNotFoundException } from './exceptions/guardianship-not-found.exception';
 import { GetGuardianshipByAnimalQuery } from './queries/get-guardianship-by-animal/get-guardianship-by-animal.query';
 import { GetMyGaurdianshipsQuery } from './queries/get-my-guardianships/get-my-guardianships.query';
+import { ListGuardianshipsQuery } from './queries/list-guardianships/list-guardianships.query';
 
 @ApiTags('Guardianship | Опекунство')
 @Controller('guardianships')
@@ -48,6 +52,24 @@ export class GuardianshipController {
 		@Session() { user: { id } }: ISession
 	): Promise<ReturnData<typeof GetMyGaurdianshipsResponseDto>> {
 		return this.queryBus.execute(new GetMyGaurdianshipsQuery(id));
+	}
+
+	@ApiOperation({
+		summary: 'Список опекунств (для админки)',
+		description:
+			'Возвращает список опекунств с фильтрами и пагинацией. ADMIN/SENIOR_VOLUNTEER видят всех; VOLUNTEER — только опекунств по животным, где он куратор (фильтр curatorId принудительно выставляется в ID текущего пользователя).'
+	})
+	@ApiOkResponse({ description: 'Список опекунств', type: ListGuardianshipsResponseDto })
+	@UseGuards(AuthGuard, RoleGuard)
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER, UserRole.VOLUNTEER])
+	@Get()
+	async list(
+		@Query(ZodValidationPipe) query: ListGuardianshipsRequestDto,
+		@Session() session: ISession
+	): Promise<ListGuardianshipsResponseDto> {
+		const effectiveQuery: ListGuardianshipsRequestDto =
+			session.user.role === UserRole.VOLUNTEER ? { ...query, curatorId: session.user.id } : query;
+		return this.queryBus.execute(new ListGuardianshipsQuery(effectiveQuery));
 	}
 
 	@ApiOperation({

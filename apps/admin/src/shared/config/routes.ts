@@ -9,6 +9,8 @@ export type RouteKey =
 	| 'postDetails'
 	| 'postEdit'
 	| 'guardianships'
+	| 'guardianshipsMy'
+	| 'guardianshipsAll'
 	| 'meetings'
 	| 'user'
 	| 'login';
@@ -98,6 +100,24 @@ export const adminRoutes: AdminRoute[] = [
 		Icon: Users,
 		preload: () => import('../../pages/guardianships/ui/GuardianshipsPage/GuardianshipsPage'),
 		showInMenu: true
+	},
+	{
+		key: 'guardianshipsMy',
+		path: '/guardianships/my',
+		name: 'Мои подопечные',
+		shortName: 'Мои',
+		Icon: Users,
+		preload: () => import('../../pages/guardianships/ui/MyGuardianshipsPage/MyGuardianshipsPage'),
+		showInMenu: false
+	},
+	{
+		key: 'guardianshipsAll',
+		path: '/guardianships/all',
+		name: 'Все опекунства',
+		shortName: 'Все',
+		Icon: Users,
+		preload: () => import('../../pages/guardianships/ui/AllGuardianshipsPage/AllGuardianshipsPage'),
+		showInMenu: false
 	},
 	{
 		key: 'meetings',

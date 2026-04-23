@@ -97,7 +97,7 @@ export const Select = <T extends string | number>({
 				id={id}
 				className={cn(
 					'cursor-pointer w-full appearance-none bg-(--color-bg-primary) border rounded-xl py-3 px-4 pr-10 text-(--color-text-primary) focus:outline-none transition-all',
-					small && 'py-2.5 px-3 text-sm',
+					small && 'py-2.5 px-3 pr-10 text-sm',
 					error ? 'border-red-400' : 'border-(--color-border) focus:border-(--color-brand-orange)',
 					className
 				)}>

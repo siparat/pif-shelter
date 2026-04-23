@@ -70,6 +70,8 @@ import {
 	listBlacklistResponseSchema,
 	listCuratorMeetingRequestsQuerySchema,
 	listCuratorMeetingRequestsResponseSchema,
+	listGuardianshipsRequestSchema,
+	listGuardianshipsResponseSchema,
 	listLedgerForMonthQuerySchema,
 	listLedgerForMonthResponseSchema,
 	listVolunteersResponseSchema,
@@ -195,6 +197,8 @@ export class ListBlacklistQueryDto extends createZodDto(listBlacklistQuerySchema
 export class ListBlacklistResponseDto extends createZodDto(listBlacklistResponseSchema) {}
 export class ListCuratorMeetingRequestsQueryDto extends createZodDto(listCuratorMeetingRequestsQuerySchema) {}
 export class ListCuratorMeetingRequestsResponseDto extends createZodDto(listCuratorMeetingRequestsResponseSchema) {}
+export class ListGuardianshipsRequestDto extends createZodDto(listGuardianshipsRequestSchema) {}
+export class ListGuardianshipsResponseDto extends createZodDto(listGuardianshipsResponseSchema) {}
 export class ListLedgerForMonthQueryDto extends createZodDto(listLedgerForMonthQuerySchema) {}
 export class ListLedgerForMonthResponseDto extends createZodDto(listLedgerForMonthResponseSchema) {}
 export class ListVolunteersResponseDto extends createZodDto(listVolunteersResponseSchema) {}

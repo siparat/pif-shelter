@@ -9,8 +9,8 @@ import { toFormMedia, toMediaDraft } from '../../model/media-mapper';
 import {
 	buildEmptyPostEditorValues,
 	EditorMediaDraft,
-	postEditorFormSchema,
 	PostEditorFormFieldValues,
+	postEditorFormSchema,
 	PostEditorInitialMediaDraft,
 	PostEditorValues
 } from '../../model/types';
@@ -26,6 +26,7 @@ interface Props {
 	submitLabel?: string;
 	cancelLabel?: string;
 	isSubmitting?: boolean;
+	hideVisibility?: boolean;
 }
 
 const VISIBILITY_OPTIONS = [
@@ -41,7 +42,8 @@ export const PostEditor = ({
 	onCancel,
 	submitLabel = 'Опубликовать',
 	cancelLabel = 'Отмена',
-	isSubmitting
+	isSubmitting,
+	hideVisibility = false
 }: Props): JSX.Element => {
 	const initialDrafts = useMemo<EditorMediaDraft[]>(
 		() => (initialMedia ?? []).map((item, index) => toMediaDraft(item, index)),
@@ -118,21 +120,22 @@ export const PostEditor = ({
 				)}
 			/>
 
-			<Controller
-				name="visibility"
-				control={control}
-				render={({ field }) => (
-					<Select
-						label="Видимость"
-						options={VISIBILITY_OPTIONS}
-						value={field.value}
-						onChange={(event) => field.onChange(event.target.value)}
-						error={errors.visibility?.message}
-						disabled={isBusy}
-					/>
-				)}
-			/>
-
+			{!hideVisibility && (
+				<Controller
+					name="visibility"
+					control={control}
+					render={({ field }) => (
+						<Select
+							label="Видимость"
+							options={VISIBILITY_OPTIONS}
+							value={field.value}
+							onChange={(event) => field.onChange(event.target.value)}
+							error={errors.visibility?.message}
+							disabled={isBusy}
+						/>
+					)}
+				/>
+			)}
 			<PostMediaGallery
 				label={`Медиа (до ${MaxPostMediaItems.ALL} файлов, не более ${MaxPostMediaItems.VIDEO} видео)`}
 				items={mediaDrafts}
