@@ -11,6 +11,7 @@ export type RouteKey =
 	| 'guardianships'
 	| 'guardianshipsMy'
 	| 'guardianshipsAll'
+	| 'guardian'
 	| 'meetings'
 	| 'user'
 	| 'login';
@@ -117,6 +118,15 @@ export const adminRoutes: AdminRoute[] = [
 		shortName: 'Все',
 		Icon: Users,
 		preload: () => import('../../pages/guardianships/ui/AllGuardianshipsPage/AllGuardianshipsPage'),
+		showInMenu: false
+	},
+	{
+		key: 'guardian',
+		path: '/guardian/:id',
+		name: 'Опекун',
+		shortName: 'Опекун',
+		Icon: User,
+		preload: () => import('../../pages/guardian/ui/GuardianPage/GuardianPage'),
 		showInMenu: false
 	},
 	{

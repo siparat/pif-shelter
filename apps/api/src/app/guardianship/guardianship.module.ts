@@ -24,6 +24,7 @@ import { SendGuardianshipCancelledEmailHandler } from './events/guardianship-can
 import { SendGuardianshipCancelledTelegramHandler } from './events/guardianship-cancelled/send-guardianship-cancelled-telegram.handler';
 import { GuardianshipCreatedHandler } from './events/guardianship-created/guardianship-created.handler';
 import { GuardianshipController } from './guardianship.controller';
+import { GetGuardianProfileHandler } from './queries/get-guardian-profile/get-guardian-profile.handler';
 import { GetGuardianshipByAnimalHandler } from './queries/get-guardianship-by-animal/get-guardianship-by-animal.handler';
 import { GetAnimalForGuardianCardHandler } from './queries/get-animal-for-guardian-card/get-animal-for-guardian-card.handler';
 import { DrizzleGuardianshipRepository } from './repositories/drizzle-guardianship.repository';
@@ -57,6 +58,7 @@ import { ListGuardianshipsHandler } from './queries/list-guardianships/list-guar
 		SendGuardianshipCancelledTelegramHandler,
 		CancelGuardianshipPolicy,
 		GetGuardianshipByAnimalHandler,
+		GetGuardianProfileHandler,
 		GetAnimalForGuardianCardHandler,
 		GuardianshipCreatedHandler,
 		GuardianshipCancelledHandler,

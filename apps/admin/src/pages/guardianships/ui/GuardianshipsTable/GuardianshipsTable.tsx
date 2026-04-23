@@ -12,6 +12,7 @@ import {
 } from '../../../../entities/guardianship';
 import { useSession } from '../../../../entities/session/model/hooks';
 import { ROUTES } from '../../../../shared/config';
+import { getUserTelegramLink } from '../../../../shared/lib';
 import { Button } from '../../../../shared/ui';
 
 interface Props {
@@ -30,14 +31,6 @@ const formatMoney = (value: number | null): string => {
 	return new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', maximumFractionDigits: 0 }).format(
 		value
 	);
-};
-
-const getUserTelegramLink = (telegram: string | null): string => {
-	const telegramLink = 'https://t.me/';
-	if (!telegram) {
-		return '—';
-	}
-	return telegram.startsWith('@') ? telegramLink + telegram.slice(1) : telegramLink + telegram;
 };
 
 export const GuardianshipsTable = ({ guardianships, emptyState, onSendReport, onCancel }: Props): JSX.Element => {
@@ -111,14 +104,20 @@ export const GuardianshipsTable = ({ guardianships, emptyState, onSendReport, on
 										)}
 									</td>
 									<td className="p-3">
-										<div className="font-semibold">{item.guardian.name}</div>
-										<a
-											href={getUserTelegramLink(item.guardian.telegram)}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="text-xs text-(--color-text-secondary) underline">
-											{item.guardian.telegram}
-										</a>
+										<Link
+											to={ROUTES.guardian.replace(':id', item.guardian.id)}
+											className="font-semibold hover:underline">
+											{item.guardian.name}
+										</Link>
+										<div>
+											<a
+												href={getUserTelegramLink(item.guardian.telegram)}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="text-xs text-(--color-text-secondary) underline">
+												{item.guardian.telegram}
+											</a>
+										</div>
 										{item.guardian.telegramUnreachable && (
 											<div className="mt-1 inline-flex items-center gap-1 text-[11px] text-amber-300">
 												<AlertTriangle size={12} />
@@ -211,9 +210,21 @@ export const GuardianshipsTable = ({ guardianships, emptyState, onSendReport, on
 							<dl className="grid grid-cols-2 gap-2 text-xs">
 								<div>
 									<dt className="text-(--color-text-secondary)">Опекун</dt>
-									<dd className="font-medium">{item.guardian.name}</dd>
-									<dd className="text-(--color-text-secondary)">
-										{getUserTelegramLink(item.guardian.telegram)}
+									<dd className="font-medium">
+										<Link
+											to={ROUTES.guardian.replace(':id', item.guardian.id)}
+											className="hover:underline text-(--color-text-primary)">
+											{item.guardian.name}
+										</Link>
+									</dd>
+									<dd className="text-(--color-text-secondary) max-md:mt-3">
+										<a
+											href={getUserTelegramLink(item.guardian.telegram)}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="underline">
+											{item.guardian.telegram ?? '—'}
+										</a>
 									</dd>
 								</div>
 								<div>

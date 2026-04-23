@@ -54,6 +54,8 @@ import {
 	getAnimalByIdResponseSchema,
 	getBlacklistByIdResponseSchema,
 	getCampaignByIdResponseSchema,
+	getGuardianProfileRequestSchema,
+	getGuardianProfileResponseSchema,
 	getGuardianshipByAnimalRequestSchema,
 	getGuardianshipByAnimalResponseSchema,
 	getMeetingRequestByIdResponseSchema,
@@ -181,6 +183,8 @@ export class GetAnimalByIdRequestDto extends createZodDto(getAnimalByIdRequestSc
 export class GetAnimalByIdResponseDto extends createZodDto(getAnimalByIdResponseSchema) {}
 export class GetBlacklistByIdResponseDto extends createZodDto(getBlacklistByIdResponseSchema) {}
 export class GetCampaignByIdResponseDto extends createZodDto(getCampaignByIdResponseSchema) {}
+export class GetGuardianProfileRequestDto extends createZodDto(getGuardianProfileRequestSchema) {}
+export class GetGuardianProfileResponseDto extends createZodDto(getGuardianProfileResponseSchema) {}
 export class GetGuardianshipByAnimalRequestDto extends createZodDto(getGuardianshipByAnimalRequestSchema) {}
 export class GetGuardianshipByAnimalResponseDto extends createZodDto(getGuardianshipByAnimalResponseSchema) {}
 export class GetMeetingRequestByIdResponseDto extends createZodDto(getMeetingRequestByIdResponseSchema) {}

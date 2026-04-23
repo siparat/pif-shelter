@@ -16,6 +16,7 @@ const PostEditPage = lazy(() => import('../pages/post-edit/ui/PostEditPage/PostE
 const GuardianshipsPage = lazy(() => import('../pages/guardianships/ui/GuardianshipsPage/GuardianshipsPage'));
 const MyGuardianshipsPage = lazy(() => import('../pages/guardianships/ui/MyGuardianshipsPage/MyGuardianshipsPage'));
 const AllGuardianshipsPage = lazy(() => import('../pages/guardianships/ui/AllGuardianshipsPage/AllGuardianshipsPage'));
+const GuardianPage = lazy(() => import('../pages/guardian/ui/GuardianPage/GuardianPage'));
 const MeetingsPage = lazy(() => import('../pages/meetings/ui/MeetingsPage/MeetingsPage'));
 
 const PageFallback = (): JSX.Element => (
@@ -35,6 +36,7 @@ const routeComponentByPath: Record<string, JSX.Element> = {
 	[ROUTES.guardianships]: <GuardianshipsPage />,
 	[ROUTES.guardianshipsMy]: <MyGuardianshipsPage />,
 	[ROUTES.guardianshipsAll]: <AllGuardianshipsPage />,
+	[ROUTES.guardian]: <GuardianPage />,
 	[ROUTES.meetings]: <MeetingsPage />
 };
 

@@ -12,6 +12,8 @@ import {
 	CancelGuardianshipByTokenResponseDto,
 	CancelGuardianshipRequestDto,
 	CancelGuardianshipResponseDto,
+	GetGuardianProfileResponseDto,
+	GetGuardianProfileResult,
 	GetGuardianshipByAnimalResponseDto,
 	GetMyGaurdianshipsResponseDto,
 	ListGuardianshipsRequestDto,
@@ -28,6 +30,7 @@ import { CancelGuardianshipCommand } from './commands/cancel-guardianship/cancel
 import { StartGuardianshipAsGuestCommand } from './commands/start-guardianship-as-guest/start-guardianship-as-guest.command';
 import { StartGuardianshipCommand } from './commands/start-guardianship/start-guardianship.command';
 import { GuardianshipNotFoundException } from './exceptions/guardianship-not-found.exception';
+import { GetGuardianProfileQuery } from './queries/get-guardian-profile/get-guardian-profile.query';
 import { GetGuardianshipByAnimalQuery } from './queries/get-guardianship-by-animal/get-guardianship-by-animal.query';
 import { GetMyGaurdianshipsQuery } from './queries/get-my-guardianships/get-my-guardianships.query';
 import { ListGuardianshipsQuery } from './queries/list-guardianships/list-guardianships.query';
@@ -125,6 +128,23 @@ export class GuardianshipController {
 		@Body() dto: CancelGuardianshipByTokenRequestDto
 	): Promise<ReturnData<typeof CancelGuardianshipByTokenResponseDto>> {
 		return this.commandBus.execute(new CancelGuardianshipByTokenCommand(dto.token));
+	}
+
+	@ApiOperation({
+		summary: 'Профиль опекуна',
+		description:
+			'Возвращает карточку опекуна: базовая информация, статистика и все опекунства. ADMIN/SENIOR_VOLUNTEER видят любого опекуна; VOLUNTEER — только если опекун связан хотя бы с одним из подопечных этого куратора.'
+	})
+	@ApiOkResponse({ description: 'Профиль опекуна', type: GetGuardianProfileResponseDto })
+	@UseGuards(AuthGuard, RoleGuard)
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER, UserRole.VOLUNTEER])
+	@Get('guardian/:userId')
+	async getGuardianProfile(
+		@Param('userId') userId: string,
+		@Session() session: ISession
+	): Promise<ReturnData<GetGuardianProfileResult>> {
+		const curatorFilterId = session.user.role === UserRole.VOLUNTEER ? session.user.id : null;
+		return this.queryBus.execute(new GetGuardianProfileQuery(userId, curatorFilterId));
 	}
 
 	@ApiOperation({
