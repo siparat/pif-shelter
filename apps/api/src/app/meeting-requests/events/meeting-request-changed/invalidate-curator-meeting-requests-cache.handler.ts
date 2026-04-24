@@ -18,7 +18,7 @@ export class InvalidateCuratorMeetingRequestsCacheHandler
 	async handle(
 		event: MeetingRequestCreatedEvent | MeetingRequestConfirmedEvent | MeetingRequestRejectedEvent
 	): Promise<void> {
-		const pattern = `${MeetingCacheKeys.CURATOR_LIST}:${event.meetingRequest.curatorUserId}:*`;
+		const pattern = MeetingCacheKeys.CURATOR_LIST;
 		await this.cache.delByPattern(pattern).catch(() => undefined);
 		this.logger.log('Кэш заявок куратора сброшен', { curatorUserId: event.meetingRequest.curatorUserId });
 	}

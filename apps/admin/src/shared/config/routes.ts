@@ -13,6 +13,7 @@ export type RouteKey =
 	| 'guardianshipsAll'
 	| 'guardian'
 	| 'meetings'
+	| 'meetingDetails'
 	| 'user'
 	| 'login';
 
@@ -137,6 +138,15 @@ export const adminRoutes: AdminRoute[] = [
 		Icon: MessageSquare,
 		preload: () => import('../../pages/meetings/ui/MeetingsPage/MeetingsPage'),
 		showInMenu: true
+	},
+	{
+		key: 'meetingDetails',
+		path: '/meetings/:id',
+		name: 'Заявка на встречу',
+		shortName: 'Заявка',
+		Icon: MessageSquare,
+		preload: () => import('../../pages/meeting/ui/MeetingPage/MeetingPage'),
+		showInMenu: false
 	},
 	{
 		key: 'user',

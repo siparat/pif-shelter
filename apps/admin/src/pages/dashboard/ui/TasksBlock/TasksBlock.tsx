@@ -1,35 +1,58 @@
 import { Calendar, UserCheck } from 'lucide-react';
 import { JSX } from 'react';
+import { Link } from 'react-router-dom';
 import { DashboardCard } from '../DashboardCard/DashboardCard';
 
 interface Props {
 	newCount: number;
 	upcoming24hCount: number;
+	newLink?: string;
+	upcomingLink?: string;
 }
 
-export const TasksBlock = ({ newCount, upcoming24hCount }: Props): JSX.Element => {
+export const TasksBlock = ({ newCount, upcoming24hCount, newLink, upcomingLink }: Props): JSX.Element => {
+	const upcomingContent = (
+		<div className="flex items-center gap-4 bg-(--color-bg-primary) p-5 rounded-2xl border border-(--color-border) group-hover:border-(--color-brand-orange) transition-colors">
+			<div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
+				<Calendar size={24} />
+			</div>
+			<div className="flex flex-col">
+				<span className="text-2xl font-bold">{upcoming24hCount}</span>
+				<span className="text-xs text-(--color-text-secondary)">Встречи за 24ч</span>
+			</div>
+		</div>
+	);
+
+	const newContent = (
+		<div className="flex items-center gap-4 bg-(--color-bg-primary) p-5 rounded-2xl border border-(--color-border) group-hover:border-(--color-brand-orange) transition-colors">
+			<div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center text-green-400 group-hover:bg-green-500 group-hover:text-white transition-all">
+				<UserCheck size={24} />
+			</div>
+			<div className="flex flex-col">
+				<span className="text-2xl font-bold">{newCount}</span>
+				<span className="text-xs text-(--color-text-secondary)">Новые заявки</span>
+			</div>
+		</div>
+	);
+
 	return (
 		<DashboardCard title="Мои задачи">
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div className="flex items-center gap-4 bg-(--color-bg-primary) p-5 rounded-2xl border border-(--color-border) group hover:border-(--color-brand-orange) transition-colors">
-					<div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
-						<Calendar size={24} />
-					</div>
-					<div className="flex flex-col">
-						<span className="text-2xl font-bold">{upcoming24hCount}</span>
-						<span className="text-xs text-(--color-text-secondary)">Встречи за 24ч</span>
-					</div>
-				</div>
+				{upcomingLink ? (
+					<Link to={upcomingLink} className="group">
+						{upcomingContent}
+					</Link>
+				) : (
+					upcomingContent
+				)}
 
-				<div className="flex items-center gap-4 bg-(--color-bg-primary) p-5 rounded-2xl border border-(--color-border) group hover:border-(--color-brand-orange) transition-colors">
-					<div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center text-green-400 group-hover:bg-green-500 group-hover:text-white transition-all">
-						<UserCheck size={24} />
-					</div>
-					<div className="flex flex-col">
-						<span className="text-2xl font-bold">{newCount}</span>
-						<span className="text-xs text-(--color-text-secondary)">Новые заявки</span>
-					</div>
-				</div>
+				{newLink ? (
+					<Link to={newLink} className="group">
+						{newContent}
+					</Link>
+				) : (
+					newContent
+				)}
 			</div>
 		</DashboardCard>
 	);

@@ -5,6 +5,7 @@ import { Button, PageTitle } from '../../../../shared/ui';
 import { getDashboardSummary } from '../../api/get-summary';
 import { AlertsBlock } from '../AlertsBlock/AlertsBlock';
 import { TasksBlock } from '../TasksBlock/TasksBlock';
+import { ROUTES } from '../../../../shared/config';
 
 export const DashboardPage = (): JSX.Element => {
 	const { data, isLoading, error, refetch } = useQuery({
@@ -45,6 +46,8 @@ export const DashboardPage = (): JSX.Element => {
 				<TasksBlock
 					newCount={data.meetingRequests.newCount}
 					upcoming24hCount={data.meetingRequests.upcoming24hCount}
+					newLink={`${ROUTES.meetings}?status=NEW`}
+					upcomingLink={ROUTES.meetings}
 				/>
 			</div>
 

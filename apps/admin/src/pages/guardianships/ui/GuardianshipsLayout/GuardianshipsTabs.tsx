@@ -19,7 +19,7 @@ export const GuardianshipsTabs = (): JSX.Element => {
 	];
 
 	return (
-		<nav className="flex gap-2 border-b border-(--color-border) overflow-x-auto">
+		<nav className="flex gap-2 border-b border-(--color-border)">
 			{tabs.map((tab) => {
 				const active = isRouteActive(location.pathname, tab.to);
 				return (

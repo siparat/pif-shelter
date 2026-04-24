@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
-import { ListCuratorMeetingRequestsResult } from '@pif/contracts';
+import { ListCuratorMeetingRequestsResult, MeetingRequestsSort } from '@pif/contracts';
 import { animals, DatabaseService, meetingRequests, users } from '@pif/database';
 import { MeetingCacheKeys } from '@pif/shared';
-import { and, count, desc, eq } from 'drizzle-orm';
+import { and, asc, count, desc, eq } from 'drizzle-orm';
 import { ListCuratorMeetingRequestsQuery } from './list-curator-meeting-requests.query';
 
 @QueryHandler(ListCuratorMeetingRequestsQuery)
@@ -14,7 +14,7 @@ export class ListCuratorMeetingRequestsHandler implements IQueryHandler<ListCura
 	) {}
 
 	async execute({ dto, curatorUserId }: ListCuratorMeetingRequestsQuery): Promise<ListCuratorMeetingRequestsResult> {
-		const { page = 1, perPage = 20, status } = dto;
+		const { page = 1, perPage = 20, status, sort = 'createdAt:desc' } = dto;
 		const cacheKey = this.cache.buildQueryKey(MeetingCacheKeys.CURATOR_LIST, { dto, curatorUserId });
 		const cached = await this.cache.get<ListCuratorMeetingRequestsResult>(cacheKey).catch(() => null);
 		if (cached) {
@@ -25,6 +25,7 @@ export class ListCuratorMeetingRequestsHandler implements IQueryHandler<ListCura
 			eq(meetingRequests.curatorUserId, curatorUserId),
 			status ? eq(meetingRequests.status, status) : undefined
 		);
+		const orderByExpr = this.getOrderByExpr(sort);
 
 		const [rows, [totalRow]] = await Promise.all([
 			this.db.client
@@ -37,7 +38,7 @@ export class ListCuratorMeetingRequestsHandler implements IQueryHandler<ListCura
 				.innerJoin(animals, eq(animals.id, meetingRequests.animalId))
 				.innerJoin(users, eq(users.id, meetingRequests.curatorUserId))
 				.where(whereClause)
-				.orderBy(desc(meetingRequests.createdAt))
+				.orderBy(orderByExpr)
 				.limit(perPage)
 				.offset((page - 1) * perPage),
 			this.db.client.select({ count: count() }).from(meetingRequests).where(whereClause)
@@ -75,5 +76,19 @@ export class ListCuratorMeetingRequestsHandler implements IQueryHandler<ListCura
 		};
 		await this.cache.set(cacheKey, result).catch(() => undefined);
 		return result;
+	}
+
+	private getOrderByExpr(sort: MeetingRequestsSort): ReturnType<typeof desc> {
+		switch (sort) {
+			case 'createdAt:asc':
+				return asc(meetingRequests.createdAt);
+			case 'meetingAt:asc':
+				return asc(meetingRequests.meetingAt);
+			case 'meetingAt:desc':
+				return desc(meetingRequests.meetingAt);
+			case 'createdAt:desc':
+			default:
+				return desc(meetingRequests.createdAt);
+		}
 	}
 }
