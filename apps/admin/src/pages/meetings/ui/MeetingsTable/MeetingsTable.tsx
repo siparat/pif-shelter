@@ -136,7 +136,7 @@ export const MeetingsTable = ({ meetings, emptyState, onConfirm, onReject }: Pro
 												to={ROUTES.meetingDetails.replace(':id', item.id)}
 												className="inline-flex items-center gap-1 text-xs text-(--color-text-secondary) hover:text-(--color-brand-orange)">
 												<ExternalLink size={12} />
-												Карточка
+												Открыть
 											</Link>
 											{canAct && (
 												<>
@@ -214,7 +214,7 @@ export const MeetingsTable = ({ meetings, emptyState, onConfirm, onReject }: Pro
 									to={ROUTES.meetingDetails.replace(':id', item.id)}
 									className="inline-flex items-center gap-1 text-xs text-(--color-text-secondary) hover:text-(--color-brand-orange) px-3 py-1.5 border border-(--color-border) rounded-lg">
 									<ExternalLink size={12} />
-									Карточка
+									Открыть
 								</Link>
 								{canAct && (
 									<>

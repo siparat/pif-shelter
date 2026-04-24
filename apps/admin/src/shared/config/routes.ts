@@ -1,4 +1,13 @@
-import { type LucideIcon, LayoutDashboard, LogIn, MessageSquare, PawPrint, User, Users } from 'lucide-react';
+import {
+	type LucideIcon,
+	LayoutDashboard,
+	LogIn,
+	MessageSquare,
+	PawPrint,
+	ShoppingCart,
+	User,
+	Users
+} from 'lucide-react';
 
 export type RouteKey =
 	| 'dashboard'
@@ -14,6 +23,7 @@ export type RouteKey =
 	| 'guardian'
 	| 'meetings'
 	| 'meetingDetails'
+	| 'wishlist'
 	| 'user'
 	| 'login';
 
@@ -147,6 +157,15 @@ export const adminRoutes: AdminRoute[] = [
 		Icon: MessageSquare,
 		preload: () => import('../../pages/meeting/ui/MeetingPage/MeetingPage'),
 		showInMenu: false
+	},
+	{
+		key: 'wishlist',
+		path: '/wishlist',
+		name: 'Список нужд',
+		shortName: 'Нужды',
+		Icon: ShoppingCart,
+		preload: () => import('../../pages/wishlist/ui/WishlistPage/WishlistPage'),
+		showInMenu: true
 	},
 	{
 		key: 'user',

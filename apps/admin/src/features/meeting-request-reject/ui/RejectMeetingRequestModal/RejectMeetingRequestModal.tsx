@@ -1,6 +1,6 @@
 import { rejectMeetingRequestDtoSchema } from '@pif/contracts';
 import { AlertTriangle } from 'lucide-react';
-import { SubmitEvent, JSX, useState } from 'react';
+import { JSX, SubmitEvent, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useRejectMeetingRequestMutation } from '../../../../entities/meeting-request';
 import { getErrorMessage } from '../../../../shared/api';

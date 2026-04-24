@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { JSX } from 'react';
+import { ROUTES } from '../../../../shared/config';
 import { Button, PageTitle } from '../../../../shared/ui';
 import { getDashboardSummary } from '../../api/get-summary';
 import { AlertsBlock } from '../AlertsBlock/AlertsBlock';
 import { TasksBlock } from '../TasksBlock/TasksBlock';
-import { ROUTES } from '../../../../shared/config';
 
 export const DashboardPage = (): JSX.Element => {
 	const { data, isLoading, error, refetch } = useQuery({

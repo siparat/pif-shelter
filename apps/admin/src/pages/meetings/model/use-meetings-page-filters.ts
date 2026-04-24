@@ -22,9 +22,10 @@ const parseStatus = (value: string | null): MeetingRequestStatusEnum | undefined
 		: undefined;
 };
 
-export interface MeetingsPageFilters extends MeetingRequestsListParams {
+export interface MeetingsPageFilters extends Omit<MeetingRequestsListParams, 'sort'> {
 	page: number;
 	perPage: number;
+	sort: NonNullable<MeetingRequestsListParams['sort']>;
 	upcoming24hOnly: boolean;
 }
 
