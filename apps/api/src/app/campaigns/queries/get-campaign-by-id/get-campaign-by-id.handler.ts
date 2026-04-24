@@ -4,6 +4,7 @@ import { DatabaseService } from '@pif/database';
 import { CampaignsCacheKeys, CampaignStatus } from '@pif/shared';
 import { CampaignNotFoundException } from '../../exceptions/campaign-not-found.exception';
 import { CampaignsService } from '../../campaigns.service';
+import { CampaignMapper } from '../../mappers/campaign.mapper';
 import { CampaignDetails, GetCampaignByIdQuery } from './get-campaign-by-id.query';
 
 @QueryHandler(GetCampaignByIdQuery)
@@ -39,8 +40,9 @@ export class GetCampaignByIdHandler implements IQueryHandler<GetCampaignByIdQuer
 			result.status = CampaignStatus.FAILED;
 		}
 
-		await this.cache.set(cacheKey, result).catch(() => null);
+		const response = CampaignMapper.toApiResponseFromDetails(result);
+		await this.cache.set(cacheKey, response).catch(() => null);
 
-		return result;
+		return response;
 	}
 }

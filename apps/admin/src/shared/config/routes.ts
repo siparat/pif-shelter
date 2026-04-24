@@ -4,6 +4,7 @@ import {
 	LogIn,
 	MessageSquare,
 	PawPrint,
+	Heart,
 	ShoppingCart,
 	User,
 	Users
@@ -24,6 +25,7 @@ export type RouteKey =
 	| 'meetings'
 	| 'meetingDetails'
 	| 'wishlist'
+	| 'campaigns'
 	| 'user'
 	| 'login';
 
@@ -165,7 +167,16 @@ export const adminRoutes: AdminRoute[] = [
 		shortName: 'Нужды',
 		Icon: ShoppingCart,
 		preload: () => import('../../pages/wishlist/ui/WishlistPage/WishlistPage'),
-		showInMenu: true
+		showInMenu: false
+	},
+	{
+		key: 'campaigns',
+		path: '/campaigns',
+		name: 'Срочные сборы',
+		shortName: 'Сборы',
+		Icon: Heart,
+		preload: () => import('../../pages/campaigns/ui/CampaignsPage/CampaignsPage'),
+		showInMenu: false
 	},
 	{
 		key: 'user',

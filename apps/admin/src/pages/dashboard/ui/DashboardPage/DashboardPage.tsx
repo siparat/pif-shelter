@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { JSX } from 'react';
+import { Link } from 'react-router-dom';
 import { ROUTES } from '../../../../shared/config';
 import { Button, PageTitle } from '../../../../shared/ui';
 import { getDashboardSummary } from '../../api/get-summary';
@@ -39,7 +40,18 @@ export const DashboardPage = (): JSX.Element => {
 
 	return (
 		<div className="flex flex-col gap-8 pb-10">
-			<PageTitle title="Обзор" subtitle="Оперативная информация на сегодня" />
+			<PageTitle title="Обзор" subtitle="Оперативная информация на сегодня">
+				<div className="flex flex-col sm:flex-row gap-2">
+					<Link to={ROUTES.wishlist}>
+						<Button className="mt-0 w-full sm:w-auto px-4 py-2">Открыть нужды</Button>
+					</Link>
+					<Link to={ROUTES.campaigns}>
+						<Button appearance="ghost" className="mt-0 w-full sm:w-auto px-4 py-2">
+							Открыть сборы
+						</Button>
+					</Link>
+				</div>
+			</PageTitle>
 
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 				<AlertsBlock sosCount={data.wishlist.sosCount} activeItemsCount={data.wishlist.activeItemsCount} />

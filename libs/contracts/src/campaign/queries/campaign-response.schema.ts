@@ -30,3 +30,5 @@ export const campaignResponseSchema = z
 		animal: campaignAnimalSchema
 	})
 	.passthrough();
+
+export type CampaignResponse = z.infer<typeof campaignResponseSchema>;

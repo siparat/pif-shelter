@@ -21,6 +21,7 @@ const UserPage = lazy(() => import('../pages/user/ui/UserPage/UserPage'));
 const MeetingsPage = lazy(() => import('../pages/meetings/ui/MeetingsPage/MeetingsPage'));
 const MeetingPage = lazy(() => import('../pages/meeting/ui/MeetingPage/MeetingPage'));
 const WishlistPage = lazy(() => import('../pages/wishlist/ui/WishlistPage/WishlistPage'));
+const CampaignsPage = lazy(() => import('../pages/campaigns/ui/CampaignsPage/CampaignsPage'));
 
 const PageFallback = (): JSX.Element => (
 	<div className="min-h-60 w-full flex items-center justify-center">
@@ -43,7 +44,8 @@ const routeComponentByPath: Record<string, JSX.Element> = {
 	[ROUTES.user]: <UserPage />,
 	[ROUTES.meetings]: <MeetingsPage />,
 	[ROUTES.meetingDetails]: <MeetingPage />,
-	[ROUTES.wishlist]: <WishlistPage />
+	[ROUTES.wishlist]: <WishlistPage />,
+	[ROUTES.campaigns]: <CampaignsPage />
 };
 
 export const router = createBrowserRouter([

@@ -3,6 +3,7 @@ import { CacheService } from '@pif/cache';
 import { animals, campaigns, DatabaseService, getSortOrder } from '@pif/database';
 import { CampaignsCacheKeys } from '@pif/shared';
 import { and, asc, desc, eq, getColumns, getOriginalColumnFromAlias, ilike, isNull, or, sql } from 'drizzle-orm';
+import { CampaignMapper } from '../../mappers/campaign.mapper';
 import { CampaingsSearchResult, SearchCampaignsQuery } from './search-campaigns.query';
 
 function hasColumn<T extends object>(columns: T, key: string): key is Extract<keyof T, string> {
@@ -74,7 +75,25 @@ export class SearchCampaignsHandler implements IQueryHandler<SearchCampaignsQuer
 			);
 
 		const total = campaignsList[0]?.totalCount || 0;
-		const data = campaignsList.map(({ totalCount: _, ...campaign }) => campaign);
+		const data = campaignsList.map((row) => {
+			const { totalCount, ...r } = row;
+			void totalCount;
+			return CampaignMapper.toApiResponse({
+				id: r.id,
+				title: r.title,
+				description: r.description,
+				goal: r.goal,
+				collected: r.collected,
+				previewImage: r.previewImage,
+				status: r.status,
+				startsAt: r.startsAt,
+				endsAt: r.endsAt,
+				createdAt: r.createdAt,
+				updatedAt: r.updatedAt,
+				deletedAt: r.deletedAt,
+				animal: r.animal
+			});
+		});
 
 		const result = {
 			data,

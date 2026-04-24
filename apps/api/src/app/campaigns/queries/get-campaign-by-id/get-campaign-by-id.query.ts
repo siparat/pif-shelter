@@ -1,9 +1,7 @@
 import { Query } from '@nestjs/cqrs';
-import { animals, campaigns } from '@pif/database';
+import { CampaignResponse } from '@pif/contracts';
 
-export type CampaignDetails = typeof campaigns.$inferSelect & {
-	animal: Pick<typeof animals.$inferSelect, 'id' | 'name' | 'avatarUrl' | 'gender' | 'status' | 'species'> | null;
-};
+export type CampaignDetails = CampaignResponse;
 
 export class GetCampaignByIdQuery extends Query<CampaignDetails> {
 	constructor(public readonly id: string) {
