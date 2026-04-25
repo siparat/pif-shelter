@@ -26,6 +26,7 @@ const MeetingsPage = lazy(() => import('../pages/meetings/ui/MeetingsPage/Meetin
 const MeetingPage = lazy(() => import('../pages/meeting/ui/MeetingPage/MeetingPage'));
 const WishlistPage = lazy(() => import('../pages/wishlist/ui/WishlistPage/WishlistPage'));
 const CampaignsPage = lazy(() => import('../pages/campaigns/ui/CampaignsPage/CampaignsPage'));
+const BlacklistPage = lazy(() => import('../pages/blacklist/ui/BlacklistPage/BlacklistPage'));
 const UsersPage = lazy(() => import('../pages/users/ui/UsersPage/UsersPage'));
 
 const PageFallback = (): JSX.Element => (
@@ -51,6 +52,7 @@ const routeComponentByPath: Record<string, JSX.Element> = {
 	[ROUTES.meetingDetails]: <MeetingPage />,
 	[ROUTES.wishlist]: <WishlistPage />,
 	[ROUTES.campaigns]: <CampaignsPage />,
+	[ROUTES.blacklist]: <BlacklistPage />,
 	[ROUTES.users]: <UsersPage />
 };
 

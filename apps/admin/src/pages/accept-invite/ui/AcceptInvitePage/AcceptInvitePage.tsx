@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { acceptInvitationRequestSchema } from '@pif/contracts';
 import { ALLOW_IMAGE_EXT, IMAGE_MIME_TYPES } from '@pif/shared';
-import { Lock, Loader2, User } from 'lucide-react';
+import { Loader2, Lock, User } from 'lucide-react';
 import { JSX } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';

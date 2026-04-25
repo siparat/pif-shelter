@@ -1,6 +1,6 @@
 import { MeetingRequestStatusEnum } from '@pif/shared';
 import dayjs from 'dayjs';
-import { CheckCircle2, ExternalLink, PawPrintIcon, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ExternalLink, PawPrintIcon, XCircle } from 'lucide-react';
 import { JSX, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { MeetingRequestItem, MeetingRequestStatusBadge } from '../../../../entities/meeting-request';
@@ -113,6 +113,12 @@ export const MeetingsTable = ({ meetings, emptyState, onConfirm, onReject }: Pro
 										{item.email && (
 											<div className="text-xs text-(--color-text-secondary)">{item.email}</div>
 										)}
+										{item.isSuspicious && (
+											<div className="mt-2 inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/15 px-2 py-0.5 text-[11px] font-medium text-amber-300">
+												<AlertTriangle size={11} />
+												Подозрительный контакт
+											</div>
+										)}
 									</td>
 									<td className="p-3 whitespace-nowrap">{formatDateTime(item.meetingAt)}</td>
 									<td className="p-3">
@@ -203,6 +209,12 @@ export const MeetingsTable = ({ meetings, emptyState, onConfirm, onReject }: Pro
 									<dt className="text-(--color-text-secondary)">Заявитель</dt>
 									<dd className="font-medium">{item.name}</dd>
 									<dd className="text-(--color-text-secondary)">{item.phone}</dd>
+									{item.isSuspicious && (
+										<dd className="mt-1 inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/15 px-2 py-0.5 text-[11px] font-medium text-amber-300">
+											<AlertTriangle size={11} />
+											Подозрительный контакт
+										</dd>
+									)}
 								</div>
 								<div>
 									<dt className="text-(--color-text-secondary)">Встреча</dt>

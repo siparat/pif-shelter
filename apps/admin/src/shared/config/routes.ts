@@ -1,5 +1,6 @@
 import {
 	type LucideIcon,
+	ShieldAlert,
 	LayoutDashboard,
 	LogIn,
 	MessageSquare,
@@ -26,6 +27,7 @@ export type RouteKey =
 	| 'meetingDetails'
 	| 'wishlist'
 	| 'campaigns'
+	| 'blacklist'
 	| 'users'
 	| 'user'
 	| 'login';
@@ -177,6 +179,15 @@ export const adminRoutes: AdminRoute[] = [
 		shortName: 'Сборы',
 		Icon: Heart,
 		preload: () => import('../../pages/campaigns/ui/CampaignsPage/CampaignsPage'),
+		showInMenu: false
+	},
+	{
+		key: 'blacklist',
+		path: '/blacklist',
+		name: 'Черный список',
+		shortName: 'Blacklist',
+		Icon: ShieldAlert,
+		preload: () => import('../../pages/blacklist/ui/BlacklistPage/BlacklistPage'),
 		showInMenu: false
 	},
 	{

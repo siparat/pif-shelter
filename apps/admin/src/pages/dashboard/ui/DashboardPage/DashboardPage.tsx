@@ -1,6 +1,6 @@
 import { UserRole } from '@pif/shared';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, Loader2, Users } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Loader2, Users } from 'lucide-react';
 import { JSX } from 'react';
 import { Link } from 'react-router-dom';
 import { useSession } from '../../../../entities/session/model/hooks';
@@ -15,6 +15,7 @@ export const DashboardPage = (): JSX.Element => {
 	const { data: session } = useSession();
 	const role = session?.user.role;
 	const canOpenTeam = role === UserRole.ADMIN || role === UserRole.SENIOR_VOLUNTEER;
+	const canOpenBlacklist = role === UserRole.ADMIN || role === UserRole.SENIOR_VOLUNTEER;
 	const volunteersQuery = useVolunteers({
 		enabled: canOpenTeam
 	});
@@ -85,14 +86,40 @@ export const DashboardPage = (): JSX.Element => {
 				/>
 			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-				<div className="bg-(--color-bg-secondary) border border-(--color-border) rounded-2xl p-6 h-32 flex flex-col justify-center border-dashed opacity-50">
-					<span className="text-xs font-bold uppercase tracking-widest text-(--color-text-secondary)">
-						Статистика
-					</span>
-					<span className="text-sm">В разработке...</span>
-				</div>
-				<div className="bg-(--color-bg-secondary) border border-(--color-border) rounded-2xl p-6 h-32 flex flex-col justify-center border-dashed opacity-50">
+			<div className="grid grid-cols-1 md:grid-cols-3 md:auto-rows-fr gap-6">
+				{canOpenBlacklist ? (
+					<Link
+						to={`${ROUTES.blacklist}?status=SUSPICION`}
+						className="flex flex-col justify-between bg-(--color-bg-secondary) border border-(--color-border) rounded-2xl p-6 h-full min-h-32 transition-colors hover:border-amber-500/60">
+						<div className="flex items-start justify-between gap-3">
+							<div>
+								<p className="text-xs font-bold uppercase tracking-widest text-(--color-text-secondary)">
+									Черный список
+								</p>
+								<p className="mt-1 text-sm text-(--color-text-secondary)">Подозрительные контакты</p>
+							</div>
+							<div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-2 text-amber-300">
+								<AlertTriangle size={16} />
+							</div>
+						</div>
+						<div className="mt-3 flex items-end justify-between">
+							<p className="text-2xl font-semibold">{data.blacklist.suspiciousContactsCount}</p>
+							<span className="text-xs text-(--color-text-secondary) group-hover:text-amber-300 transition-colors">
+								Открыть список
+							</span>
+						</div>
+					</Link>
+				) : (
+					<div className="flex flex-col justify-between bg-(--color-bg-secondary) border border-(--color-border) rounded-2xl p-6 h-full min-h-32">
+						<span className="text-xs font-bold uppercase tracking-widest text-(--color-text-secondary)">
+							Черный список
+						</span>
+						<span className="text-sm text-(--color-text-secondary)">
+							Доступ к модерации доступен старшему волонтёру и администратору.
+						</span>
+					</div>
+				)}
+				<div className="bg-(--color-bg-secondary) border border-(--color-border) rounded-2xl p-6 h-full min-h-32 flex flex-col justify-center border-dashed opacity-50">
 					<span className="text-xs font-bold uppercase tracking-widest text-(--color-text-secondary)">
 						Финансы
 					</span>
@@ -101,7 +128,7 @@ export const DashboardPage = (): JSX.Element => {
 				{canOpenTeam ? (
 					<Link
 						to={ROUTES.users}
-						className="group bg-(--color-bg-secondary) border border-(--color-border) rounded-2xl p-6 transition-colors hover:border-(--color-brand-orange)">
+						className="group bg-(--color-bg-secondary) border border-(--color-border) rounded-2xl p-6 h-full transition-colors hover:border-(--color-brand-orange)">
 						<div className="flex items-start justify-between gap-3">
 							<div className="space-y-2">
 								<p className="text-xs font-bold uppercase tracking-widest text-(--color-text-secondary)">
@@ -131,7 +158,7 @@ export const DashboardPage = (): JSX.Element => {
 						</div>
 					</Link>
 				) : (
-					<div className="bg-(--color-bg-secondary) border border-(--color-border) rounded-2xl p-6">
+					<div className="bg-(--color-bg-secondary) border border-(--color-border) rounded-2xl p-6 h-full">
 						<div className="flex items-start gap-3">
 							<div className="rounded-xl border border-(--color-border) p-2 text-(--color-text-secondary)">
 								<Users size={16} />

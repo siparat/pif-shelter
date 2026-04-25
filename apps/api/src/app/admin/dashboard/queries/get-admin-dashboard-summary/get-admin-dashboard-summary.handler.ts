@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
-import { DatabaseService, meetingRequests, wishlistItems } from '@pif/database';
-import { MeetingRequestStatusEnum, WishlistItemStatusEnum } from '@pif/shared';
+import { blacklist, DatabaseService, meetingRequests, wishlistItems } from '@pif/database';
+import { BlacklistStatus, MeetingRequestStatusEnum, WishlistItemStatusEnum } from '@pif/shared';
 import { and, count, eq, gte, lt, ne } from 'drizzle-orm';
 import { GetAdminDashboardSummaryResponseDto, ReturnData } from '../../../../core/dto';
 import { GetAdminDashboardSummaryQuery } from './get-admin-dashboard-summary.query';
@@ -29,51 +29,62 @@ export class GetAdminDashboardSummaryHandler implements IQueryHandler<GetAdminDa
 		const now = new Date();
 		const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
-		const [[newCount], [upcoming24hCount], [myNewCount], [myUpcoming24hCount], [sosCount], [activeItemsCount]] =
-			await Promise.all([
-				this.db.client
-					.select({ count: count() })
-					.from(meetingRequests)
-					.where(eq(meetingRequests.status, MeetingRequestStatusEnum.NEW)),
-				this.db.client
-					.select({ count: count() })
-					.from(meetingRequests)
-					.where(
-						and(
-							eq(meetingRequests.status, MeetingRequestStatusEnum.CONFIRMED),
-							gte(meetingRequests.meetingAt, now),
-							lt(meetingRequests.meetingAt, in24h)
-						)
-					),
-				this.db.client
-					.select({ count: count() })
-					.from(meetingRequests)
-					.where(
-						and(
-							eq(meetingRequests.status, MeetingRequestStatusEnum.NEW),
-							eq(meetingRequests.curatorUserId, userId)
-						)
-					),
-				this.db.client
-					.select({ count: count() })
-					.from(meetingRequests)
-					.where(
-						and(
-							eq(meetingRequests.status, MeetingRequestStatusEnum.CONFIRMED),
-							eq(meetingRequests.curatorUserId, userId),
-							gte(meetingRequests.meetingAt, now),
-							lt(meetingRequests.meetingAt, in24h)
-						)
-					),
-				this.db.client
-					.select({ count: count() })
-					.from(wishlistItems)
-					.where(eq(wishlistItems.status, WishlistItemStatusEnum.SOS)),
-				this.db.client
-					.select({ count: count() })
-					.from(wishlistItems)
-					.where(ne(wishlistItems.status, WishlistItemStatusEnum.NOT_NEEDED))
-			]);
+		const [
+			[newCount],
+			[upcoming24hCount],
+			[myNewCount],
+			[myUpcoming24hCount],
+			[suspiciousContactsCount],
+			[sosCount],
+			[activeItemsCount]
+		] = await Promise.all([
+			this.db.client
+				.select({ count: count() })
+				.from(meetingRequests)
+				.where(eq(meetingRequests.status, MeetingRequestStatusEnum.NEW)),
+			this.db.client
+				.select({ count: count() })
+				.from(meetingRequests)
+				.where(
+					and(
+						eq(meetingRequests.status, MeetingRequestStatusEnum.CONFIRMED),
+						gte(meetingRequests.meetingAt, now),
+						lt(meetingRequests.meetingAt, in24h)
+					)
+				),
+			this.db.client
+				.select({ count: count() })
+				.from(meetingRequests)
+				.where(
+					and(
+						eq(meetingRequests.status, MeetingRequestStatusEnum.NEW),
+						eq(meetingRequests.curatorUserId, userId)
+					)
+				),
+			this.db.client
+				.select({ count: count() })
+				.from(meetingRequests)
+				.where(
+					and(
+						eq(meetingRequests.status, MeetingRequestStatusEnum.CONFIRMED),
+						eq(meetingRequests.curatorUserId, userId),
+						gte(meetingRequests.meetingAt, now),
+						lt(meetingRequests.meetingAt, in24h)
+					)
+				),
+			this.db.client
+				.select({ count: count() })
+				.from(blacklist)
+				.where(eq(blacklist.status, BlacklistStatus.SUSPICION)),
+			this.db.client
+				.select({ count: count() })
+				.from(wishlistItems)
+				.where(eq(wishlistItems.status, WishlistItemStatusEnum.SOS)),
+			this.db.client
+				.select({ count: count() })
+				.from(wishlistItems)
+				.where(ne(wishlistItems.status, WishlistItemStatusEnum.NOT_NEEDED))
+		]);
 
 		const result: ReturnData<typeof GetAdminDashboardSummaryResponseDto> = {
 			meetingRequests: {
@@ -81,6 +92,9 @@ export class GetAdminDashboardSummaryHandler implements IQueryHandler<GetAdminDa
 				upcoming24hCount: upcoming24hCount.count,
 				myNewCount: myNewCount.count,
 				myUpcoming24hCount: myUpcoming24hCount.count
+			},
+			blacklist: {
+				suspiciousContactsCount: suspiciousContactsCount.count
 			},
 			wishlist: {
 				sosCount: sosCount.count,

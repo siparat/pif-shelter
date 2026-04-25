@@ -8,6 +8,9 @@ export const adminDashboardSummarySchema = z.object({
 		myNewCount: z.number().int().nonnegative(),
 		myUpcoming24hCount: z.number().int().nonnegative()
 	}),
+	blacklist: z.object({
+		suspiciousContactsCount: z.number().int().nonnegative()
+	}),
 	wishlist: z.object({
 		sosCount: z.number().int().nonnegative(),
 		activeItemsCount: z.number().int().nonnegative()
