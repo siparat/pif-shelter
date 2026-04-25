@@ -26,6 +26,7 @@ export type RouteKey =
 	| 'meetingDetails'
 	| 'wishlist'
 	| 'campaigns'
+	| 'users'
 	| 'user'
 	| 'login';
 
@@ -176,6 +177,15 @@ export const adminRoutes: AdminRoute[] = [
 		shortName: 'Сборы',
 		Icon: Heart,
 		preload: () => import('../../pages/campaigns/ui/CampaignsPage/CampaignsPage'),
+		showInMenu: false
+	},
+	{
+		key: 'users',
+		path: '/users',
+		name: 'Команда',
+		shortName: 'Команда',
+		Icon: Users,
+		preload: () => import('../../pages/users/ui/UsersPage/UsersPage'),
 		showInMenu: false
 	},
 	{

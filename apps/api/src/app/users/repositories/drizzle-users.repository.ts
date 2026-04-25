@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService, users } from '@pif/database';
+import { UserRole } from '@pif/shared';
 import { eq } from 'drizzle-orm';
 import { UsersRepository } from './users.repository';
 
@@ -62,5 +63,9 @@ export class DrizzleUsersRepository implements UsersRepository {
 
 	async setBanned(userId: string, value: boolean): Promise<void> {
 		await this.db.client.update(users).set({ banned: value }).where(eq(users.id, userId));
+	}
+
+	async setRole(userId: string, roleName: UserRole): Promise<void> {
+		await this.db.client.update(users).set({ role: roleName }).where(eq(users.id, userId));
 	}
 }

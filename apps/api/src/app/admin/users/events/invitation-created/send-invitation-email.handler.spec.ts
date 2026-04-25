@@ -56,7 +56,7 @@ describe('SendInvitationEmailHandler', () => {
 
 		await handler.handle(new InvitationCreatedEvent(mockInvitation));
 
-		expect(configService.getOrThrow).toHaveBeenCalledWith('APP_BASE_URL');
+		expect(configService.getOrThrow).toHaveBeenCalledWith('ADMIN_BASE_URL');
 		expect(mailerService.sendMail).toHaveBeenCalledWith({
 			to: mockInvitation.email,
 			subject: expect.any(String),

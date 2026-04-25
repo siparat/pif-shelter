@@ -69,7 +69,7 @@ export class SendEmailAboutCostGuardianshipHandler implements IEventHandler<Anim
 			}
 		}
 
-		const baseUrl = this.config.get<string>('APP_BASE_URL') ?? '';
+		const baseUrl = this.config.get<string>('ADMIN_BASE_URL') ?? '';
 		await this.paymentService.changeCostSubscription(animal.guardianship.subscriptionId, newCost);
 		try {
 			const html = await render(

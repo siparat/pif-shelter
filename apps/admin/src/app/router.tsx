@@ -6,6 +6,10 @@ import { Layout } from '../widgets/layout';
 import { ProtectedRoute } from './providers/ProtectedRoute';
 
 const LoginPage = lazy(() => import('../pages/login/ui/LoginPage/LoginPage'));
+const AcceptInvitePage = lazy(() => import('../pages/accept-invite/ui/AcceptInvitePage/AcceptInvitePage'));
+const CancelGuardianshipPage = lazy(
+	() => import('../pages/cancel-guardianship/ui/CancelGuardianshipPage/CancelGuardianshipPage')
+);
 const DashboardPage = lazy(() => import('../pages/dashboard/ui/DashboardPage/DashboardPage'));
 const AnimalsPage = lazy(() => import('../pages/animals/ui/AnimalsPage/AnimalsPage'));
 const AnimalPage = lazy(() => import('../pages/animal/ui/AnimalPage/AnimalPage'));
@@ -22,6 +26,7 @@ const MeetingsPage = lazy(() => import('../pages/meetings/ui/MeetingsPage/Meetin
 const MeetingPage = lazy(() => import('../pages/meeting/ui/MeetingPage/MeetingPage'));
 const WishlistPage = lazy(() => import('../pages/wishlist/ui/WishlistPage/WishlistPage'));
 const CampaignsPage = lazy(() => import('../pages/campaigns/ui/CampaignsPage/CampaignsPage'));
+const UsersPage = lazy(() => import('../pages/users/ui/UsersPage/UsersPage'));
 
 const PageFallback = (): JSX.Element => (
 	<div className="min-h-60 w-full flex items-center justify-center">
@@ -45,10 +50,27 @@ const routeComponentByPath: Record<string, JSX.Element> = {
 	[ROUTES.meetings]: <MeetingsPage />,
 	[ROUTES.meetingDetails]: <MeetingPage />,
 	[ROUTES.wishlist]: <WishlistPage />,
-	[ROUTES.campaigns]: <CampaignsPage />
+	[ROUTES.campaigns]: <CampaignsPage />,
+	[ROUTES.users]: <UsersPage />
 };
 
 export const router = createBrowserRouter([
+	{
+		path: '/accept-invite',
+		element: (
+			<Suspense fallback={<PageFallback />}>
+				<AcceptInvitePage />
+			</Suspense>
+		)
+	},
+	{
+		path: '/cancel-guardianship',
+		element: (
+			<Suspense fallback={<PageFallback />}>
+				<CancelGuardianshipPage />
+			</Suspense>
+		)
+	},
 	{
 		path: ROUTES.login,
 		element: (

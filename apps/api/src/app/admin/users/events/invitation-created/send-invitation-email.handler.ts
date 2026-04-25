@@ -18,7 +18,7 @@ export class SendInvitationEmailHandler implements IEventHandler<InvitationCreat
 	async handle(event: InvitationCreatedEvent): Promise<void> {
 		const { invitation } = event;
 		try {
-			const baseUrl = this.config.getOrThrow<string>('APP_BASE_URL');
+			const baseUrl = this.config.getOrThrow<string>('ADMIN_BASE_URL');
 			const inviteLink = AppUrlMapper.getInviteUrl(baseUrl, invitation.token);
 
 			const html = await render(

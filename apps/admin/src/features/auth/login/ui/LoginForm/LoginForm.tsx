@@ -1,9 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { Lock, Mail } from 'lucide-react';
 import { JSX } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { getSession } from '../../../../../entities/session/api/session.api';
 import { getErrorMessage } from '../../../../../shared/api';
 import { Button, Input } from '../../../../../shared/ui';
 import { signInEmail } from '../../api/sign-in-email';
@@ -11,6 +13,7 @@ import { LoginFormValues, loginSchema } from '../../model/login.schema';
 
 export const LoginForm = (): JSX.Element => {
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 
 	const {
 		register,
@@ -23,6 +26,10 @@ export const LoginForm = (): JSX.Element => {
 	const onSubmit = async (values: LoginFormValues): Promise<void> => {
 		try {
 			await signInEmail(values);
+			await queryClient.fetchQuery({
+				queryKey: ['session'],
+				queryFn: getSession
+			});
 			toast.success('Успешный вход');
 			navigate('/');
 		} catch (err) {

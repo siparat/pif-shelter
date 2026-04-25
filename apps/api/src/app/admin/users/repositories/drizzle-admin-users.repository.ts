@@ -3,7 +3,7 @@ import { DatabaseService, Invitation, invitations, users } from '@pif/database';
 import { UserRole } from '@pif/shared';
 import { and, eq, gt, inArray, isNull } from 'drizzle-orm';
 import { CreateInvitationRequestDto } from '../../../core/dto';
-import { AdminUsersRepository, VolunteerSummary } from './admin-users.repository';
+import { AdminUsersRepository, TeamUserSummary, VolunteerSummary } from './admin-users.repository';
 
 @Injectable()
 export class DrizzleAdminUsersRepository implements AdminUsersRepository {
@@ -88,5 +88,32 @@ export class DrizzleAdminUsersRepository implements AdminUsersRepository {
 			);
 
 		return volunteers;
+	}
+
+	async listTeamUsers(includeGuardians: boolean): Promise<TeamUserSummary[]> {
+		const allowedRoles = includeGuardians
+			? [UserRole.VOLUNTEER, UserRole.SENIOR_VOLUNTEER, UserRole.ADMIN, UserRole.GUARDIAN]
+			: [UserRole.VOLUNTEER, UserRole.SENIOR_VOLUNTEER, UserRole.ADMIN];
+
+		const teamUsers = await this.db.client
+			.select({
+				id: users.id,
+				avatar: users.image,
+				name: users.name,
+				email: users.email,
+				role: users.role,
+				position: users.position,
+				telegram: users.telegram,
+				telegramUnreachable: users.telegramUnreachable,
+				banned: users.banned,
+				createdAt: users.createdAt
+			})
+			.from(users)
+			.where(and(inArray(users.role, allowedRoles), isNull(users.deletedAt)));
+
+		return teamUsers.map((user) => ({
+			...user,
+			createdAt: user.createdAt.toISOString()
+		}));
 	}
 }

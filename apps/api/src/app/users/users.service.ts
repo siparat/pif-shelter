@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { users } from '@pif/database';
+import { UserRole } from '@pif/shared';
 import { UsersRepository } from './repositories/users.repository';
 import { UserTelegramUnreachableEvent } from './events/telegram-unreachable/telegram-unreachable.event';
 
@@ -44,6 +45,10 @@ export class UsersService {
 
 	async setBanned(userId: string, value: boolean): Promise<void> {
 		await this.repository.setBanned(userId, value);
+	}
+
+	async setRole(userId: string, roleName: UserRole): Promise<void> {
+		await this.repository.setRole(userId, roleName);
 	}
 
 	async findByTelegramBotLinkToken(token: string): Promise<typeof users.$inferSelect | undefined> {

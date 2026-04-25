@@ -31,7 +31,7 @@ export class SendGuardianshipCancelLinkEmailHandler implements IEventHandler<Gua
 		}
 
 		try {
-			const baseUrl = this.config.getOrThrow<string>('APP_BASE_URL');
+			const baseUrl = this.config.getOrThrow<string>('ADMIN_BASE_URL');
 			const cancelLink = AppUrlMapper.getCancelGuardianshipUrl(baseUrl, result.cancellationToken);
 
 			const html = await render(

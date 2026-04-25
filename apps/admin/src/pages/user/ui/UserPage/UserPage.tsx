@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useSession } from '../../../../entities/session/model/hooks';
 import { useAdminUser } from '../../../../entities/admin-user';
 import { UserBannedToggle } from '../../../../features/user-banned';
+import { UserRoleSelect } from '../../../../features/user-role';
 import { ROUTES } from '../../../../shared/config';
 import { getUserTelegramLink } from '../../../../shared/lib';
 import { Badge, Button, ErrorState, PageTitle } from '../../../../shared/ui';
@@ -122,6 +123,10 @@ export const UserPage = (): JSX.Element => {
 						<p className="text-(--color-text-secondary) text-xs">Регистрация</p>
 						<p>{new Date(user.createdAt).toLocaleString('ru-RU')}</p>
 					</div>
+				</div>
+
+				<div className="pt-2 border-t border-(--color-border) space-y-2">
+					<UserRoleSelect userId={user.id} currentRole={user.role} className="max-w-sm" />
 				</div>
 
 				<div className="pt-2 border-t border-(--color-border) space-y-2">

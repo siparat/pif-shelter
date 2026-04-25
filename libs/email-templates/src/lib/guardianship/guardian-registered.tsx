@@ -6,6 +6,7 @@ import {
 	Hr,
 	Html,
 	Img,
+	Link,
 	Preview,
 	Section,
 	Tailwind,
@@ -19,13 +20,15 @@ export interface GuardianRegisteredEmailProps {
 	email: string;
 	telegram: string;
 	password: string;
+	adminBaseUrl: string;
 }
 
 const GuardianRegisteredEmail = ({
 	guardianName,
 	email,
 	telegram,
-	password
+	password,
+	adminBaseUrl
 }: GuardianRegisteredEmailProps): JSX.Element => {
 	const previewText = `${guardianName}, сохраните эти данные для входа в аккаунт опекуна.`;
 
@@ -76,6 +79,12 @@ const GuardianRegisteredEmail = ({
 
 						<Text className="text-[#4F3D38] text-[15px] leading-[24px]">
 							Никому не передавайте эти данные — по ним можно войти в ваш аккаунт.
+						</Text>
+						<Text className="text-[#4F3D38] text-[15px] leading-[24px]">
+							Вход в админку:{' '}
+							<Link href={adminBaseUrl} className="text-[#4F3D38] underline">
+								{adminBaseUrl}
+							</Link>
 						</Text>
 
 						<Hr className="border border-solid border-[#A09287] my-[26px] mx-0 w-full" />

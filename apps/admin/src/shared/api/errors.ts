@@ -2,6 +2,31 @@ import { apiErrorSchema } from '@pif/contracts';
 import { HTTPError } from 'ky';
 
 const DEFAULT_ERROR_MESSAGE = 'Произошла ошибка. Попробуйте снова.';
+const TECHNICAL_MESSAGE_PATTERN =
+	/(request failed with status code|forbidden:\s*(get|post|patch|put|delete)|https?:\/\/|network error)/i;
+
+const getFallbackMessageByStatus = (status: number): string => {
+	if (status === 401) {
+		return 'Сессия недействительна. Войдите снова.';
+	}
+	if (status === 403) {
+		return 'Недостаточно прав для выполнения действия.';
+	}
+	if (status >= 500) {
+		return 'Ошибка сервера. Попробуйте позже.';
+	}
+	return 'Не удалось выполнить запрос. Попробуйте снова.';
+};
+
+const normalizeMessage = (message: string | undefined, status?: number): string => {
+	if (!message) {
+		return status ? getFallbackMessageByStatus(status) : DEFAULT_ERROR_MESSAGE;
+	}
+	if (TECHNICAL_MESSAGE_PATTERN.test(message)) {
+		return status ? getFallbackMessageByStatus(status) : DEFAULT_ERROR_MESSAGE;
+	}
+	return message;
+};
 
 export class UnauthorizedError extends Error {
 	constructor(message = 'Сессия недействительна') {
@@ -16,18 +41,15 @@ export const getErrorMessage = async (error: unknown): Promise<string> => {
 	}
 
 	try {
-		const parsed = apiErrorSchema.safeParse(error.data);
+		const payload = await error.response.clone().json();
+		const parsed = apiErrorSchema.safeParse(payload);
 
 		if (parsed.success) {
-			return parsed.data.error.message;
+			return normalizeMessage(parsed.data.error.message, error.response.status);
 		}
 	} catch (parseError) {
 		console.error(parseError);
-		if (parseError instanceof Error) {
-			return error.message || DEFAULT_ERROR_MESSAGE;
-		}
-		return DEFAULT_ERROR_MESSAGE;
 	}
 
-	return error.message || DEFAULT_ERROR_MESSAGE;
+	return normalizeMessage(error.message, error.response.status);
 };

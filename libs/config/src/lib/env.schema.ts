@@ -10,6 +10,7 @@ export const envSchema = z.object({
 	ADMIN_TELEGRAM: z.string().startsWith('@'),
 	BASE_URL: z.url(),
 	APP_BASE_URL: z.url(),
+	ADMIN_BASE_URL: z.url(),
 	SMTP_PASSWORD: z.string(),
 	SMTP_HOST: z.string(),
 	SMTP_PORT: z.coerce.number(),

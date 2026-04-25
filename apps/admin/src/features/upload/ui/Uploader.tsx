@@ -58,12 +58,12 @@ export const Uploader = forwardRef<UploaderHandle, Props>(
 			<div
 				{...props}
 				className={cn('rounded-2xl border border-(--color-border) bg-(--color-bg-primary) p-4', className)}>
-				<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-					<div className="flex items-start gap-3 max-md:flex-col">
+				<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+					<div className="flex items-start gap-3 max-lg:flex-col min-w-0">
 						{uploadedUrl && isImageUrl(uploadedUrl) && (
 							<div
 								className={
-									'overflow-hidden bg-(--color-bg-primary) rounded-lg w-[52px] h-[52px] max-md:w-[92px] max-md:h-[92px]'
+									'overflow-hidden bg-(--color-bg-primary) rounded-lg w-[52px] h-[52px] max-lg:w-[92px] max-lg:h-[92px] shrink-0'
 								}>
 								<img
 									loading="lazy"
@@ -75,12 +75,12 @@ export const Uploader = forwardRef<UploaderHandle, Props>(
 						)}
 						<div>
 							<p className="font-semibold">{title}</p>
-							<p className="text-sm text-(--color-text-secondary)">
+							<p className="text-sm text-(--color-text-secondary) break-all">
 								{uploadedUrl ?? 'Файл еще не загружен'}
 							</p>
 						</div>
 					</div>
-					<label htmlFor={id} className="inline-flex">
+					<label htmlFor={id} className="inline-flex w-full lg:w-auto shrink-0">
 						<input
 							aria-disabled={isUploading}
 							disabled={isUploading}
@@ -93,7 +93,7 @@ export const Uploader = forwardRef<UploaderHandle, Props>(
 								if (file) uploadAvatar(file);
 							}}
 						/>
-						<span className="cursor-pointer rounded-xl border border-(--color-border) bg-(--color-bg-secondary) px-4 py-2 text-sm font-semibold hover:bg-(--color-bg-primary) max-md:w-full max-md:text-center">
+						<span className="cursor-pointer rounded-xl border border-(--color-border) bg-(--color-bg-secondary) px-4 py-2 text-sm font-semibold hover:bg-(--color-bg-primary) w-full lg:w-auto text-center">
 							{isUploading ? 'Загрузка...' : 'Загрузить'}
 						</span>
 					</label>

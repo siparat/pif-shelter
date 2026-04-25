@@ -2,18 +2,32 @@ import { AnimalGenderNames, AnimalSpeciesNames, formatAnimalAge } from '@pif/sha
 import { HTMLAttributes, JSX } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimalItem } from '../../../../entities/animal/model/types';
+import type { VolunteerOption } from '../../../../entities/volunteer';
 import { AnimalAvatar } from '../../../../entities/animal/ui/AnimalAvatar/AnimalAvatar';
 import { AnimalStatusQuickChange } from '../../../../features/animal-status-quick-change';
 import { ROUTES } from '../../../../shared/config';
 import { cn } from '../../../../shared/lib';
-import { Badge } from '../../../../shared/ui';
+import { Badge, Select } from '../../../../shared/ui';
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
 	animal: AnimalItem;
 	curatorName: string;
+	canManageCurator: boolean;
+	isSettingCurator: boolean;
+	volunteers: VolunteerOption[];
+	onSetCurator: (curatorId: string | null) => void;
 }
 
-export const AnimalMainInfo = ({ animal, curatorName, className, ...props }: Props): JSX.Element => {
+export const AnimalMainInfo = ({
+	animal,
+	curatorName,
+	canManageCurator,
+	isSettingCurator,
+	volunteers,
+	onSetCurator,
+	className,
+	...props
+}: Props): JSX.Element => {
 	return (
 		<div
 			className={cn(className, 'rounded-2xl border border-(--color-border) bg-(--color-bg-secondary) p-4 md:p-6')}
@@ -52,6 +66,22 @@ export const AnimalMainInfo = ({ animal, curatorName, className, ...props }: Pro
 							<span>Не назначен</span>
 						)}
 					</p>
+					{canManageCurator && (
+						<div className="pt-2">
+							<Select
+								small
+								disabled={isSettingCurator}
+								label="Назначить куратора"
+								placeholder="Без куратора"
+								value={animal.curatorId ?? ''}
+								onChange={(event) => onSetCurator(event.target.value || null)}
+								options={volunteers.map((volunteer) => ({
+									value: volunteer.id,
+									label: `${volunteer.name} (${volunteer.position})`
+								}))}
+							/>
+						</div>
+					)}
 					<p>
 						Стоимость опекунства:{' '}
 						<span className="text-(--color-text-primary)">

@@ -6,6 +6,8 @@ export const useSession = (): UseQueryResult<ISessionResponse | null, Error> => 
 		queryKey: ['session'],
 		queryFn: getSession,
 		retry: false,
-		staleTime: Infinity
+		staleTime: 0,
+		refetchOnMount: true,
+		refetchOnWindowFocus: true
 	});
 };

@@ -1,11 +1,13 @@
 import { UserRole } from '@pif/shared';
 import { Loader2 } from 'lucide-react';
 import { JSX, useMemo } from 'react';
+import { toast } from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAnimalDetails, useCanEditAnimal } from '../../../../entities/animal';
+import { useAnimalDetails, useCanEditAnimal, useSetAnimalCuratorMutation } from '../../../../entities/animal';
 import { useSession } from '../../../../entities/session/model/hooks';
 import { useVolunteers } from '../../../../entities/volunteer/model/hooks';
 import { AnimalPostsBlock } from '../../../../widgets/animal-posts-block';
+import { getErrorMessage } from '../../../../shared/api';
 import { ROUTES } from '../../../../shared/config';
 import { Button, ErrorState, PageTitle } from '../../../../shared/ui';
 import { AnimalCharacteristics } from './AnimalCharacteristics';
@@ -32,6 +34,7 @@ export const AnimalPage = (): JSX.Element => {
 
 	const role = session?.user.role;
 	const canManage = role === UserRole.ADMIN || role === UserRole.SENIOR_VOLUNTEER;
+	const setCuratorMutation = useSetAnimalCuratorMutation();
 	const canEdit = useCanEditAnimal({ curatorId: detailAnimal?.curatorId ?? null });
 	const canCreatePost = canEdit;
 
@@ -41,6 +44,21 @@ export const AnimalPage = (): JSX.Element => {
 		const volunteer = volunteers?.find((item) => item.id === detailAnimal.curatorId);
 		return volunteer?.name ?? detailAnimal.curatorId;
 	}, [detailAnimal?.curatorId, volunteers]);
+
+	const handleSetCurator = async (curatorId: string | null): Promise<void> => {
+		if (!detailAnimal) {
+			return;
+		}
+		try {
+			await setCuratorMutation.mutateAsync({
+				id: detailAnimal.id,
+				payload: { curatorId }
+			});
+			toast.success(curatorId ? 'Куратор назначен' : 'Куратор снят');
+		} catch (error) {
+			toast.error(await getErrorMessage(error));
+		}
+	};
 
 	if (!id) {
 		return (
@@ -89,7 +107,14 @@ export const AnimalPage = (): JSX.Element => {
 				</div>
 			</PageTitle>
 
-			<AnimalMainInfo animal={detailAnimal} curatorName={curatorName ?? 'Не назначен'} />
+			<AnimalMainInfo
+				animal={detailAnimal}
+				curatorName={curatorName ?? 'Не назначен'}
+				canManageCurator={canManage}
+				isSettingCurator={setCuratorMutation.isPending}
+				volunteers={volunteers ?? []}
+				onSetCurator={(curatorId) => void handleSetCurator(curatorId)}
+			/>
 
 			<AnimalGuardianSection
 				animalId={detailAnimal.id}

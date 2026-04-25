@@ -8,3 +8,5 @@ export const createInvitationRequestSchema = z.object({
 });
 
 export const createInvitationResponseSchema = createApiSuccessResponseSchema(z.object({ invitationId: z.string() }));
+
+export type CreateInvitationResponse = z.infer<typeof createInvitationResponseSchema>;

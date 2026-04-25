@@ -9,6 +9,7 @@ export const useSetUserBannedMutation = (): ReturnType<typeof useMutation<unknow
 		mutationFn: setUserBanned,
 		onSuccess: (_data, variables) => {
 			void queryClient.invalidateQueries({ queryKey: adminUserKeys.detail(variables.userId) });
+			void queryClient.invalidateQueries({ queryKey: adminUserKeys.all });
 			void queryClient.invalidateQueries({ queryKey: guardianKeys.all });
 		}
 	});

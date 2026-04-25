@@ -1,4 +1,5 @@
 import { users } from '@pif/database';
+import { UserRole } from '@pif/shared';
 
 export abstract class UsersRepository {
 	abstract findByTelegram(telegram: string): Promise<typeof users.$inferSelect | undefined>;
@@ -11,4 +12,5 @@ export abstract class UsersRepository {
 	abstract linkTelegramChat(userId: string, telegramChatId: string): Promise<void>;
 	abstract setTelegramUnreachable(userId: string, value: boolean): Promise<void>;
 	abstract setBanned(userId: string, value: boolean): Promise<void>;
+	abstract setRole(userId: string, roleName: UserRole): Promise<void>;
 }

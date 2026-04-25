@@ -1,30 +1,36 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { UserRole } from '@pif/shared';
 import { AllowAnonymous, AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+import { ISession } from '../../configs/auth.config';
+import { Roles } from '../../core/decorators/roles.decorator';
 import {
 	AcceptInvitationRequestDto,
 	AcceptInvitationResponseDto,
 	CreateInvitationRequestDto,
 	CreateInvitationResponseDto,
 	GetAdminUserResponseDto,
+	ListTeamUsersQueryDto,
+	ListTeamUsersResponseDto,
 	ListVolunteersResponseDto,
 	ReturnData,
 	SetTelegramUnreachableRequestDto,
 	SetTelegramUnreachableResponseDto,
 	SetUserBannedRequestDto,
-	SetUserBannedResponseDto
+	SetUserBannedResponseDto,
+	SetUserRoleRequestDto,
+	SetUserRoleResponseDto
 } from '../../core/dto';
-import { ISession } from '../../configs/auth.config';
-import { Roles } from '../../core/decorators/roles.decorator';
 import { RoleGuard } from '../../core/guards/role.guard';
 import { AcceptInvitationCommand } from './commands/accept-invitation/accept-invitation.command';
 import { CreateInvitationCommand } from './commands/create-invitation/create-invitation.command';
-import { SetUserBannedCommand } from './commands/set-user-banned/set-user-banned.command';
 import { SetTelegramUnreachableCommand } from './commands/set-telegram-unreachable/set-telegram-unreachable.command';
+import { SetUserBannedCommand } from './commands/set-user-banned/set-user-banned.command';
+import { SetUserRoleCommand } from './commands/set-user-role/set-user-role.command';
 import { GetAdminUserQuery } from './queries/get-admin-user/get-admin-user.query';
+import { ListTeamUsersQuery } from './queries/list-team-users/list-team-users.query';
 import { ListVolunteersQuery } from './queries/list-volunteers/list-volunteers.query';
 
 @ApiTags('Admin Users | Пользователи в админ-панели')
@@ -70,10 +76,18 @@ export class AdminUsersController {
 
 	@ApiOperation({ summary: 'Получить список волонтёров' })
 	@ApiOkResponse({ description: 'Список волонтёров', type: ListVolunteersResponseDto })
-	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+	@Roles([UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER, UserRole.VOLUNTEER])
 	@Get('volunteers')
 	async listVolunteers(): Promise<ReturnData<typeof ListVolunteersResponseDto>> {
 		return this.queryBus.execute(new ListVolunteersQuery());
+	}
+
+	@ApiOperation({ summary: 'Получить список пользователей команды' })
+	@ApiOkResponse({ description: 'Список пользователей команды', type: ListTeamUsersResponseDto })
+	@Roles([UserRole.ADMIN])
+	@Get()
+	async listTeamUsers(@Query() dto: ListTeamUsersQueryDto): Promise<ReturnData<typeof ListTeamUsersResponseDto>> {
+		return this.queryBus.execute(new ListTeamUsersQuery(dto.includeGuardians));
 	}
 
 	@ApiOperation({ summary: 'Карточка пользователя (для админки)' })
@@ -94,5 +108,17 @@ export class AdminUsersController {
 		@Session() { user }: ISession
 	): Promise<ReturnData<typeof SetUserBannedResponseDto>> {
 		return this.commandBus.execute(new SetUserBannedCommand(userId, dto.banned, user.id, user.role as UserRole));
+	}
+
+	@ApiOperation({ summary: 'Повысить или понизить роль пользователя команды' })
+	@ApiOkResponse({ description: 'Роль обновлена', type: SetUserRoleResponseDto })
+	@Roles([UserRole.ADMIN])
+	@Patch(':userId/role')
+	async setRole(
+		@Param('userId') userId: string,
+		@Body() dto: SetUserRoleRequestDto,
+		@Session() { user }: ISession
+	): Promise<ReturnData<typeof SetUserRoleResponseDto>> {
+		return this.commandBus.execute(new SetUserRoleCommand(userId, dto.roleName, user.id));
 	}
 }
