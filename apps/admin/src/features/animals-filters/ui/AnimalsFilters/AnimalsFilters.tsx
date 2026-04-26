@@ -17,6 +17,7 @@ import { JSX, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { AnimalsListParams } from '../../../../entities/animal';
+import { VolunteerOption } from '../../../../entities/volunteer';
 import { Button, Checkbox, Input, Select } from '../../../../shared/ui';
 
 const animalsFiltersSchema = listAnimalsRequestSchema.pick({
@@ -27,6 +28,7 @@ const animalsFiltersSchema = listAnimalsRequestSchema.pick({
 	gender: true,
 	size: true,
 	coat: true,
+	curatorId: true,
 	isSterilized: true,
 	isVaccinated: true,
 	isParasiteTreated: true,
@@ -38,6 +40,7 @@ type AnimalsFiltersFormValues = z.input<typeof animalsFiltersSchema>;
 
 interface Props {
 	initialValues: AnimalsListParams;
+	volunteers: VolunteerOption[];
 	isLoading: boolean;
 	onApply: (values: Partial<AnimalsListParams>) => void;
 	onReset: () => void;
@@ -77,8 +80,14 @@ const SORT_OPTIONS = [
 	{ value: 'name:desc', label: 'Имя Я-А' }
 ];
 
-export const AnimalsFilters = ({ initialValues, isLoading, onApply, onReset }: Props): JSX.Element => {
-	const { handleSubmit, reset, control, watch } = useForm<AnimalsFiltersFormValues>({
+export const AnimalsFilters = ({ initialValues, volunteers, isLoading, onApply, onReset }: Props): JSX.Element => {
+	const {
+		handleSubmit,
+		reset,
+		control,
+		watch,
+		formState: { errors }
+	} = useForm<AnimalsFiltersFormValues>({
 		resolver: zodResolver(animalsFiltersSchema),
 		defaultValues: initialValues
 	});
@@ -98,6 +107,8 @@ export const AnimalsFilters = ({ initialValues, isLoading, onApply, onReset }: P
 	const maxAgeValue = watch('maxAge', 0) || null;
 	const isInvalidAgeRange =
 		typeof minAgeValue == 'number' && typeof maxAgeValue == 'number' && minAgeValue > maxAgeValue;
+
+	console.log(errors);
 
 	return (
 		<form
@@ -170,6 +181,19 @@ export const AnimalsFilters = ({ initialValues, isLoading, onApply, onReset }: P
 							value={value ?? 'createdAt:desc'}
 							label="Сортировка"
 							options={SORT_OPTIONS}
+						/>
+					)}
+				/>
+				<Controller
+					control={control}
+					name="curatorId"
+					render={({ field: { value, ...field } }) => (
+						<Select
+							{...field}
+							value={value ?? ''}
+							placeholder="Любой куратор"
+							label="Куратор"
+							options={volunteers.map((volunteer) => ({ value: volunteer.id, label: volunteer.name }))}
 						/>
 					)}
 				/>

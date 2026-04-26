@@ -26,6 +26,7 @@ export const listAnimalsRequestSchema = paginationSchema.extend({
 	gender: z.enum(AnimalGenderEnum).optional(),
 	size: z.enum(AnimalSizeEnum).optional(),
 	coat: z.enum(AnimalCoatEnum).optional(),
+	curatorId: z.string().optional(),
 	isSterilized: queryBooleanSchema.optional(),
 	isVaccinated: queryBooleanSchema.optional(),
 	isParasiteTreated: queryBooleanSchema.optional(),

@@ -29,6 +29,7 @@ export class ListAnimalsHandler implements IQueryHandler<ListAnimalsQuery> {
 			.setGender(dto.gender)
 			.setSize(dto.size)
 			.setCoat(dto.coat)
+			.setCuratorId(dto.curatorId)
 			.setIsSterilized(dto.isSterilized)
 			.setIsVaccinated(dto.isVaccinated)
 			.setIsParasiteTreated(dto.isParasiteTreated)

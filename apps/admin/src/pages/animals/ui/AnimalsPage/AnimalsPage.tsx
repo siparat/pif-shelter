@@ -58,6 +58,7 @@ export const AnimalsPage = (): JSX.Element => {
 
 			<AnimalsFilters
 				initialValues={filters}
+				volunteers={volunteersQuery.data ?? []}
 				isLoading={animalsQuery.isFetching}
 				onApply={(values) => setFilters({ ...filters, ...values, page: 1 })}
 				onReset={resetFilters}

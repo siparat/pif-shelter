@@ -77,6 +77,10 @@ export class ListAnimalsBuilder extends BaseBuilder<ListAnimalsRequestDto, Table
 		return this.addExactMatch('coat', coat, this.table.coat);
 	}
 
+	public setCuratorId(curatorId?: string): this {
+		return this.addExactMatch('curatorId', curatorId, this.table.curatorId);
+	}
+
 	public setIsSterilized(isSterilized?: boolean): this {
 		return this.addExactMatch('isSterilized', isSterilized, this.table.isSterilized);
 	}

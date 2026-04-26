@@ -1,5 +1,5 @@
 import { UserRole } from '@pif/shared';
-import { Loader2, Search, Shield, UserPlus } from 'lucide-react';
+import { Loader2, Search, Shield, UserIcon, UserPlus } from 'lucide-react';
 import { JSX, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTeamUsers } from '../../../../entities/admin-user';
@@ -131,61 +131,70 @@ export const UsersPage = (): JSX.Element => {
 						<div
 							key={user.id}
 							className={[
-								'rounded-2xl border p-4 space-y-3',
+								'rounded-2xl border p-4 flex gap-5',
 								user.role === UserRole.GUARDIAN
 									? 'border-amber-500/30 bg-amber-500/5'
 									: 'border-(--color-border) bg-(--color-bg-secondary)'
 							].join(' ')}>
-							<div className="flex items-start justify-between gap-3">
-								<div className="min-w-0">
+							<div className="shrink-0 rounded-full overflow-hidden w-16 h-16 bg-(--color-bg-primary) flex items-center justify-center">
+								{user.avatar ? (
+									<img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+								) : (
+									<UserIcon size={16} />
+								)}
+							</div>
+							<div className="space-y-3 w-full">
+								<div className="flex items-start justify-between gap-3">
+									<div className="min-w-0">
+										<Link
+											to={ROUTES.user.replace(':id', user.id)}
+											className="text-base font-semibold hover:text-(--color-brand-orange) transition-colors wrap-break-word">
+											{user.name}
+										</Link>
+										<p className="text-xs text-(--color-text-secondary) break-all">{user.email}</p>
+									</div>
+									<div className="inline-flex items-center gap-1 rounded-full border border-(--color-border) px-2.5 py-1 text-xs text-(--color-text-secondary)">
+										<Shield size={12} />
+										{ROLE_LABELS[user.role]}
+									</div>
+								</div>
+
+								<div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+									<div>
+										<p className="text-xs text-(--color-text-secondary)">Должность</p>
+										<p>{user.position || '—'}</p>
+									</div>
+									<div>
+										<p className="text-xs text-(--color-text-secondary)">Telegram</p>
+										<a
+											href={getUserTelegramLink(user.telegram)}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="underline hover:text-(--color-brand-orange) transition-colors">
+											{user.telegram}
+										</a>
+									</div>
+								</div>
+
+								{user.role === UserRole.GUARDIAN && (
 									<Link
-										to={ROUTES.user.replace(':id', user.id)}
-										className="text-base font-semibold hover:text-(--color-brand-orange) transition-colors wrap-break-word">
-										{user.name}
+										to={ROUTES.guardian.replace(':id', user.id)}
+										className="inline-flex items-center gap-2 text-xs text-amber-300 hover:text-amber-200 underline">
+										Открыть профиль опекуна
 									</Link>
-									<p className="text-xs text-(--color-text-secondary) break-all">{user.email}</p>
-								</div>
-								<div className="inline-flex items-center gap-1 rounded-full border border-(--color-border) px-2.5 py-1 text-xs text-(--color-text-secondary)">
-									<Shield size={12} />
-									{ROLE_LABELS[user.role]}
-								</div>
-							</div>
+								)}
 
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-								<div>
-									<p className="text-xs text-(--color-text-secondary)">Должность</p>
-									<p>{user.position || '—'}</p>
-								</div>
-								<div>
-									<p className="text-xs text-(--color-text-secondary)">Telegram</p>
-									<a
-										href={getUserTelegramLink(user.telegram)}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="underline hover:text-(--color-brand-orange) transition-colors">
-										{user.telegram}
-									</a>
-								</div>
-							</div>
-
-							{user.role === UserRole.GUARDIAN && (
-								<Link
-									to={ROUTES.guardian.replace(':id', user.id)}
-									className="inline-flex items-center gap-2 text-xs text-amber-300 hover:text-amber-200 underline">
-									Открыть профиль опекуна
-								</Link>
-							)}
-
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-								<UserRoleSelect userId={user.id} currentRole={user.role} />
-								<div className="flex items-end">
-									<UserBannedToggle
-										userId={user.id}
-										banned={user.banned}
-										targetRole={user.role}
-										variant={user.role === UserRole.GUARDIAN ? 'guardian' : 'user'}
-										className="w-full justify-center py-2.5 text-sm"
-									/>
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+									<UserRoleSelect userId={user.id} currentRole={user.role} />
+									<div className="flex items-end">
+										<UserBannedToggle
+											userId={user.id}
+											banned={user.banned}
+											targetRole={user.role}
+											variant={user.role === UserRole.GUARDIAN ? 'guardian' : 'user'}
+											className="w-full justify-center py-2.5 text-sm"
+										/>
+									</div>
 								</div>
 							</div>
 						</div>

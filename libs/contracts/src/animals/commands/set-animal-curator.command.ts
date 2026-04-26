@@ -11,6 +11,6 @@ export const setAnimalCuratorRequestSchema = z.object({
 export const setAnimalCuratorResponseSchema = createApiSuccessResponseSchema(
 	z.object({
 		animalId: z.uuid().describe('Идентификатор животного'),
-		curatorId: z.uuid().nullable().describe('Идентификатор назначенного куратора или null')
+		curatorId: z.string().nullable().describe('Идентификатор назначенного куратора или null')
 	})
 );
