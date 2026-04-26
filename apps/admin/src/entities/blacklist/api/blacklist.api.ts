@@ -37,7 +37,9 @@ const buildSearchParams = (params: BlacklistListParams): Record<string, string> 
 };
 
 export const getBlacklist = async (params: BlacklistListParams): Promise<BlacklistListData> => {
-	const response = await api.get('blacklist', { searchParams: buildSearchParams(params) }).json<unknown>();
+	const response = await api
+		.get('blacklist', { searchParams: buildSearchParams(params) })
+		.json<Record<string, unknown>>();
 	return listBlacklistResponseSchema.parse({ success: true, ...response });
 };
 

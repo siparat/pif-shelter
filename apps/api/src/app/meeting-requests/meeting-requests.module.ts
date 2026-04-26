@@ -16,9 +16,10 @@ import { ListCuratorMeetingRequestsHandler } from './queries/list-curator-meetin
 import { DrizzleMeetingRequestsRepository } from './repositories/drizzle-meeting-requests.repository';
 import { MeetingRequestsRepository } from './repositories/meeting-requests.repository';
 import { MeetingRequestRejectedHandler } from './events/meeting-request-rejected/meeting-request-rejected.handler';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-	imports: [BullModule.registerQueue({ name: MEETING_QUEUE_NAME }), CqrsModule, BlacklistModule],
+	imports: [BullModule.registerQueue({ name: MEETING_QUEUE_NAME }), CqrsModule, BlacklistModule, UsersModule],
 	controllers: [MeetingRequestsController],
 	providers: [
 		MeetingRequestsPolicy,

@@ -5,3 +5,4 @@ export * from './get-media-url';
 export * from './date';
 export * from './route';
 export * from './telegram-link';
+export * from './money';

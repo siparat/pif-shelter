@@ -28,6 +28,7 @@ const WishlistPage = lazy(() => import('../pages/wishlist/ui/WishlistPage/Wishli
 const CampaignsPage = lazy(() => import('../pages/campaigns/ui/CampaignsPage/CampaignsPage'));
 const BlacklistPage = lazy(() => import('../pages/blacklist/ui/BlacklistPage/BlacklistPage'));
 const UsersPage = lazy(() => import('../pages/users/ui/UsersPage/UsersPage'));
+const FinancePage = lazy(() => import('../pages/finance/ui/FinancePage/FinancePage'));
 
 const PageFallback = (): JSX.Element => (
 	<div className="min-h-60 w-full flex items-center justify-center">
@@ -37,6 +38,7 @@ const PageFallback = (): JSX.Element => (
 
 const routeComponentByPath: Record<string, JSX.Element> = {
 	[ROUTES.dashboard]: <DashboardPage />,
+	[ROUTES.finance]: <FinancePage />,
 	[ROUTES.animals]: <AnimalsPage />,
 	[ROUTES.animalDetails]: <AnimalPage />,
 	[ROUTES.animalEdit]: <AnimalEditPage />,

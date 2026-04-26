@@ -20,7 +20,7 @@ export class GetMeetingRequestByIdHandler implements IQueryHandler<GetMeetingReq
 		if (!row) {
 			throw new MeetingRequestNotFoundException();
 		}
-		this.policy.assertCanManageByCurator(row.request.curatorUserId, requesterUserId);
+		await this.policy.assertCanManageByCurator(row.request.curatorUserId, requesterUserId);
 
 		return {
 			id: row.request.id,

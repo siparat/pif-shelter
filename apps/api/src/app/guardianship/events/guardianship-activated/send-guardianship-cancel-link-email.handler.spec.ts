@@ -60,7 +60,7 @@ describe('SendGuardianshipCancelLinkEmailHandler', () => {
 
 		config = createMock<ConfigService>();
 		config.getOrThrow.mockImplementation((key: string) =>
-			key === 'APP_BASE_URL' ? 'https://app.example.com' : ''
+			key === 'ADMIN_BASE_URL' ? 'https://admin.example.com' : ''
 		);
 
 		const module: TestingModule = await Test.createTestingModule({
@@ -123,7 +123,7 @@ describe('SendGuardianshipCancelLinkEmailHandler', () => {
 
 		await handler.handle(new GuardianshipActivatedEvent(eventGuardianship as never));
 
-		expect(config.getOrThrow).toHaveBeenCalledWith('APP_BASE_URL');
+		expect(config.getOrThrow).toHaveBeenCalledWith('ADMIN_BASE_URL');
 		expect(mailerService.sendMail).toHaveBeenCalledWith({
 			to: baseResult.guardian.email,
 			subject: expect.any(String),

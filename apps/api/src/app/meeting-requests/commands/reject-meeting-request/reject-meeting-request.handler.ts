@@ -27,7 +27,7 @@ export class RejectMeetingRequestHandler implements ICommandHandler<RejectMeetin
 		if (!existing) {
 			throw new MeetingRequestNotFoundException();
 		}
-		this.policy.assertCanManageByCurator(existing.curatorUserId, curatorUserId);
+		await this.policy.assertCanManageByCurator(existing.curatorUserId, curatorUserId);
 		if (existing.status !== MeetingRequestStatusEnum.NEW) {
 			throw new MeetingRequestInvalidStatusException();
 		}

@@ -1,6 +1,6 @@
 import { UserRole } from '@pif/shared';
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, ArrowRight, Loader2, Users } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Loader2, Users, Wallet2 } from 'lucide-react';
 import { JSX } from 'react';
 import { Link } from 'react-router-dom';
 import { useSession } from '../../../../entities/session/model/hooks';
@@ -119,12 +119,26 @@ export const DashboardPage = (): JSX.Element => {
 						</span>
 					</div>
 				)}
-				<div className="bg-(--color-bg-secondary) border border-(--color-border) rounded-2xl p-6 h-full min-h-32 flex flex-col justify-center border-dashed opacity-50">
-					<span className="text-xs font-bold uppercase tracking-widest text-(--color-text-secondary)">
-						Финансы
+				<Link
+					to={ROUTES.finance}
+					className="group bg-(--color-bg-secondary) border border-(--color-border) rounded-2xl p-6 h-full min-h-32 flex flex-col justify-between transition-colors hover:border-(--color-brand-orange)">
+					<div className="flex items-start justify-between gap-3">
+						<div>
+							<p className="text-xs font-bold uppercase tracking-widest text-(--color-text-secondary)">
+								Финансы
+							</p>
+							<p className="mt-1 text-sm text-(--color-text-secondary)">
+								Проводки, ручные расходы и выгрузка отчёта.
+							</p>
+						</div>
+						<div className="rounded-xl border border-(--color-border) p-2 text-(--color-text-secondary) group-hover:text-(--color-brand-orange) group-hover:border-(--color-brand-orange) transition-colors">
+							<Wallet2 size={16} />
+						</div>
+					</div>
+					<span className="text-xs text-(--color-text-secondary) group-hover:text-(--color-brand-orange) transition-colors">
+						Открыть раздел
 					</span>
-					<span className="text-sm">В разработке...</span>
-				</div>
+				</Link>
 				{canOpenTeam ? (
 					<Link
 						to={ROUTES.users}

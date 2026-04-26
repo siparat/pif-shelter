@@ -8,7 +8,8 @@ import {
 	Heart,
 	ShoppingCart,
 	User,
-	Users
+	Users,
+	Wallet2
 } from 'lucide-react';
 
 export type RouteKey =
@@ -30,7 +31,8 @@ export type RouteKey =
 	| 'blacklist'
 	| 'users'
 	| 'user'
-	| 'login';
+	| 'login'
+	| 'finance';
 
 export interface MenuItem {
 	Icon: LucideIcon;
@@ -54,6 +56,15 @@ export const adminRoutes: AdminRoute[] = [
 		Icon: LayoutDashboard,
 		preload: () => import('../../pages/dashboard/ui/DashboardPage/DashboardPage'),
 		showInMenu: true
+	},
+	{
+		key: 'finance',
+		path: '/finance',
+		name: 'Финансы',
+		shortName: 'Финансы',
+		Icon: Wallet2,
+		preload: () => import('../../pages/finance/ui/FinancePage/FinancePage'),
+		showInMenu: false
 	},
 	{
 		key: 'animals',
