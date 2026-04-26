@@ -2,8 +2,8 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
 import { ListCuratorMeetingRequestsResult, MeetingRequestsSort } from '@pif/contracts';
 import { animals, DatabaseService, meetingRequests, users } from '@pif/database';
-import { MeetingCacheKeys } from '@pif/shared';
-import { and, asc, count, desc, eq } from 'drizzle-orm';
+import { MeetingCacheKeys, UserRole } from '@pif/shared';
+import { and, asc, desc, eq, inArray, or, sql } from 'drizzle-orm';
 import { ListCuratorMeetingRequestsQuery } from './list-curator-meeting-requests.query';
 
 @QueryHandler(ListCuratorMeetingRequestsQuery)
@@ -22,27 +22,36 @@ export class ListCuratorMeetingRequestsHandler implements IQueryHandler<ListCura
 		}
 
 		const whereClause = and(
-			eq(meetingRequests.curatorUserId, curatorUserId),
+			or(
+				eq(meetingRequests.curatorUserId, curatorUserId),
+				inArray(users.role, [UserRole.ADMIN, UserRole.SENIOR_VOLUNTEER])
+			),
 			status ? eq(meetingRequests.status, status) : undefined
 		);
 		const orderByExpr = this.getOrderByExpr(sort);
 
-		const [rows, [totalRow]] = await Promise.all([
-			this.db.client
-				.select({
-					request: meetingRequests,
-					animal: { id: animals.id, name: animals.name, avatarUrl: animals.avatarUrl },
-					curator: { id: users.id, name: users.name, email: users.email }
-				})
-				.from(meetingRequests)
-				.innerJoin(animals, eq(animals.id, meetingRequests.animalId))
-				.innerJoin(users, eq(users.id, meetingRequests.curatorUserId))
-				.where(whereClause)
-				.orderBy(orderByExpr)
-				.limit(perPage)
-				.offset((page - 1) * perPage),
-			this.db.client.select({ count: count() }).from(meetingRequests).where(whereClause)
-		]);
+		const rows = await this.db.client
+			.select({
+				request: meetingRequests,
+				animal: {
+					id: animals.id,
+					name: animals.name,
+					avatarUrl: animals.avatarUrl
+				},
+				curator: {
+					id: users.id,
+					name: users.name,
+					email: users.email
+				},
+				total: sql<number>`count(*) over()`
+			})
+			.from(meetingRequests)
+			.innerJoin(animals, eq(animals.id, meetingRequests.animalId))
+			.innerJoin(users, eq(users.id, meetingRequests.curatorUserId))
+			.where(whereClause)
+			.orderBy(orderByExpr)
+			.limit(perPage)
+			.offset((page - 1) * perPage);
 
 		const data = rows.map(({ request, animal, curator }) => ({
 			id: request.id,
@@ -64,7 +73,7 @@ export class ListCuratorMeetingRequestsHandler implements IQueryHandler<ListCura
 			curator
 		}));
 
-		const total = totalRow.count;
+		const total = rows[0]?.total ?? 0;
 		const result: ListCuratorMeetingRequestsResult = {
 			data,
 			meta: {

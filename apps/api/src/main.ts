@@ -15,6 +15,7 @@ import { AppModule } from './app/app.module';
 import type { AppAuth } from './app/configs/auth.config';
 import { handleBetterAuthRequest } from './app/core/auth/better-auth-fastify.handler';
 import { GlobalDeserializerInterceptor } from './app/core/interceptors/global-deserializer.interceptor';
+import { ConfigService } from '@nestjs/config';
 
 dayjs.locale('ru');
 dayjs.extend(utc);
@@ -30,7 +31,7 @@ async function bootstrap(): Promise<void> {
 	app.enableShutdownHooks();
 	app.useLogger(app.get(Logger));
 	app.enableCors({
-		origin: ['http://localhost:4200', 'http://localhost:5173'],
+		origin: app.get(ConfigService).getOrThrow('ALLOWED_ORIGINS').split(','),
 		credentials: true,
 		methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 		allowedHeaders: ['Content-Type', 'Authorization']
@@ -66,8 +67,8 @@ async function bootstrap(): Promise<void> {
 	app.useGlobalPipes(new ZodValidationPipe());
 	app.useGlobalInterceptors(new GlobalDeserializerInterceptor());
 
-	await app.listen(PORT);
-	app.get(Logger).log(`Application is running on http://localhost:${PORT}`);
+	await app.listen(PORT, '0.0.0.0');
+	app.get(Logger).log(`Application is running on http://0.0.0.0:${PORT}`);
 }
 
 bootstrap().catch((err) => {
