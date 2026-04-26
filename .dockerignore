@@ -1,0 +1,7 @@
+.vscode
+.github
+.husky
+dist
+node_modules
+docs
+apps/**/.env.local

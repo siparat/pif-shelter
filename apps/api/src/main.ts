@@ -31,7 +31,7 @@ async function bootstrap(): Promise<void> {
 	app.enableShutdownHooks();
 	app.useLogger(app.get(Logger));
 	app.enableCors({
-		origin: app.get(ConfigService).getOrThrow('ALLOWED_ORIGINS').split(','),
+		origin: app.get(ConfigService).getOrThrow<string>('ALLOWED_ORIGINS').split(','),
 		credentials: true,
 		methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 		allowedHeaders: ['Content-Type', 'Authorization']
@@ -68,7 +68,7 @@ async function bootstrap(): Promise<void> {
 	app.useGlobalInterceptors(new GlobalDeserializerInterceptor());
 
 	await app.listen(PORT, '0.0.0.0');
-	app.get(Logger).log(`Application is running on http://0.0.0.0:${PORT}`);
+	app.get(Logger).log(`Application is running on http://localhost:${PORT}`);
 }
 
 bootstrap().catch((err) => {

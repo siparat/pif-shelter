@@ -1,20 +1,29 @@
 services:
-    # api:
-    #     build:
-    #         context: .
-    #         dockerfile: apps/api/Dockerfile
-    #     container_name: api
-    #     networks:
-    #         - main
-    #     ports:
-    #         - 3000:3000
-    #     volumes:
-    #         - ./envs/.api.env:/opt/app/.env
-    #     depends_on:
-    #         database:
-    #             condition: service_healthy
-    #         redis:
-    #             condition: service_healthy
+    api:
+        build:
+            context: .
+            dockerfile: apps/api/Dockerfile
+        container_name: api
+        networks:
+            - main
+        ports:
+            - 3000:3000
+        volumes:
+            - ./envs/.api.env:/opt/app/.env
+        depends_on:
+            database:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+    admin:
+        build:
+            context: .
+            dockerfile: apps/admin/Dockerfile
+        container_name: admin
+        networks:
+            - main
+        ports:
+            - 80:80
     database:
         image: postgres:17
         container_name: database
