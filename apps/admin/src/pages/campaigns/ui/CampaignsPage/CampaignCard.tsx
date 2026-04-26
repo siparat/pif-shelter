@@ -71,7 +71,7 @@ export const CampaignCard = ({
 		<div className="rounded-2xl border border-(--color-border) bg-(--color-bg-secondary) overflow-hidden flex flex-col">
 			<div className="relative aspect-video bg-(--color-bg-primary)">
 				{coverSrc ? (
-					<img src={coverSrc} alt={item.title} className="w-full h-full object-cover max-h-60" />
+					<img src={coverSrc} alt={item.title} className="w-full h-full object-cover" />
 				) : (
 					<div className="w-full h-full flex items-center justify-center text-(--color-text-secondary)">
 						<ImageIcon size={40} />
