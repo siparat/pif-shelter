@@ -9,7 +9,7 @@ services:
             - main
         volumes:
             - ./nginx.conf:/etc/nginx/nginx.conf:ro
-            - ./certs:/etc/letsencrypt:ro
+            - ./certs:/etc/letsencrypt/live:ro
         depends_on:
             - api
             - admin

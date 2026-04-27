@@ -25,7 +25,7 @@ jobs:
                       mkdir -p envs
 
                       cat > envs/.api.env <<EOF
-                      DATABASE_URL="postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASS }}@${{ vars.DB_HOST }}:${{ vars.DB_PORT }}/${{ secrets.DB_NAME }}"
+                      DATABASE_URL="postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASS }}@${{ vars.DB_HOST }}:${{ vars.DB_PORT }}/${{ vars.DB_NAME }}"
                       SECRET="${{ secrets.SECRET }}"
 
                       ADMIN_EMAIL="${{ vars.ADMIN_EMAIL }}"
@@ -83,7 +83,7 @@ jobs:
 
                       cat > envs/.admin.env <<EOF
                         VITE_API_URL="https://${{ secrets.DOMAIN }}/v1"
-                        VITE_BUCKET_HOST="${{ secrets.S3_PUBLIC_ENDPOINT }}"
+                        VITE_BUCKET_HOST="${{ vars.S3_PUBLIC_ENDPOINT }}"
                       EOF
 
             - name: Create .env on server
@@ -99,7 +99,7 @@ jobs:
                         DB_PORT="${{ vars.DB_PORT }}"
                         DB_USER="${{ secrets.DB_USER }}"
                         DB_PASSWORD="${{ secrets.DB_PASS }}"
-                        DB_NAME="${{ secrets.DB_NAME }}"
+                        DB_NAME="${{ vars.DB_NAME }}"
 
                         REDIS_PASSWORD="${{ secrets.REDIS_PASS }}"
                         QUEUE_REDIS_PASSWORD="${{ secrets.QUEUE_PASS }}"
@@ -112,21 +112,23 @@ jobs:
                   username: ${{ vars.SERVER_USER }}
                   key: ${{ secrets.SERVER_SSH_KEY }}
                   script: |
+                      cd ${{ vars.APP_PATH }}
+
                       mkdir -p ./certs/${{ secrets.DOMAIN }}/
                       mkdir -p ./certs/${{ secrets.ADMIN_DOMAIN }}/
 
                       cat > ./certs/${{ secrets.ADMIN_DOMAIN }}/fullchain.pem <<EOF
-                        ${{ secrets.ADMIN_FULLCHAIN_CERT }}
+                      ${{ secrets.ADMIN_FULLCHAIN_CERT }}
                       EOF
                       cat > ./certs/${{ secrets.ADMIN_DOMAIN }}/privkey.pem <<EOF
-                        ${{ secrets.ADMIN_PRIVKEY_CERT }}
+                      ${{ secrets.ADMIN_PRIVKEY_CERT }}
                       EOF
 
                       cat > ./certs/${{ secrets.DOMAIN }}/fullchain.pem <<EOF
-                        ${{ secrets.FULLCHAIN_CERT }}
+                      ${{ secrets.FULLCHAIN_CERT }}
                       EOF
                       cat > ./certs/${{ secrets.DOMAIN }}/privkey.pem <<EOF
-                        ${{ secrets.PRIVKEY_CERT }}
+                      ${{ secrets.PRIVKEY_CERT }}
                       EOF
 
             - name: Create nginx.conf
@@ -148,10 +150,10 @@ jobs:
 
                                     location /v1/ {
                                         proxy_pass http://api:3000/;
-                                        proxy_set_header Host $host;
-                                        proxy_set_header X-Real-IP $remote_addr;
-                                        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                                        proxy_set_header X-Forwarded-Proto $scheme;
+                                        proxy_set_header Host \$host;
+                                        proxy_set_header X-Real-IP \$remote_addr;
+                                        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                                        proxy_set_header X-Forwarded-Proto \$scheme;
                                     }
                             }
                             server {
@@ -169,10 +171,10 @@ jobs:
 
                                 location / {
                                     proxy_pass http://admin:80/;
-                                    proxy_set_header Host $host;
-                                    proxy_set_header X-Real-IP $remote_addr;
-                                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                                    proxy_set_header X-Forwarded-Proto $scheme;
+                                    proxy_set_header Host \$host;
+                                    proxy_set_header X-Real-IP \$remote_addr;
+                                    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                                    proxy_set_header X-Forwarded-Proto \$scheme;
                                 }
                             }
                             server {
@@ -199,8 +201,6 @@ jobs:
 
                       git pull origin main --rebase
 
-                      docker compose build migrate
-                      docker compose run --rm migrate
-                      docker image rm migrate
-                      docker compose up -d --build nginx api admin redis queue-redis database
+                      docker compose down -v nginx
+                      docker compose up -d --build
                       docker image prune -f

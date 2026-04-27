@@ -48,3 +48,5 @@ Thumbs.db
 vite.config.*.timestamp*
 
 GEMINI.md
+certs
+nginx.conf
