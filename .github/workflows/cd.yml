@@ -1,0 +1,206 @@
+name: CD
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    deploy:
+        environment: Server
+        runs-on: ubuntu-latest
+        timeout-minutes: 60
+
+        steps:
+            - uses: actions/checkout@v4
+            - name: Create .api.env on server
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ vars.SERVER_HOST }}
+                  username: ${{ vars.SERVER_USER }}
+                  key: ${{ secrets.SERVER_SSH_KEY }}
+                  script: |
+                      cd ${{ vars.APP_PATH }}
+
+                      mkdir -p envs
+
+                      cat > envs/.api.env <<EOF
+                      DATABASE_URL="postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASS }}@${{ vars.DB_HOST }}:${{ vars.DB_PORT }}/${{ secrets.DB_NAME }}"
+                      SECRET="${{ secrets.SECRET }}"
+
+                      ADMIN_EMAIL="${{ vars.ADMIN_EMAIL }}"
+                      ADMIN_PASSWORD="${{ secrets.ADMIN_PASS }}"
+                      ADMIN_TELEGRAM="${{ secrets.ADMIN_TELEGRAM }}"
+
+                      ALLOWED_ORIGINS="https://${{ secrets.DOMAIN }},https://${{ secrets.ADMIN_DOMAIN }},http://localhost:5173,http://localhost:4200"
+                      BASE_URL="https://${{ secrets.DOMAIN }}"
+                      APP_BASE_URL="https://${{ secrets.DOMAIN }}"
+                      ADMIN_BASE_URL="https://${{ secrets.ADMIN_DOMAIN }}"
+
+                      SMTP_PASSWORD="${{ secrets.SMTP_PASS }}"
+                      SMTP_HOST="${{ vars.SMTP_HOST }}"
+                      SMTP_PORT=${{ vars.SMTP_PORT }}
+                      SMTP_EMAIL="${{ secrets.SMTP_EMAIL }}"
+                      SMTP_NAME="${{ vars.SMTP_NAME }}"
+
+                      HEALTH_DISK_THRESHOLD_PERCENT=0.9
+                      HEALTH_MEMORY_THRESHOLD_BYTES=314572800
+
+                      REDIS_URL="redis://:${{ secrets.REDIS_PASS }}@${{ vars.REDIS_HOST }}:${{ vars.REDIS_PORT }}"
+                      REDIS_TTL_SECONDS=${{ vars.CACHE_TTL_SECS }}
+                      REDIS_KEY_PREFIX="pif:api"
+                      REDIS_HASH_SALT="5"
+
+                      QUEUE_REDIS_URL="redis://:${{ secrets.QUEUE_PASS }}@${{ vars.QUEUE_HOST }}:${{ vars.QUEUE_PORT }}"
+
+                      S3_REGION="${{ vars.S3_REGION }}"
+                      S3_ENDPOINT="${{ vars.S3_ENDPOINT }}"
+                      S3_PUBLIC_ENDPOINT="${{ vars.S3_PUBLIC_ENDPOINT }}"
+                      S3_ACCESS_TOKEN="${{ secrets.S3_ACCESS_TOKEN }}"
+                      S3_ACCESS_SECRET_TOKEN="${{ secrets.S3_ACCESS_SECRET_TOKEN }}"
+                      S3_BUCKET="${{ vars.S3_BUCKET }}"
+
+                      TELEGRAM_ADMIN_USERNAME="${{ vars.TELEGRAM_ADMIN_USERNAME }}"
+                      TELEGRAM_BOT_USERNAME="${{ vars.TELEGRAM_BOT_USERNAME }}"
+                      TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}"
+
+                      BOT_HELP_CONTACTS="${{ vars.HELP_CONTACT }}"
+                      BOT_HELP_ADDRESS="${{ vars.HELP_ADDRESS }}"
+                      BOT_HELP_VISITING_RULES="${{ vars.HELP_RULES_URL }}"
+                      BOT_HELP_SITE_URL="https://${{ secrets.DOMAIN }}"
+                      EOF
+
+            - name: Create .admin.env on server
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ vars.SERVER_HOST }}
+                  username: ${{ vars.SERVER_USER }}
+                  key: ${{ secrets.SERVER_SSH_KEY }}
+                  script: |
+                      cd ${{ vars.APP_PATH }}
+
+                      mkdir -p envs
+
+                      cat > envs/.admin.env <<EOF
+                        VITE_API_URL="https://${{ secrets.DOMAIN }}/v1"
+                        VITE_BUCKET_HOST="${{ secrets.S3_PUBLIC_ENDPOINT }}"
+                      EOF
+
+            - name: Create .env on server
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ vars.SERVER_HOST }}
+                  username: ${{ vars.SERVER_USER }}
+                  key: ${{ secrets.SERVER_SSH_KEY }}
+                  script: |
+                      cd ${{ vars.APP_PATH }}
+
+                      cat > .env <<EOF
+                        DB_PORT="${{ vars.DB_PORT }}"
+                        DB_USER="${{ secrets.DB_USER }}"
+                        DB_PASSWORD="${{ secrets.DB_PASS }}"
+                        DB_NAME="${{ secrets.DB_NAME }}"
+
+                        REDIS_PASSWORD="${{ secrets.REDIS_PASS }}"
+                        QUEUE_REDIS_PASSWORD="${{ secrets.QUEUE_PASS }}"
+                      EOF
+
+            - name: Save SSL certs
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ vars.SERVER_HOST }}
+                  username: ${{ vars.SERVER_USER }}
+                  key: ${{ secrets.SERVER_SSH_KEY }}
+                  script: |
+                      mkdir -p ./certs/${{ secrets.DOMAIN }}/
+                      mkdir -p ./certs/${{ secrets.ADMIN_DOMAIN }}/
+
+                      cat > ./certs/${{ secrets.ADMIN_DOMAIN }}/fullchain.pem <<EOF
+                        ${{ secrets.ADMIN_FULLCHAIN_CERT }}
+                      EOF
+                      cat > ./certs/${{ secrets.ADMIN_DOMAIN }}/privkey.pem <<EOF
+                        ${{ secrets.ADMIN_PRIVKEY_CERT }}
+                      EOF
+
+                      cat > ./certs/${{ secrets.DOMAIN }}/fullchain.pem <<EOF
+                        ${{ secrets.FULLCHAIN_CERT }}
+                      EOF
+                      cat > ./certs/${{ secrets.DOMAIN }}/privkey.pem <<EOF
+                        ${{ secrets.PRIVKEY_CERT }}
+                      EOF
+
+            - name: Create nginx.conf
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ vars.SERVER_HOST }}
+                  username: ${{ vars.SERVER_USER }}
+                  key: ${{ secrets.SERVER_SSH_KEY }}
+                  script: |
+                      cd ${{ vars.APP_PATH }}
+
+                      cat > ./nginx.conf <<EOF
+                        http {
+                            server {
+                                listen 443 ssl;
+                                server_name ${{ secrets.DOMAIN }};
+                                ssl_certificate /etc/letsencrypt/live/${{ secrets.DOMAIN }}/fullchain.pem;
+                                ssl_certificate_key /etc/letsencrypt/live/${{ secrets.DOMAIN }}/privkey.pem;
+
+                                    location /v1/ {
+                                        proxy_pass http://api:3000/;
+                                        proxy_set_header Host $host;
+                                        proxy_set_header X-Real-IP $remote_addr;
+                                        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                                        proxy_set_header X-Forwarded-Proto $scheme;
+                                    }
+                            }
+                            server {
+                                listen 80;
+                                server_name ${{ secrets.DOMAIN }};
+
+                                return 301 https://${{ secrets.DOMAIN }};
+                            }
+
+                            server {
+                                listen 443 ssl;
+                                server_name ${{ secrets.ADMIN_DOMAIN }};
+                                ssl_certificate /etc/letsencrypt/live/${{ secrets.ADMIN_DOMAIN }}/fullchain.pem;
+                                ssl_certificate_key /etc/letsencrypt/live/${{ secrets.ADMIN_DOMAIN }}/privkey.pem;
+
+                                location / {
+                                    proxy_pass http://admin:80/;
+                                    proxy_set_header Host $host;
+                                    proxy_set_header X-Real-IP $remote_addr;
+                                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                                    proxy_set_header X-Forwarded-Proto $scheme;
+                                }
+                            }
+                            server {
+                                listen 80;
+                                server_name ${{ secrets.ADMIN_DOMAIN }};
+
+                                return 301 https://${{ secrets.ADMIN_DOMAIN }};
+                            }
+                        }
+
+                        events {
+                            worker_connections 8192;
+                        }
+                      EOF
+
+            - name: Run docker compose
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ vars.SERVER_HOST }}
+                  username: ${{ vars.SERVER_USER }}
+                  key: ${{ secrets.SERVER_SSH_KEY }}
+                  script: |
+                      cd ${{ vars.APP_PATH }}
+
+                      git pull origin main --rebase
+
+                      docker compose build migrate
+                      docker compose run --rm migrate
+                      docker image rm migrate
+                      docker compose up -d --build nginx api admin redis queue-redis database
+                      docker image prune -f

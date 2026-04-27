@@ -6,7 +6,7 @@ RUN pnpm install --frozen-lockfile
 COPY nx.json tsconfig.base.json ./
 COPY libs ./libs
 COPY apps/admin ./apps/admin
-COPY envs/.admin.env /opt/app/.env.production
+COPY envs/.admin.env /opt/app/.env.local
 RUN pnpm nx build admin --prod
 
 FROM nginx:stable-alpine

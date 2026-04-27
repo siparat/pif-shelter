@@ -4,4 +4,4 @@
 dist
 node_modules
 docs
-apps/**/.env.local
+apps/admin/.env.local
