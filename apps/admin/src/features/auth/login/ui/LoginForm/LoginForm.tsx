@@ -26,12 +26,20 @@ export const LoginForm = (): JSX.Element => {
 	const onSubmit = async (values: LoginFormValues): Promise<void> => {
 		try {
 			await signInEmail(values);
-			await queryClient.fetchQuery({
+			queryClient.removeQueries({ queryKey: ['session'] });
+
+			const session = await queryClient.fetchQuery({
 				queryKey: ['session'],
-				queryFn: getSession
+				queryFn: getSession,
+				staleTime: 0
 			});
+
+			if (!session) {
+				throw new Error('Не удалось подтвердить сессию после входа');
+			}
+
 			toast.success('Успешный вход');
-			navigate('/');
+			navigate('/', { replace: true });
 		} catch (err) {
 			const message = await getErrorMessage(err);
 			toast.error(message);

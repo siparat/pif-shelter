@@ -3,7 +3,7 @@ name: CD
 on:
     push:
         branches:
-            - main
+            - release
 
 jobs:
     deploy:
@@ -228,8 +228,5 @@ jobs:
 
                       git pull origin main --rebase
 
-                      docker compose up -d --build database redis queue-redis
-                      docker compose up --build --abort-on-container-exit --exit-code-from migrate migrate
-                      docker compose up -d --build api admin web nginx
-                      docker compose ps
+                      docker compose up -d --build api nginx redis queue-redis database
                       docker image prune -f

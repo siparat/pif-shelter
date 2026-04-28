@@ -41,21 +41,15 @@ export default defineConfig(() => ({
 				lang: 'ru',
 				icons: [
 					{
-						src: '/favicon.svg',
-						sizes: '192x192',
-						type: 'image/svg+xml',
+						src: '/icon-128x128.png',
+						sizes: '128x128',
+						type: 'image/png',
 						purpose: 'any'
 					},
 					{
-						src: '/favicon.svg',
-						sizes: '512x512',
-						type: 'image/svg+xml',
-						purpose: 'any'
-					},
-					{
-						src: '/favicon.svg',
-						sizes: '512x512',
-						type: 'image/svg+xml',
+						src: '/icon-128x128.png',
+						sizes: '128x128',
+						type: 'image/png',
 						purpose: 'maskable'
 					}
 				]
