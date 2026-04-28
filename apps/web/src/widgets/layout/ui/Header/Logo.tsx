@@ -1,6 +1,6 @@
 import { JSX } from 'react';
 import { Link } from 'react-router-dom';
-import LogoDark from '../../../../../public/logo-dark.svg?react';
+import LogoDark from '../../../../shared/icons/logo-light.svg?react';
 import { ROUTES } from '../../../../shared/config/routes';
 
 export const Logo = (): JSX.Element => {
