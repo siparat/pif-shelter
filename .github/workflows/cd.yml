@@ -196,11 +196,16 @@ jobs:
                   host: ${{ vars.SERVER_HOST }}
                   username: ${{ vars.SERVER_USER }}
                   key: ${{ secrets.SERVER_SSH_KEY }}
+                  command_timeout: 45m
+                  script_stop: true
                   script: |
                       cd ${{ vars.APP_PATH }}
 
                       git pull origin main --rebase
 
-                      docker compose down -v nginx
-                      docker compose up -d --build
+                      docker compose down
+                      docker compose up -d --build database redis queue-redis
+                      docker compose up --build --abort-on-container-exit --exit-code-from migrate migrate
+                      docker compose up -d --build api admin nginx
+                      docker compose ps
                       docker image prune -f
