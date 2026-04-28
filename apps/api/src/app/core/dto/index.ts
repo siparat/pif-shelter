@@ -104,8 +104,12 @@ import {
 	setCostOfGuardianshipRequestSchema,
 	setCostOfGuardianshipResponseSchema,
 	setPostReactionRequestSchema,
+	setUserAvatarRequestSchema,
+	setUserAvatarResponseSchema,
 	setUserBannedRequestSchema,
 	setUserBannedResponseSchema,
+	setUserProfileRequestSchema,
+	setUserProfileResponseSchema,
 	setUserRoleRequestSchema,
 	setUserRoleResponseSchema,
 	setTelegramUnreachableRequestSchema,
@@ -242,8 +246,12 @@ export class SetAnimalGalleryResponseDto extends createZodDto(setAnimalGalleryRe
 export class SetCostOfGuardianshipRequestDto extends createZodDto(setCostOfGuardianshipRequestSchema) {}
 export class SetCostOfGuardianshipResponseDto extends createZodDto(setCostOfGuardianshipResponseSchema) {}
 export class SetPostReactionRequestDto extends createZodDto(setPostReactionRequestSchema) {}
+export class SetUserAvatarRequestDto extends createZodDto(setUserAvatarRequestSchema) {}
+export class SetUserAvatarResponseDto extends createZodDto(setUserAvatarResponseSchema) {}
 export class SetUserBannedRequestDto extends createZodDto(setUserBannedRequestSchema) {}
 export class SetUserBannedResponseDto extends createZodDto(setUserBannedResponseSchema) {}
+export class SetUserProfileRequestDto extends createZodDto(setUserProfileRequestSchema) {}
+export class SetUserProfileResponseDto extends createZodDto(setUserProfileResponseSchema) {}
 export class SetUserRoleRequestDto extends createZodDto(setUserRoleRequestSchema) {}
 export class SetUserRoleResponseDto extends createZodDto(setUserRoleResponseSchema) {}
 export class SetTelegramUnreachableRequestDto extends createZodDto(setTelegramUnreachableRequestSchema) {}

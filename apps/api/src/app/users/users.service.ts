@@ -47,6 +47,14 @@ export class UsersService {
 		await this.repository.setBanned(userId, value);
 	}
 
+	async setAvatar(userId: string, avatarKey: string): Promise<void> {
+		await this.repository.setAvatar(userId, avatarKey);
+	}
+
+	async setProfile(userId: string, email: string, position: string, telegram: string): Promise<void> {
+		await this.repository.setProfile(userId, email, position, telegram);
+	}
+
 	async setRole(userId: string, roleName: UserRole): Promise<void> {
 		await this.repository.setRole(userId, roleName);
 	}

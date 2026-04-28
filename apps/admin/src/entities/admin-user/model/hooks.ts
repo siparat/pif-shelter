@@ -1,6 +1,8 @@
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import { useMutation, useQuery, UseMutationResult, UseQueryResult, useQueryClient } from '@tanstack/react-query';
 import { getAdminUser } from '../api/admin-user.api';
 import { listTeamUsers } from '../api/list-team-users.api';
+import { setUserAvatar, SetUserAvatarPayload } from '../api/set-user-avatar.api';
+import { setUserProfile, SetUserProfilePayload } from '../api/set-user-profile.api';
 import { adminUserKeys } from './query-keys';
 import { AdminUser, TeamUser } from './types';
 
@@ -29,5 +31,35 @@ export const useTeamUsers = (options?: {
 		enabled: options?.enabled ?? true,
 		retry: false,
 		refetchOnWindowFocus: false
+	});
+};
+
+export const useSetUserAvatarMutation = (): UseMutationResult<
+	{ userId: string; avatarKey: string },
+	Error,
+	SetUserAvatarPayload
+> => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: setUserAvatar,
+		onSuccess: (_data, variables) => {
+			void queryClient.invalidateQueries({ queryKey: adminUserKeys.detail(variables.userId) });
+			void queryClient.invalidateQueries({ queryKey: adminUserKeys.all });
+		}
+	});
+};
+
+export const useSetUserProfileMutation = (): UseMutationResult<
+	{ userId: string; email: string; position: string; telegram: string },
+	Error,
+	SetUserProfilePayload
+> => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: setUserProfile,
+		onSuccess: (_data, variables) => {
+			void queryClient.invalidateQueries({ queryKey: adminUserKeys.detail(variables.userId) });
+			void queryClient.invalidateQueries({ queryKey: adminUserKeys.all });
+		}
 	});
 };

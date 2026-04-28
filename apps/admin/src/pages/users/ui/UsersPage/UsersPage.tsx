@@ -8,7 +8,7 @@ import { UserBannedToggle } from '../../../../features/user-banned';
 import { InviteVolunteerModal } from '../../../../features/user-invitation';
 import { UserRoleSelect } from '../../../../features/user-role';
 import { ROUTES } from '../../../../shared/config';
-import { getUserTelegramLink } from '../../../../shared/lib';
+import { getMediaUrl, getUserTelegramLink } from '../../../../shared/lib';
 import { Button, Checkbox, EmptyState, ErrorState, Input, PageTitle } from '../../../../shared/ui';
 
 const ROLE_LABELS: Record<UserRole, string> = {
@@ -138,7 +138,11 @@ export const UsersPage = (): JSX.Element => {
 							].join(' ')}>
 							<div className="shrink-0 rounded-full overflow-hidden w-16 h-16 bg-(--color-bg-primary) flex items-center justify-center">
 								{user.avatar ? (
-									<img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+									<img
+										src={getMediaUrl(user.avatar)}
+										alt={user.name}
+										className="w-full h-full object-cover"
+									/>
 								) : (
 									<UserIcon size={16} />
 								)}

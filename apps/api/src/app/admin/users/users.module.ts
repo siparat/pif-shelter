@@ -5,6 +5,10 @@ import { AcceptInvitationHandler } from './commands/accept-invitation/accept-inv
 import { AcceptInvitationPolicy } from './commands/accept-invitation/accept-invitation.policy';
 import { CreateInvitationHandler } from './commands/create-invitation/create-invitation.handler';
 import { SetUserBannedHandler } from './commands/set-user-banned/set-user-banned.handler';
+import { SetUserAvatarHandler } from './commands/set-user-avatar/set-user-avatar.handler';
+import { SetUserAvatarPolicy } from './commands/set-user-avatar/set-user-avatar.policy';
+import { SetUserProfileHandler } from './commands/set-user-profile/set-user-profile.handler';
+import { SetUserProfilePolicy } from './commands/set-user-profile/set-user-profile.policy';
 import { SetUserRoleHandler } from './commands/set-user-role/set-user-role.handler';
 import { SetTelegramUnreachableHandler } from './commands/set-telegram-unreachable/set-telegram-unreachable.handler';
 import { SendInvitationEmailHandler } from './events/invitation-created/send-invitation-email.handler';
@@ -22,6 +26,8 @@ import { AdminUsersController } from './users.controller';
 		CreateInvitationHandler,
 		AcceptInvitationHandler,
 		SetTelegramUnreachableHandler,
+		SetUserAvatarHandler,
+		SetUserProfileHandler,
 		SetUserBannedHandler,
 		SetUserRoleHandler,
 		SendInvitationEmailHandler,
@@ -29,6 +35,8 @@ import { AdminUsersController } from './users.controller';
 		ListTeamUsersHandler,
 		ListVolunteersHandler,
 		AcceptInvitationPolicy,
+		SetUserAvatarPolicy,
+		SetUserProfilePolicy,
 		{
 			provide: AdminUsersRepository,
 			useClass: DrizzleAdminUsersRepository

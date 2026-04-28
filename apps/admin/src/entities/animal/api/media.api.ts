@@ -24,6 +24,16 @@ export const uploadFileToS3 = async (uploadData: GetUploadUrlResponse, file: Fil
 	});
 
 	if (!response.ok) {
+		const bodyText = await response.text();
+		const tooLarge =
+			response.status === 413 ||
+			bodyText.includes('<Code>EntityTooLarge</Code>') ||
+			bodyText.includes('<Code>MaxMessageLengthExceeded</Code>');
+
+		if (tooLarge) {
+			throw new Error('Файл слишком большой для загрузки');
+		}
+
 		throw new Error('Не удалось загрузить файл');
 	}
 };

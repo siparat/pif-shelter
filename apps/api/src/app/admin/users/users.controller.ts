@@ -18,8 +18,12 @@ import {
 	ReturnData,
 	SetTelegramUnreachableRequestDto,
 	SetTelegramUnreachableResponseDto,
+	SetUserAvatarRequestDto,
+	SetUserAvatarResponseDto,
 	SetUserBannedRequestDto,
 	SetUserBannedResponseDto,
+	SetUserProfileRequestDto,
+	SetUserProfileResponseDto,
 	SetUserRoleRequestDto,
 	SetUserRoleResponseDto
 } from '../../core/dto';
@@ -27,7 +31,9 @@ import { RoleGuard } from '../../core/guards/role.guard';
 import { AcceptInvitationCommand } from './commands/accept-invitation/accept-invitation.command';
 import { CreateInvitationCommand } from './commands/create-invitation/create-invitation.command';
 import { SetTelegramUnreachableCommand } from './commands/set-telegram-unreachable/set-telegram-unreachable.command';
+import { SetUserAvatarCommand } from './commands/set-user-avatar/set-user-avatar.command';
 import { SetUserBannedCommand } from './commands/set-user-banned/set-user-banned.command';
+import { SetUserProfileCommand } from './commands/set-user-profile/set-user-profile.command';
 import { SetUserRoleCommand } from './commands/set-user-role/set-user-role.command';
 import { GetAdminUserQuery } from './queries/get-admin-user/get-admin-user.query';
 import { ListTeamUsersQuery } from './queries/list-team-users/list-team-users.query';
@@ -72,6 +78,28 @@ export class AdminUsersController {
 		@Body() dto: SetTelegramUnreachableRequestDto
 	): Promise<ReturnData<typeof SetTelegramUnreachableResponseDto>> {
 		return this.commandBus.execute(new SetTelegramUnreachableCommand(userId, dto.unreachable));
+	}
+
+	@ApiOperation({ summary: 'Установить аватарку волонтёра' })
+	@ApiOkResponse({ description: 'Аватарка обновлена', type: SetUserAvatarResponseDto })
+	@Roles([UserRole.ADMIN])
+	@Patch(':userId/avatar')
+	async setAvatar(
+		@Param('userId') userId: string,
+		@Body() dto: SetUserAvatarRequestDto
+	): Promise<ReturnData<typeof SetUserAvatarResponseDto>> {
+		return this.commandBus.execute(new SetUserAvatarCommand(userId, dto.avatarKey));
+	}
+
+	@ApiOperation({ summary: 'Обновить email, должность и telegram пользователя' })
+	@ApiOkResponse({ description: 'Профиль обновлён', type: SetUserProfileResponseDto })
+	@Roles([UserRole.ADMIN])
+	@Patch(':userId/profile')
+	async setProfile(
+		@Param('userId') userId: string,
+		@Body() dto: SetUserProfileRequestDto
+	): Promise<ReturnData<typeof SetUserProfileResponseDto>> {
+		return this.commandBus.execute(new SetUserProfileCommand(userId, dto.email, dto.position, dto.telegram));
 	}
 
 	@ApiOperation({ summary: 'Получить список волонтёров' })

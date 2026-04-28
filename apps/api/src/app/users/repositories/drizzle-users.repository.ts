@@ -65,6 +65,14 @@ export class DrizzleUsersRepository implements UsersRepository {
 		await this.db.client.update(users).set({ banned: value }).where(eq(users.id, userId));
 	}
 
+	async setAvatar(userId: string, avatarKey: string): Promise<void> {
+		await this.db.client.update(users).set({ image: avatarKey }).where(eq(users.id, userId));
+	}
+
+	async setProfile(userId: string, email: string, position: string, telegram: string): Promise<void> {
+		await this.db.client.update(users).set({ email, position, telegram }).where(eq(users.id, userId));
+	}
+
 	async setRole(userId: string, roleName: UserRole): Promise<void> {
 		await this.db.client.update(users).set({ role: roleName }).where(eq(users.id, userId));
 	}
