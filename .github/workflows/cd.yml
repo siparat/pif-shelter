@@ -86,6 +86,23 @@ jobs:
                         VITE_BUCKET_HOST="${{ vars.S3_PUBLIC_ENDPOINT }}"
                       EOF
 
+            - name: Create .web.env on server
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ vars.SERVER_HOST }}
+                  username: ${{ vars.SERVER_USER }}
+                  key: ${{ secrets.SERVER_SSH_KEY }}
+                  script: |
+                      cd ${{ vars.APP_PATH }}
+
+                      mkdir -p envs
+
+                      cat > envs/.web.env <<EOF
+                        VITE_API_URL="https://${{ secrets.DOMAIN }}/v1"
+                        VITE_BUCKET_HOST="${{ vars.S3_PUBLIC_ENDPOINT }}"
+                        VITE_SITE_URL="https://${{ secrets.DOMAIN }}"
+                      EOF
+
             - name: Create .env on server
               uses: appleboy/ssh-action@v1.0.3
               with:
@@ -148,6 +165,14 @@ jobs:
                                 ssl_certificate /etc/letsencrypt/live/${{ secrets.DOMAIN }}/fullchain.pem;
                                 ssl_certificate_key /etc/letsencrypt/live/${{ secrets.DOMAIN }}/privkey.pem;
 
+                                    location / {
+                                        proxy_pass http://web:80/;
+                                        proxy_set_header Host \$host;
+                                        proxy_set_header X-Real-IP \$remote_addr;
+                                        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                                        proxy_set_header X-Forwarded-Proto \$scheme;
+                                    }
+
                                     location /v1/ {
                                         proxy_pass http://api:3000/;
                                         proxy_set_header Host \$host;
@@ -203,9 +228,8 @@ jobs:
 
                       git pull origin main --rebase
 
-                      docker compose down
                       docker compose up -d --build database redis queue-redis
                       docker compose up --build --abort-on-container-exit --exit-code-from migrate migrate
-                      docker compose up -d --build api admin nginx
+                      docker compose up -d --build api admin web nginx
                       docker compose ps
                       docker image prune -f

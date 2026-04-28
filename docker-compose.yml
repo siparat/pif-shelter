@@ -13,6 +13,7 @@ services:
         depends_on:
             - api
             - admin
+            - web
 
     migrate:
         build:
@@ -53,6 +54,14 @@ services:
             context: .
             dockerfile: apps/admin/Dockerfile
         container_name: admin
+        restart: always
+        networks:
+            - main
+    web:
+        build:
+            context: .
+            dockerfile: apps/web/Dockerfile
+        container_name: web
         restart: always
         networks:
             - main
