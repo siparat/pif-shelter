@@ -1,19 +1,25 @@
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Fustat:wght@600;700&display=swap');
 
 :root {
-	--color-bg-primary: #f6eadc;
+	--color-bg-primary: #f0e7d6;
+	--color-bg-soft: #f0e7d6;
 	--color-surface-primary: #fff8f0;
 	--color-surface-secondary: #ffffff;
 	--color-surface-strong: #5b4339;
 	--color-brand-brown: #4f3d38;
 	--color-brand-brown-strong: #3e2f2a;
-	--color-brand-accent: #f3e5d2;
+	--color-brand-brown-soft: rgba(79, 61, 56, 0.05);
+	--color-brand-brown-muted: rgba(79, 61, 56, 0.1);
+	--color-brand-accent: #fe8651;
 	--color-brand-accent-strong: #ead7bf;
-	--color-text-primary: #4c3b35;
+	--color-text-primary: #4f3d38;
 	--color-text-secondary: #7d6a61;
 	--color-text-inverse: #fff9f2;
+	--color-text-on-dark: #f0e7d6;
 	--color-text-inverse-soft: #dbcfc9;
-	--color-border-primary: #dbc7b3;
+	--color-border-primary: #4f3d38;
+	--color-border-soft: rgba(79, 61, 56, 0.15);
 	--color-card-shadow: 0 20px 40px rgba(79, 61, 56, 0.12);
 }
 
@@ -33,7 +39,7 @@
 			radial-gradient(circle at top left, rgba(255, 255, 255, 0.75), transparent 25%),
 			var(--color-bg-primary);
 		color: var(--color-text-primary);
-		font-family: 'Golos Text', system-ui, sans-serif;
+		font-family: 'Fustat', system-ui, sans-serif;
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
 	}

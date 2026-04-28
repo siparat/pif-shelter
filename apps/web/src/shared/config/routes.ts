@@ -1,7 +1,15 @@
-import { HeartHandshake, House, Info, Mail, PawPrint, WalletCards } from 'lucide-react';
+import { HeartHandshake, House, Info, List, Mail, PawPrint, WalletCards } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 
-export type RouteKey = 'home' | 'animals' | 'animalDetails' | 'donations' | 'about' | 'contacts';
+export type RouteKey =
+	| 'home'
+	| 'animals'
+	| 'animalDetails'
+	| 'donations'
+	| 'donationsList'
+	| 'about'
+	| 'contacts'
+	| 'help';
 
 export type WebRoute = {
 	key: RouteKey;
@@ -20,8 +28,17 @@ export const webRoutes: WebRoute[] = [
 		name: 'Главная',
 		shortName: 'Главная',
 		Icon: House,
-		showInMenu: true,
+		showInMenu: false,
 		preload: () => import('../../pages/home/ui/HomePage/HomePage')
+	},
+	{
+		key: 'about',
+		path: '/about',
+		name: 'О приюте',
+		shortName: 'О приюте',
+		Icon: Info,
+		showInMenu: true,
+		preload: () => import('../../pages/about/ui/AboutPage/AboutPage')
 	},
 	{
 		key: 'animals',
@@ -51,13 +68,13 @@ export const webRoutes: WebRoute[] = [
 		preload: () => import('../../pages/donations/ui/DonationsPage/DonationsPage')
 	},
 	{
-		key: 'about',
-		path: '/about',
-		name: 'О приюте',
-		shortName: 'О приюте',
-		Icon: Info,
+		key: 'donationsList',
+		path: '/donations-list',
+		name: 'Список пожертвований',
+		shortName: 'Пожертвования',
+		Icon: List,
 		showInMenu: true,
-		preload: () => import('../../pages/about/ui/AboutPage/AboutPage')
+		preload: () => import('../../pages/donations-list/ui/DonationsListPage/DonationsListPage')
 	},
 	{
 		key: 'contacts',
@@ -67,6 +84,15 @@ export const webRoutes: WebRoute[] = [
 		Icon: Mail,
 		showInMenu: true,
 		preload: () => import('../../pages/contacts/ui/ContactsPage/ContactsPage')
+	},
+	{
+		key: 'help',
+		path: '/help',
+		name: 'Помочь делом',
+		shortName: 'Помощь',
+		Icon: PawPrint,
+		showInMenu: false,
+		preload: () => import('../../pages/help/ui/HelpPage/HelpPage')
 	}
 ];
 
@@ -78,7 +104,7 @@ export const ctaRoutes = [
 	},
 	{
 		label: 'Помочь делом',
-		path: '/contacts',
+		path: '/help',
 		Icon: PawPrint
 	}
 ];
