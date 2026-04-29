@@ -129,6 +129,7 @@ export class DrizzleAdminUsersRepository implements AdminUsersRepository {
 			.select({
 				id: users.id,
 				name: users.name,
+				role: users.role,
 				position: users.position,
 				telegram: users.telegram,
 				avatar: users.image

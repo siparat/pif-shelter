@@ -8,6 +8,7 @@ export const envSchema = z.object({
 	ADMIN_EMAIL: z.email(),
 	ADMIN_PASSWORD: z.string().min(8),
 	ADMIN_TELEGRAM: z.string().startsWith('@'),
+	ADMIN_NAME: z.string(),
 	BASE_URL: z.url(),
 	APP_BASE_URL: z.url(),
 	ADMIN_BASE_URL: z.url(),

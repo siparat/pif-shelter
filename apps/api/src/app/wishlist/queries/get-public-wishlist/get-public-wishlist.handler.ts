@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CacheService } from '@pif/cache';
 import { DatabaseService } from '@pif/database';
-import { WishlistCacheKeys, WishlistItemStatusEnum } from '@pif/shared';
+import { WishlistCacheKeys } from '@pif/shared';
 import { GetPublicWishlistData } from '../../../core/dto';
 import { GetPublicWishlistQuery } from './get-public-wishlist.query';
 
@@ -32,8 +32,7 @@ export class GetPublicWishlistHandler implements IQueryHandler<GetPublicWishlist
 				id: category.id,
 				name: category.name,
 				sortOrder: category.sortOrder,
-				items: category.items
-					.filter((item) => item.status !== WishlistItemStatusEnum.NOT_NEEDED)
+				items: [...category.items]
 					.sort((a, b) => a.sortOrder - b.sortOrder || a.createdAt.getTime() - b.createdAt.getTime())
 					.map((item) => ({
 						id: item.id,

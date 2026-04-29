@@ -21,6 +21,7 @@ export interface TeamUserSummary extends VolunteerSummary {
 export interface PublicTeamUserSummary {
 	id: string;
 	name: string;
+	role: UserRole;
 	position: string;
 	telegram: string;
 	avatar: string | null;

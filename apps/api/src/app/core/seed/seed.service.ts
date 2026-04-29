@@ -59,6 +59,7 @@ export class SeedService implements OnApplicationBootstrap {
 
 	private async seedAdmin(): Promise<void> {
 		const email = this.configService.getOrThrow<string>('ADMIN_EMAIL');
+		const name = this.configService.getOrThrow<string>('ADMIN_NAME');
 		const password = this.configService.getOrThrow<string>('ADMIN_PASSWORD');
 		const telegram = this.configService.getOrThrow<string>('ADMIN_TELEGRAM');
 
@@ -78,9 +79,9 @@ export class SeedService implements OnApplicationBootstrap {
 					email,
 					password,
 					telegram,
-					name: 'Administrator',
+					name,
 					role: UserRole.ADMIN,
-					position: 'System'
+					position: 'Администратор'
 				}
 			});
 

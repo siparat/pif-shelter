@@ -1,9 +1,11 @@
+import { UserRole } from '@pif/shared';
 import { z } from 'zod';
 import { createApiSuccessResponseSchema } from '../../../common/base.responses';
 
 export const publicTeamUserSchema = z.object({
 	id: z.string(),
 	name: z.string(),
+	role: z.enum(UserRole),
 	position: z.string(),
 	telegram: z.string(),
 	avatar: z.string().nullable()
