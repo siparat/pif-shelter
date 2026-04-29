@@ -1,4 +1,4 @@
-import { WishlistItemStatusEnum, UserRole } from '@pif/shared';
+import { UserRole, WishlistItemStatusEnum, WISHLIST_ITEM_STATUS_LABEL } from '@pif/shared';
 import { Loader2, Plus, Save, Trash2 } from 'lucide-react';
 import { JSX, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
@@ -16,12 +16,6 @@ import {
 import { useSession } from '../../../../entities/session/model/hooks';
 import { getErrorMessage } from '../../../../shared/api';
 import { Button, EmptyState, ErrorState, Input, PageTitle, Select } from '../../../../shared/ui';
-
-const STATUS_LABEL: Record<WishlistItemStatusEnum, string> = {
-	[WishlistItemStatusEnum.ALWAYS_NEEDED]: 'Постоянно нужно',
-	[WishlistItemStatusEnum.SOS]: 'Срочно (SOS)',
-	[WishlistItemStatusEnum.NOT_NEEDED]: 'Не требуется'
-};
 
 interface ItemDraft {
 	name: string;
@@ -301,7 +295,7 @@ export const WishlistPage = (): JSX.Element => {
 													value={itemDraft.status}
 													options={Object.values(WishlistItemStatusEnum).map((status) => ({
 														value: status,
-														label: STATUS_LABEL[status]
+														label: WISHLIST_ITEM_STATUS_LABEL[status]
 													}))}
 													onChange={(event) =>
 														setItemDrafts((prev) => ({

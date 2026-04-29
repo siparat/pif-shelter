@@ -1,4 +1,4 @@
-import { HeartHandshake, House, Info, List, Mail, PawPrint, WalletCards } from 'lucide-react';
+import { Ban, HeartHandshake, House, Info, List, Mail, PawPrint, WalletCards } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 
 export type RouteKey =
@@ -7,9 +7,11 @@ export type RouteKey =
 	| 'animalDetails'
 	| 'donations'
 	| 'donationsList'
+	| 'cancelSubscription'
 	| 'about'
 	| 'contacts'
-	| 'help';
+	| 'help'
+	| 'campaigns';
 
 export type WebRoute = {
 	key: RouteKey;
@@ -59,13 +61,13 @@ export const webRoutes: WebRoute[] = [
 		preload: () => import('../../pages/animal/ui/AnimalPage/AnimalPage')
 	},
 	{
-		key: 'donations',
-		path: '/donations',
-		name: 'Сборы',
+		key: 'campaigns',
+		path: '/campaigns',
+		name: 'Срочные сборы',
 		shortName: 'Сборы',
 		Icon: WalletCards,
 		showInMenu: true,
-		preload: () => import('../../pages/donations/ui/DonationsPage/DonationsPage')
+		preload: () => import('../../pages/campaigns/ui/CampaignsPage/CampaignsPage')
 	},
 	{
 		key: 'donationsList',
@@ -75,6 +77,15 @@ export const webRoutes: WebRoute[] = [
 		Icon: List,
 		showInMenu: true,
 		preload: () => import('../../pages/donations-list/ui/DonationsListPage/DonationsListPage')
+	},
+	{
+		key: 'cancelSubscription',
+		path: '/cancel-subscription',
+		name: 'Отмена подписки',
+		shortName: 'Отмена подписки',
+		Icon: Ban,
+		showInMenu: false,
+		preload: () => import('../../pages/cancel-subscription/ui/CancelSubscriptionPage/CancelSubscriptionPage')
 	},
 	{
 		key: 'contacts',
@@ -93,6 +104,15 @@ export const webRoutes: WebRoute[] = [
 		Icon: PawPrint,
 		showInMenu: false,
 		preload: () => import('../../pages/help/ui/HelpPage/HelpPage')
+	},
+	{
+		key: 'donations',
+		path: '/donations',
+		name: 'Пожертвования',
+		shortName: 'Пожертвования',
+		Icon: HeartHandshake,
+		showInMenu: false,
+		preload: () => import('../../pages/donations/ui/DonationsPage/DonationsPage')
 	}
 ];
 

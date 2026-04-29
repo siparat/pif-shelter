@@ -1,6 +1,7 @@
 import { JSX, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { Outlet } from 'react-router-dom';
+import { VolunteerInviteProvider } from '../../../../features/volunteer-invite';
 import { Footer } from '../../../footer';
 import { Header } from '../Header/Header';
 
@@ -12,7 +13,7 @@ export const Layout = (): JSX.Element => {
 			return;
 		}
 
-		toast(
+		const id = toast(
 			(t) => (
 				<div className="flex max-w-[520px] flex-col gap-3">
 					<p className="text-sm leading-relaxed">
@@ -33,15 +34,21 @@ export const Layout = (): JSX.Element => {
 			),
 			{ duration: Infinity }
 		);
+
+		return () => {
+			toast.dismiss(id);
+		};
 	}, []);
 
 	return (
-		<div className="flex min-h-screen flex-col bg-(--color-bg-soft) text-(--color-text-primary)">
-			<Header />
-			<main className="mx-auto min-h-screen w-full max-w-[1680px] flex-1 px-6 py-8">
-				<Outlet />
-			</main>
-			<Footer />
-		</div>
+		<VolunteerInviteProvider>
+			<div className="flex min-h-screen flex-col bg-(--color-bg-soft) text-(--color-text-primary)">
+				<Header />
+				<main className="mx-auto min-h-screen w-full max-w-[1680px] flex-1 px-4 py-6 sm:px-6 sm:py-8">
+					<Outlet />
+				</main>
+				<Footer />
+			</div>
+		</VolunteerInviteProvider>
 	);
 };

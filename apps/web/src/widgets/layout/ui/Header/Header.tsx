@@ -1,6 +1,7 @@
 import { Menu, X } from 'lucide-react';
 import { JSX, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useVolunteerInvite } from '../../../../features/volunteer-invite';
 import { MENU } from '../../../../shared/config/menu';
 import { ctaRoutes } from '../../../../shared/config/routes';
 import { isRouteActive } from '../../../../shared/lib/route';
@@ -9,6 +10,7 @@ import { Logo } from './Logo';
 export const Header = (): JSX.Element => {
 	const location = useLocation();
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const { open: openVolunteerInvite } = useVolunteerInvite();
 
 	useEffect(() => {
 		setIsMenuOpen(false);
@@ -47,11 +49,12 @@ export const Header = (): JSX.Element => {
 						className="inline-flex h-11 items-center justify-center rounded-full border border-(--color-border-primary) px-7 text-[18px] max-[1440px]:px-5 max-[1440px]:text-[16px] font-semibold text-(--color-text-primary) transition-[transform,box-shadow,background-color,opacity] duration-150 ease-out hover:scale-[1.02] hover:bg-(--color-brand-brown-soft) hover:shadow-[0_2px_10px_rgba(79,61,56,0.14)] active:scale-[0.99]">
 						{ctaRoutes[0].label}
 					</Link>
-					<Link
-						to={ctaRoutes[1].path}
+					<button
+						type="button"
+						onClick={() => openVolunteerInvite()}
 						className="inline-flex h-11 items-center justify-center rounded-full bg-(--color-brand-brown) px-7 text-[18px] max-[1440px]:px-5 max-[1440px]:text-[16px] font-semibold text-(--color-text-on-dark) transition-[transform,box-shadow,background-color,opacity] duration-150 ease-out hover:scale-[1.02] hover:bg-(--color-brand-brown-strong) hover:shadow-[0_2px_10px_rgba(79,61,56,0.2)] active:scale-[0.99]">
 						{ctaRoutes[1].label}
-					</Link>
+					</button>
 				</div>
 
 				<button
@@ -87,11 +90,15 @@ export const Header = (): JSX.Element => {
 						className="inline-flex h-11 flex-1 items-center justify-center rounded-full border border-(--color-border-primary) px-6 text-[18px] font-semibold text-(--color-text-primary) transition-[box-shadow,background-color,opacity] duration-150 ease-out hover:bg-(--color-brand-brown-soft) hover:shadow-[0_2px_10px_rgba(79,61,56,0.14)] active:opacity-90">
 						{ctaRoutes[0].label}
 					</Link>
-					<Link
-						to={ctaRoutes[1].path}
+					<button
+						type="button"
+						onClick={() => {
+							openVolunteerInvite();
+							setIsMenuOpen(false);
+						}}
 						className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-(--color-brand-brown) px-6 text-[18px] font-semibold text-(--color-text-on-dark) transition-[box-shadow,background-color,opacity] duration-150 ease-out hover:bg-(--color-brand-brown-strong) hover:shadow-[0_2px_10px_rgba(79,61,56,0.2)] active:opacity-90">
 						{ctaRoutes[1].label}
-					</Link>
+					</button>
 				</div>
 			</div>
 		</header>

@@ -1,7 +1,6 @@
 import { JSX } from 'react';
-import { Link } from 'react-router-dom';
+import { useVolunteerInvite } from '../../../../../features/volunteer-invite';
 import { TeamMember, TeamMemberCard } from '../../../../../entities/team';
-import { ROUTES } from '../../../../../shared/config/routes';
 import { getMediaUrl } from '../../../../../shared/lib/get-media-url';
 
 interface TeamSectionProps {
@@ -9,8 +8,7 @@ interface TeamSectionProps {
 }
 
 export const TeamSection = ({ teamMembers }: TeamSectionProps): JSX.Element => {
-	const admin = teamMembers.find((member) => member.telegram);
-	const volunteerHref = admin ? `https://t.me/${admin.telegram.replace('@', '')}` : undefined;
+	const { open: openVolunteerInvite } = useVolunteerInvite();
 
 	return (
 		<section>
@@ -26,21 +24,12 @@ export const TeamSection = ({ teamMembers }: TeamSectionProps): JSX.Element => {
 				<p className="text-[15px] font-semibold text-(--color-text-secondary)">
 					Хочешь стать частью команды? Мы тебя ждём!
 				</p>
-				{volunteerHref ? (
-					<a
-						href={volunteerHref}
-						target="_blank"
-						rel="noreferrer"
-						className="inline-flex h-11 items-center justify-center rounded-full bg-(--color-brand-brown) px-8 text-[15px] font-semibold text-(--color-text-on-dark) transition-[transform,background-color] duration-150 hover:scale-[1.02] hover:bg-(--color-brand-brown-strong)">
-						Стать волонтёром
-					</a>
-				) : (
-					<Link
-						to={ROUTES.help}
-						className="inline-flex h-11 items-center justify-center rounded-full bg-(--color-brand-brown) px-8 text-[15px] font-semibold text-(--color-text-on-dark) transition-[transform,background-color] duration-150 hover:scale-[1.02] hover:bg-(--color-brand-brown-strong)">
-						Стать волонтёром
-					</Link>
-				)}
+				<button
+					type="button"
+					onClick={() => openVolunteerInvite()}
+					className="inline-flex h-11 items-center justify-center rounded-full bg-(--color-brand-brown) px-8 text-[15px] font-semibold text-(--color-text-on-dark) transition-[transform,background-color] duration-150 hover:scale-[1.02] hover:bg-(--color-brand-brown-strong)">
+					Стать волонтёром
+				</button>
 			</div>
 		</section>
 	);
