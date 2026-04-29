@@ -16,7 +16,7 @@ export const Header = (): JSX.Element => {
 
 	return (
 		<header className="w-full border-b border-(--color-border-soft) bg-(--color-bg-soft) px-3 py-3 sm:px-4 md:px-6">
-			<div className="mx-auto flex w-full max-w-[1400px] items-center gap-3 md:gap-4">
+			<div className="mx-auto flex w-full max-w-[1680px] items-center gap-3 md:gap-4">
 				<Logo />
 
 				<nav className="hidden flex-1 items-center justify-center gap-6 xl:flex">

@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService, Invitation, invitations, users } from '@pif/database';
 import { UserRole } from '@pif/shared';
-import { and, eq, gt, inArray, isNull } from 'drizzle-orm';
+import { and, eq, gt, inArray, isNull, sql } from 'drizzle-orm';
 import { CreateInvitationRequestDto } from '../../../core/dto';
-import { AdminUsersRepository, TeamUserSummary, VolunteerSummary } from './admin-users.repository';
+import {
+	AdminUsersRepository,
+	PublicTeamUserSummary,
+	TeamUserSummary,
+	VolunteerSummary
+} from './admin-users.repository';
 
 @Injectable()
 export class DrizzleAdminUsersRepository implements AdminUsersRepository {
@@ -115,5 +120,23 @@ export class DrizzleAdminUsersRepository implements AdminUsersRepository {
 			...user,
 			createdAt: user.createdAt.toISOString()
 		}));
+	}
+
+	async listPublicTeamUsers(): Promise<PublicTeamUserSummary[]> {
+		const allowedRoles = [UserRole.VOLUNTEER, UserRole.SENIOR_VOLUNTEER, UserRole.ADMIN];
+
+		return this.db.client
+			.select({
+				id: users.id,
+				name: users.name,
+				position: users.position,
+				telegram: users.telegram,
+				avatar: users.image
+			})
+			.from(users)
+			.where(and(inArray(users.role, allowedRoles), eq(users.banned, false), isNull(users.deletedAt)))
+			.orderBy(
+				sql`CASE ${users.role} WHEN ${UserRole.ADMIN} THEN 0 WHEN ${UserRole.SENIOR_VOLUNTEER} THEN 1 ELSE 2 END`
+			);
 	}
 }

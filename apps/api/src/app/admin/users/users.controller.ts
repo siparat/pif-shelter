@@ -12,6 +12,7 @@ import {
 	CreateInvitationRequestDto,
 	CreateInvitationResponseDto,
 	GetAdminUserResponseDto,
+	ListPublicTeamUsersResponseDto,
 	ListTeamUsersQueryDto,
 	ListTeamUsersResponseDto,
 	ListVolunteersResponseDto,
@@ -36,6 +37,7 @@ import { SetUserBannedCommand } from './commands/set-user-banned/set-user-banned
 import { SetUserProfileCommand } from './commands/set-user-profile/set-user-profile.command';
 import { SetUserRoleCommand } from './commands/set-user-role/set-user-role.command';
 import { GetAdminUserQuery } from './queries/get-admin-user/get-admin-user.query';
+import { ListPublicTeamUsersQuery } from './queries/list-public-team-users/list-public-team-users.query';
 import { ListTeamUsersQuery } from './queries/list-team-users/list-team-users.query';
 import { ListVolunteersQuery } from './queries/list-volunteers/list-volunteers.query';
 
@@ -100,6 +102,14 @@ export class AdminUsersController {
 		@Body() dto: SetUserProfileRequestDto
 	): Promise<ReturnData<typeof SetUserProfileResponseDto>> {
 		return this.commandBus.execute(new SetUserProfileCommand(userId, dto.email, dto.position, dto.telegram));
+	}
+
+	@ApiOperation({ summary: 'Публичный список команды приюта' })
+	@ApiOkResponse({ description: 'Список участников команды', type: ListPublicTeamUsersResponseDto })
+	@AllowAnonymous()
+	@Get('public')
+	async listPublicTeamUsers(): Promise<ReturnData<typeof ListPublicTeamUsersResponseDto>> {
+		return this.queryBus.execute(new ListPublicTeamUsersQuery());
 	}
 
 	@ApiOperation({ summary: 'Получить список волонтёров' })

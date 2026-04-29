@@ -18,6 +18,14 @@ export interface TeamUserSummary extends VolunteerSummary {
 	createdAt: string;
 }
 
+export interface PublicTeamUserSummary {
+	id: string;
+	name: string;
+	position: string;
+	telegram: string;
+	avatar: string | null;
+}
+
 export abstract class AdminUsersRepository {
 	abstract markInvitationAsUsed(id: string, userId: string): Promise<Invitation>;
 	abstract findInvitationByToken(token: string): Promise<Invitation | undefined>;
@@ -25,4 +33,5 @@ export abstract class AdminUsersRepository {
 	abstract createInvitation(dto: CreateInvitationRequestDto, expiresAt: Date): Promise<Invitation>;
 	abstract listVolunteers(): Promise<VolunteerSummary[]>;
 	abstract listTeamUsers(includeGuardians: boolean): Promise<TeamUserSummary[]>;
+	abstract listPublicTeamUsers(): Promise<PublicTeamUserSummary[]>;
 }

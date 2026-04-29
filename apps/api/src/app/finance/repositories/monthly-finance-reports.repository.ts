@@ -25,6 +25,10 @@ export abstract class MonthlyFinanceReportsRepository {
 		month: number,
 		reportType: MonthlyFinanceReportTypeEnum
 	): Promise<typeof monthlyFinanceReports.$inferSelect | undefined>;
+	abstract listSucceededByYear(
+		year: number,
+		reportType: MonthlyFinanceReportTypeEnum
+	): Promise<(typeof monthlyFinanceReports.$inferSelect)[]>;
 	abstract upsertPending(
 		payload: UpsertPendingMonthlyFinanceReportPayload
 	): Promise<typeof monthlyFinanceReports.$inferSelect>;

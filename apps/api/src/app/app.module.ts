@@ -41,6 +41,7 @@ import { MediaModule } from './media/media.module';
 import { MeetingRequestsModule } from './meeting-requests/meeting-requests.module';
 import { PaymentsModule } from './payments/payments.module';
 import { PostsModule } from './posts/posts.module';
+import { ReportsModule } from './reports/reports.module';
 import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 
@@ -69,6 +70,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
 		MediaModule,
 		PaymentsModule,
 		PostsModule,
+		ReportsModule,
 		CampaignsModule,
 		WishlistModule,
 		MeetingRequestsModule,

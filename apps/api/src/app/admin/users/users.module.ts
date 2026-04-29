@@ -13,6 +13,7 @@ import { SetUserRoleHandler } from './commands/set-user-role/set-user-role.handl
 import { SetTelegramUnreachableHandler } from './commands/set-telegram-unreachable/set-telegram-unreachable.handler';
 import { SendInvitationEmailHandler } from './events/invitation-created/send-invitation-email.handler';
 import { GetAdminUserHandler } from './queries/get-admin-user/get-admin-user.handler';
+import { ListPublicTeamUsersHandler } from './queries/list-public-team-users/list-public-team-users.handler';
 import { ListTeamUsersHandler } from './queries/list-team-users/list-team-users.handler';
 import { ListVolunteersHandler } from './queries/list-volunteers/list-volunteers.handler';
 import { AdminUsersRepository } from './repositories/admin-users.repository';
@@ -32,6 +33,7 @@ import { AdminUsersController } from './users.controller';
 		SetUserRoleHandler,
 		SendInvitationEmailHandler,
 		GetAdminUserHandler,
+		ListPublicTeamUsersHandler,
 		ListTeamUsersHandler,
 		ListVolunteersHandler,
 		AcceptInvitationPolicy,

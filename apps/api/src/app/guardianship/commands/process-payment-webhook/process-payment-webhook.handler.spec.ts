@@ -101,7 +101,7 @@ describe('ProcessPaymentWebhookHandler', () => {
 
 		const ledgerCall = commandBus.execute.mock.calls.find((c) => c[0] instanceof RecordLedgerIncomeCommand);
 		expect(ledgerCall).toBeDefined();
-		const ledgerCmd = ledgerCall![0] as RecordLedgerIncomeCommand;
+		const ledgerCmd = (ledgerCall && ledgerCall[0]) as RecordLedgerIncomeCommand;
 		expect(ledgerCmd.payload).toMatchObject({
 			source: LedgerEntrySourceEnum.GUARDIANSHIP,
 			guardianshipId,

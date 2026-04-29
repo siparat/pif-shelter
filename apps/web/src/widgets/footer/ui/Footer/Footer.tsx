@@ -1,7 +1,7 @@
 import { AtSign, Mail, MapPin, Phone, Send } from 'lucide-react';
 import { JSX } from 'react';
 import { Link } from 'react-router-dom';
-import LogoLight from '/public/logo-light.svg?react';
+import LogoLight from '../../../../shared/icons/logo-light.svg?react';
 import {
 	footerAuthor,
 	footerBrand,
@@ -32,7 +32,7 @@ export const Footer = (): JSX.Element => {
 				}}
 			/>
 
-			<div className="relative mx-auto flex w-full max-w-[1400px] flex-col gap-10 px-6 pb-5 pt-8 md:pb-6 md:pt-10">
+			<div className="relative mx-auto flex w-full max-w-[1680px] flex-col gap-10 px-6 pb-5 pt-8 md:pb-6 md:pt-10">
 				<div className="flex flex-col items-center justify-between gap-8 text-center md:flex-row md:items-start md:text-left">
 					<div className="flex max-w-[380px] flex-col items-center gap-6 md:items-start">
 						<Link to={ROUTES.home} className="flex items-center gap-3">

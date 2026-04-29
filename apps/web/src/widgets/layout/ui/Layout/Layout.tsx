@@ -6,22 +6,39 @@ import { Header } from '../Header/Header';
 
 export const Layout = (): JSX.Element => {
 	useEffect(() => {
-		const storageKey = 'web-first-visit-disclaimer-shown';
-		const isShown = window.localStorage.getItem(storageKey);
-		if (isShown) {
+		const storageKey = 'web-disclaimer-disabled';
+		const isDisabled = window.localStorage.getItem(storageKey) === '1';
+		if (isDisabled) {
 			return;
 		}
 
 		toast(
-			'Демо-режим: сайт выполнен как дипломный проект, не является официальным и не работает как реальный сервис. Данные сгенерированы, животных не существует, платежи моковые и автоматически отмечаются оплаченными.'
+			(t) => (
+				<div className="flex max-w-[520px] flex-col gap-3">
+					<p className="text-sm leading-relaxed">
+						Демо-режим: сайт выполнен как дипломный проект, не является официальным и не работает как
+						реальный сервис. Данные сгенерированы, животных не существует, платежи моковые и автоматически
+						отмечаются оплаченными.
+					</p>
+					<button
+						type="button"
+						onClick={() => {
+							window.localStorage.setItem(storageKey, '1');
+							toast.dismiss(t.id);
+						}}
+						className="inline-flex h-8 w-fit items-center justify-center rounded-full bg-(--color-brand-brown) px-4 text-xs font-semibold text-(--color-text-on-dark) transition-colors hover:bg-(--color-brand-brown-strong)">
+						Больше не показывать
+					</button>
+				</div>
+			),
+			{ duration: Infinity }
 		);
-		window.localStorage.setItem(storageKey, '1');
 	}, []);
 
 	return (
 		<div className="flex min-h-screen flex-col bg-(--color-bg-soft) text-(--color-text-primary)">
 			<Header />
-			<main className="mx-auto w-full max-w-[1400px] flex-1 px-6 py-8">
+			<main className="mx-auto min-h-screen w-full max-w-[1680px] flex-1 px-6 py-8">
 				<Outlet />
 			</main>
 			<Footer />

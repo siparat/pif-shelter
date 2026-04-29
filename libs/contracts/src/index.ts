@@ -7,6 +7,7 @@ export * from './donations';
 export * from './finance';
 export * from './guardianship';
 export * from './posts';
+export * from './reports';
 export * from './telegram-bot';
 export * from './wishlist';
 export * from './meeting-requests';

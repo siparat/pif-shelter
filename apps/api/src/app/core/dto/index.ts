@@ -25,7 +25,6 @@ import {
 	createAnimalLabelResponseSchema,
 	createAnimalRequestSchema,
 	createAnimalResponseSchema,
-	deleteAnimalResponseSchema,
 	createCampaignRequestSchema,
 	createCampaignResponseSchema,
 	createDonationSubscriptionRequestSchema,
@@ -44,13 +43,14 @@ import {
 	createWishlistCategoryResponseSchema,
 	createWishlistItemRequestSchema,
 	createWishlistItemResponseSchema,
+	deleteAnimalResponseSchema,
 	deleteContactFromBlacklistResponseSchema,
 	deleteManualExpenseRequestSchema,
 	deleteManualExpenseResponseSchema,
 	generateMonthlyFinanceReportRequestSchema,
 	generateMonthlyFinanceReportResponseSchema,
-	getAdminUserResponseSchema,
 	getAdminDashboardSummaryResponseSchema,
+	getAdminUserResponseSchema,
 	getAnimalByIdRequestSchema,
 	getAnimalByIdResponseSchema,
 	getBlacklistByIdResponseSchema,
@@ -79,11 +79,14 @@ import {
 	listGuardianshipsResponseSchema,
 	listLedgerForMonthQuerySchema,
 	listLedgerForMonthResponseSchema,
+	listPostsRequestSchema,
+	listPostsResponseSchema,
+	listPublicReportsByYearQuerySchema,
+	listPublicReportsByYearResponseSchema,
+	listPublicTeamUsersResponseSchema,
 	listTeamUsersQuerySchema,
 	listTeamUsersResponseSchema,
 	listVolunteersResponseSchema,
-	listPostsRequestSchema,
-	listPostsResponseSchema,
 	manageWishlistCategorySchema,
 	paginationSchema,
 	paymentWebhookRequestSchema,
@@ -104,6 +107,8 @@ import {
 	setCostOfGuardianshipRequestSchema,
 	setCostOfGuardianshipResponseSchema,
 	setPostReactionRequestSchema,
+	setTelegramUnreachableRequestSchema,
+	setTelegramUnreachableResponseSchema,
 	setUserAvatarRequestSchema,
 	setUserAvatarResponseSchema,
 	setUserBannedRequestSchema,
@@ -112,8 +117,6 @@ import {
 	setUserProfileResponseSchema,
 	setUserRoleRequestSchema,
 	setUserRoleResponseSchema,
-	setTelegramUnreachableRequestSchema,
-	setTelegramUnreachableResponseSchema,
 	startGuardianshipAuthenticatedRequestSchema,
 	startGuardianshipRequestSchema,
 	startGuardianshipResponseSchema,
@@ -221,6 +224,9 @@ export class ListGuardianshipsRequestDto extends createZodDto(listGuardianshipsR
 export class ListGuardianshipsResponseDto extends createZodDto(listGuardianshipsResponseSchema) {}
 export class ListLedgerForMonthQueryDto extends createZodDto(listLedgerForMonthQuerySchema) {}
 export class ListLedgerForMonthResponseDto extends createZodDto(listLedgerForMonthResponseSchema) {}
+export class ListPublicReportsByYearQueryDto extends createZodDto(listPublicReportsByYearQuerySchema) {}
+export class ListPublicReportsByYearResponseDto extends createZodDto(listPublicReportsByYearResponseSchema) {}
+export class ListPublicTeamUsersResponseDto extends createZodDto(listPublicTeamUsersResponseSchema) {}
 export class ListTeamUsersQueryDto extends createZodDto(listTeamUsersQuerySchema) {}
 export class ListTeamUsersResponseDto extends createZodDto(listTeamUsersResponseSchema) {}
 export class ListVolunteersResponseDto extends createZodDto(listVolunteersResponseSchema) {}

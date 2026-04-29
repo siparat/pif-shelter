@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService, monthlyFinanceReports } from '@pif/database';
 import { MonthlyFinanceReportStatusEnum, MonthlyFinanceReportTypeEnum } from '@pif/shared';
-import { eq } from 'drizzle-orm';
+import { and, asc, eq, isNotNull } from 'drizzle-orm';
 import {
 	MarkMonthlyFinanceReportFailedPayload,
 	MarkMonthlyFinanceReportSucceededPayload,
@@ -27,6 +27,24 @@ export class DrizzleMonthlyFinanceReportsRepository extends MonthlyFinanceReport
 				reportType
 			}
 		});
+	}
+
+	listSucceededByYear(
+		year: number,
+		reportType: MonthlyFinanceReportTypeEnum
+	): Promise<(typeof monthlyFinanceReports.$inferSelect)[]> {
+		return this.db.client
+			.select()
+			.from(monthlyFinanceReports)
+			.where(
+				and(
+					eq(monthlyFinanceReports.year, year),
+					eq(monthlyFinanceReports.reportType, reportType),
+					eq(monthlyFinanceReports.status, MonthlyFinanceReportStatusEnum.SUCCEEDED),
+					isNotNull(monthlyFinanceReports.storageKey)
+				)
+			)
+			.orderBy(asc(monthlyFinanceReports.month));
 	}
 
 	async upsertPending({
