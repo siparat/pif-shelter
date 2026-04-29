@@ -5,3 +5,4 @@ dist
 node_modules
 docs
 apps/admin/.env.local
+apps/web/.env.local
