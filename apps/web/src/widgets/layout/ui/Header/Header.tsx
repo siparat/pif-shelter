@@ -60,7 +60,7 @@ export const Header = (): JSX.Element => {
 				<button
 					type="button"
 					aria-label={isMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
-					className="ml-auto inline-flex h-10 w-10 items-center justify-center rounded-md border border-(--color-border-primary) text-(--color-text-primary) transition-colors hover:bg-(--color-brand-brown-muted) xl:hidden"
+					className="shrink-0 ml-auto inline-flex h-10 w-10 items-center justify-center rounded-md border border-(--color-border-primary) text-(--color-text-primary) transition-colors hover:bg-(--color-brand-brown-muted) xl:hidden"
 					onClick={() => setIsMenuOpen((prevState) => !prevState)}>
 					{isMenuOpen ? <X size={20} /> : <Menu size={20} />}
 				</button>
@@ -87,7 +87,7 @@ export const Header = (): JSX.Element => {
 				<div className="mt-4 flex flex-col gap-3 pb-1 sm:flex-row">
 					<Link
 						to={ctaRoutes[0].path}
-						className="inline-flex h-11 flex-1 items-center justify-center rounded-full border border-(--color-border-primary) px-6 text-[18px] font-semibold text-(--color-text-primary) transition-[box-shadow,background-color,opacity] duration-150 ease-out hover:bg-(--color-brand-brown-soft) hover:shadow-[0_2px_10px_rgba(79,61,56,0.14)] active:opacity-90">
+						className="py-1.5 inline-flex h-11 flex-1 items-center justify-center rounded-full border border-(--color-border-primary) px-6 text-[18px] font-semibold text-(--color-text-primary) transition-[box-shadow,background-color,opacity] duration-150 ease-out hover:bg-(--color-brand-brown-soft) hover:shadow-[0_2px_10px_rgba(79,61,56,0.14)] active:opacity-90">
 						{ctaRoutes[0].label}
 					</Link>
 					<button
@@ -96,7 +96,7 @@ export const Header = (): JSX.Element => {
 							openVolunteerInvite();
 							setIsMenuOpen(false);
 						}}
-						className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-(--color-brand-brown) px-6 text-[18px] font-semibold text-(--color-text-on-dark) transition-[box-shadow,background-color,opacity] duration-150 ease-out hover:bg-(--color-brand-brown-strong) hover:shadow-[0_2px_10px_rgba(79,61,56,0.2)] active:opacity-90">
+						className="py-1.5 inline-flex h-11 flex-1 items-center justify-center rounded-full bg-(--color-brand-brown) px-6 text-[18px] font-semibold text-(--color-text-on-dark) transition-[box-shadow,background-color,opacity] duration-150 ease-out hover:bg-(--color-brand-brown-strong) hover:shadow-[0_2px_10px_rgba(79,61,56,0.2)] active:opacity-90">
 						{ctaRoutes[1].label}
 					</button>
 				</div>
