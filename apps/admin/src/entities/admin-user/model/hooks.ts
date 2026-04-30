@@ -50,7 +50,7 @@ export const useSetUserAvatarMutation = (): UseMutationResult<
 };
 
 export const useSetUserProfileMutation = (): UseMutationResult<
-	{ userId: string; email: string; position: string; telegram: string },
+	{ userId: string; name: string; email: string; position: string; telegram: string },
 	Error,
 	SetUserProfilePayload
 > => {

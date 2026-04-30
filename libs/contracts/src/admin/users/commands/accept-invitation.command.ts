@@ -5,7 +5,7 @@ import { telegramNicknameSchema } from '../../../common/schemas/telegram-nicknam
 
 export const acceptInvitationRequestSchema = z.object({
 	avatarKey: s3ImageKeySchema,
-	fullName: z.string('Укажите свое полное имя'),
+	fullName: z.string('Укажите свое полное имя').min(2, 'Имя не указано'),
 	telegram: telegramNicknameSchema,
 	token: z.uuid(),
 	password: z

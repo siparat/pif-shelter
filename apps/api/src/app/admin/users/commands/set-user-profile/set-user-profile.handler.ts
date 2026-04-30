@@ -14,26 +14,34 @@ export class SetUserProfileHandler implements ICommandHandler<SetUserProfileComm
 
 	async execute(
 		command: SetUserProfileCommand
-	): Promise<{ userId: string; email: string; position: string; telegram: string }> {
-		const { userId, email, position, telegram } = command;
+	): Promise<{ userId: string; name: string; email: string; position: string; telegram: string }> {
+		const { userId, name, email, position, telegram } = command;
+		const normalizedName = name.trim();
 		const normalizedEmail = email.trim().toLowerCase();
 		const normalizedPosition = position.trim();
 
 		const user = await this.policy.assertCanSet(userId, normalizedEmail, telegram);
 
-		if (user.email === normalizedEmail && user.position === normalizedPosition && user.telegram === telegram) {
+		if (
+			user.name === normalizedName &&
+			user.email === normalizedEmail &&
+			user.position === normalizedPosition &&
+			user.telegram === telegram
+		) {
 			return {
 				userId,
+				name: normalizedName,
 				email: normalizedEmail,
 				position: normalizedPosition,
 				telegram
 			};
 		}
 
-		await this.usersService.setProfile(userId, normalizedEmail, normalizedPosition, telegram);
+		await this.usersService.setProfile(userId, normalizedName, normalizedEmail, normalizedPosition, telegram);
 
 		this.logger.log('user profile обновлён', {
 			userId,
+			name: normalizedName,
 			email: normalizedEmail,
 			position: normalizedPosition,
 			telegram
@@ -41,6 +49,7 @@ export class SetUserProfileHandler implements ICommandHandler<SetUserProfileComm
 
 		return {
 			userId,
+			name: normalizedName,
 			email: normalizedEmail,
 			position: normalizedPosition,
 			telegram

@@ -33,7 +33,7 @@ export const UserPage = (): JSX.Element => {
 	const navigate = useNavigate();
 	const { data: session } = useSession();
 	const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-	const [profileForm, setProfileForm] = useState({ email: '', position: '', telegram: '' });
+	const [profileForm, setProfileForm] = useState({ name: '', email: '', position: '', telegram: '' });
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const canView = session?.user.role === UserRole.ADMIN || session?.user.role === UserRole.SENIOR_VOLUNTEER;
 	const canUploadAvatar = session?.user.role === UserRole.ADMIN;
@@ -48,6 +48,7 @@ export const UserPage = (): JSX.Element => {
 			return;
 		}
 		setProfileForm({
+			name: userData.name,
 			email: userData.email,
 			position: userData.position,
 			telegram: userData.telegram
@@ -87,6 +88,7 @@ export const UserPage = (): JSX.Element => {
 	const user = query.data;
 
 	const isProfileDirty =
+		profileForm.name.trim() !== user.name ||
 		profileForm.email.trim() !== user.email ||
 		profileForm.position.trim() !== user.position ||
 		profileForm.telegram.trim() !== user.telegram;
@@ -132,6 +134,7 @@ export const UserPage = (): JSX.Element => {
 		}
 
 		const parsed = setUserProfileRequestSchema.safeParse({
+			name: profileForm.name,
 			email: profileForm.email,
 			position: profileForm.position,
 			telegram: profileForm.telegram
@@ -144,6 +147,7 @@ export const UserPage = (): JSX.Element => {
 		try {
 			await setUserProfileMutation.mutateAsync({
 				userId: id,
+				name: parsed.data.name,
 				email: parsed.data.email,
 				position: parsed.data.position,
 				telegram: parsed.data.telegram
@@ -242,6 +246,20 @@ export const UserPage = (): JSX.Element => {
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+						<div className="rounded-xl border border-(--color-border) bg-(--color-bg-primary) p-3">
+							<p className="text-(--color-text-secondary) text-xs">Имя</p>
+							{canEditProfile ? (
+								<Input
+									small
+									value={profileForm.name}
+									onChange={(event) =>
+										setProfileForm((prev) => ({ ...prev, name: event.target.value }))
+									}
+								/>
+							) : (
+								<p className="mt-0.5">{user.name}</p>
+							)}
+						</div>
 						<div className="rounded-xl border border-(--color-border) bg-(--color-bg-primary) p-3">
 							<p className="text-(--color-text-secondary) text-xs">Email</p>
 							{canEditProfile ? (

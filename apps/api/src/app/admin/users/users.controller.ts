@@ -93,7 +93,7 @@ export class AdminUsersController {
 		return this.commandBus.execute(new SetUserAvatarCommand(userId, dto.avatarKey));
 	}
 
-	@ApiOperation({ summary: 'Обновить email, должность и telegram пользователя' })
+	@ApiOperation({ summary: 'Обновить имя, email, должность и telegram пользователя' })
 	@ApiOkResponse({ description: 'Профиль обновлён', type: SetUserProfileResponseDto })
 	@Roles([UserRole.ADMIN])
 	@Patch(':userId/profile')
@@ -101,7 +101,9 @@ export class AdminUsersController {
 		@Param('userId') userId: string,
 		@Body() dto: SetUserProfileRequestDto
 	): Promise<ReturnData<typeof SetUserProfileResponseDto>> {
-		return this.commandBus.execute(new SetUserProfileCommand(userId, dto.email, dto.position, dto.telegram));
+		return this.commandBus.execute(
+			new SetUserProfileCommand(userId, dto.name, dto.email, dto.position, dto.telegram)
+		);
 	}
 
 	@ApiOperation({ summary: 'Публичный список команды приюта' })
