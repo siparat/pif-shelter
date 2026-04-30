@@ -3,7 +3,7 @@ name: CD
 on:
     push:
         branches:
-            - release
+            - main
 
 jobs:
     deploy:
@@ -101,6 +101,11 @@ jobs:
                         VITE_API_URL="https://${{ secrets.DOMAIN }}/v1"
                         VITE_BUCKET_HOST="${{ vars.S3_PUBLIC_ENDPOINT }}"
                         VITE_SITE_URL="https://${{ secrets.DOMAIN }}"
+                        VITE_SHELTER_FINANCE_START_YEAR="${{ vars.FINANCE_START_YEAR }}"
+                        VITE_SHELTER_STAT_SAVED="${{ vars.STAT_SAVED }}"
+                        VITE_SHELTER_STAT_ADOPTED="${{ vars.STAT_ADOPTED }}"
+                        VITE_SHELTER_STAT_STERILIZED="${{ vars.STAT_STERILIZED }}"
+                        VITE_SHELTER_STAT_FOOD="${{ vars.STAT_FOOD }}"
                       EOF
 
             - name: Create .env on server
@@ -221,12 +226,24 @@ jobs:
                   host: ${{ vars.SERVER_HOST }}
                   username: ${{ vars.SERVER_USER }}
                   key: ${{ secrets.SERVER_SSH_KEY }}
-                  command_timeout: 45m
+                  timeout: 30m
+                  command_timeout: 30m
                   script_stop: true
                   script: |
                       cd ${{ vars.APP_PATH }}
 
                       git pull origin main --rebase
 
-                      docker compose up -d --build api nginx redis queue-redis database
-                      docker image prune -f
+                      docker compose up -d redis queue-redis database
+
+                      docker compose build web
+                      docker compose up -d web
+
+                      docker compose build admin
+                      docker compose up -d admin
+
+                      docker compose build api
+                      docker compose up -d api
+
+                      docker compose down -v nginx
+                      docker compose up -d nginx
