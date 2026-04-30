@@ -37,10 +37,10 @@ export const TimelineSection = (): JSX.Element => {
 										key={event.year}
 										className="relative z-10 flex flex-1 flex-col items-center px-2">
 										<div className="mb-4 h-5 w-5 shrink-0 rounded-full border-2 border-[#fe8651] bg-[#201915]" />
-										<span className="block text-center text-[20px] font-black text-white">
+										<span className="block text-center text-[20px] font-black text-white bg-[#201915]">
 											{event.year}
 										</span>
-										<p className="mt-2 text-center text-[13px] font-medium leading-relaxed text-white/70">
+										<p className="mt-2 text-center text-[13px] font-medium leading-relaxed text-white/70 bg-[#201915]">
 											{event.text}
 										</p>
 									</div>
