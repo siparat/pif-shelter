@@ -7,7 +7,7 @@ import {
 	AnimalSpeciesEnum,
 	AnimalSpeciesNames
 } from '@pif/shared';
-import { JSX, useMemo } from 'react';
+import { JSX, useEffect, useMemo, useRef } from 'react';
 import { AnimalCard, useAnimalsInfiniteQuery } from '../../../../entities/animal';
 import { animalsCatalogFaqItems } from '../../../../shared/config/faq';
 import { AccordionItem } from '../../../../shared/ui';
@@ -68,6 +68,31 @@ const AnimalsPage = (): JSX.Element => {
 	const animals = useMemo(() => animalsQuery.data?.pages.flatMap((page) => page.data) ?? [], [animalsQuery.data]);
 	const total = animalsQuery.data?.pages[0]?.meta.total ?? 0;
 	const rows = useMemo(() => chunkBy(animals, CARDS_PER_ROW), [animals]);
+	const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+	useEffect(() => {
+		const node = loadMoreRef.current;
+		if (!node) {
+			return;
+		}
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				const [entry] = entries;
+				if (!entry?.isIntersecting) {
+					return;
+				}
+				if (!animalsQuery.hasNextPage || animalsQuery.isFetchingNextPage || animalsQuery.isError) {
+					return;
+				}
+				void animalsQuery.fetchNextPage();
+			},
+			{ rootMargin: '320px 0px' }
+		);
+
+		observer.observe(node);
+		return () => observer.disconnect();
+	}, [animalsQuery.fetchNextPage, animalsQuery.hasNextPage, animalsQuery.isError, animalsQuery.isFetchingNextPage]);
 
 	return (
 		<div className="flex flex-col gap-8 pb-6 md:gap-10">
@@ -194,16 +219,12 @@ const AnimalsPage = (): JSX.Element => {
 				</section>
 			)}
 
-			{animalsQuery.hasNextPage && !animalsQuery.isPending && !animalsQuery.isError && (
-				<div className="flex justify-center">
-					<button
-						type="button"
-						onClick={() => animalsQuery.fetchNextPage()}
-						disabled={animalsQuery.isFetchingNextPage}
-						className="inline-flex h-11 items-center justify-center rounded-full bg-(--color-brand-brown) px-6 text-[14px] font-semibold text-(--color-text-on-dark) transition-opacity disabled:cursor-not-allowed disabled:opacity-60">
-						{animalsQuery.isFetchingNextPage ? 'Загружаем...' : 'Показать ещё'}
-					</button>
-				</div>
+			{!animalsQuery.isPending && !animalsQuery.isError && animals.length > 0 && (
+				<div ref={loadMoreRef} aria-hidden className="h-px w-full" />
+			)}
+
+			{animalsQuery.isFetchingNextPage && (
+				<div className="flex justify-center text-sm text-(--color-text-secondary)">Загружаем...</div>
 			)}
 		</div>
 	);

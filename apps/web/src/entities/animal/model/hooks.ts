@@ -1,6 +1,12 @@
 import { ListAnimalsResult } from '@pif/contracts';
 import { AnimalSpeciesEnum, AnimalStatusEnum } from '@pif/shared';
-import { useInfiniteQuery, UseInfiniteQueryResult, useQuery, UseQueryResult } from '@tanstack/react-query';
+import {
+	InfiniteData,
+	useInfiniteQuery,
+	UseInfiniteQueryResult,
+	useQuery,
+	UseQueryResult
+} from '@tanstack/react-query';
 import { ListAnimalsParams, listAnimals } from '../api/animal.api';
 
 const ANIMALS_PER_PAGE = 24;
@@ -15,7 +21,7 @@ export const animalQueryKeys = {
 
 export const useAnimalsInfiniteQuery = (
 	filters: PublicAnimalsFilters
-): UseInfiniteQueryResult<{ pages: ListAnimalsResult[]; pageParams: number[] }, Error> =>
+): UseInfiniteQueryResult<InfiniteData<ListAnimalsResult>, Error> =>
 	useInfiniteQuery({
 		queryKey: animalQueryKeys.list(filters),
 		initialPageParam: 1,
