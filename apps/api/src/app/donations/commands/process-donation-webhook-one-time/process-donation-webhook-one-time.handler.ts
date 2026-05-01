@@ -70,7 +70,7 @@ export class ProcessDonationWebhookOneTimeHandler implements ICommandHandler<Pro
 				feeAmount: payload.feeAmount,
 				netAmount: payload.netAmount,
 				occurredAt: new Date(payload.paidAt),
-				title: 'Пожертвование',
+				title: intent.campaignId ? 'Пожертвование на сбор' : 'Пожертвование',
 				providerPaymentId,
 				donorDisplayName: intent.hidePublicName ? null : intent.displayName,
 				donationOneTimeIntentId: intent.id

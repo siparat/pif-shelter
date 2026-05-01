@@ -73,7 +73,12 @@ export const AnimalCard = ({ animal }: AnimalCardProps): JSX.Element => {
 				<div className="flex flex-col gap-1">
 					<div className="flex items-baseline justify-between gap-2">
 						<h3 className="text-[22px] font-bold leading-tight text-(--color-text-primary)">
-							{animal.name}
+							<Link
+								to={detailsHref}
+								aria-label={`Открыть карточку ${animal.name}`}
+								className="transition-colors hover:text-(--color-brand-accent)">
+								{animal.name}
+							</Link>
 						</h3>
 						<GenderIcon
 							size={18}
