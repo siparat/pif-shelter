@@ -1,69 +1,210 @@
-import { JSX } from 'react';
-import { AnimalCard } from '../../../../entities/animal';
-import { AnimalCoatEnum, AnimalGenderEnum, AnimalSizeEnum, AnimalSpeciesEnum, AnimalStatusEnum } from '@pif/shared';
+import {
+	AnimalCoatEnum,
+	AnimalCoatNames,
+	AnimalGenderEnum,
+	AnimalGenderNames,
+	AnimalSizeEnum,
+	AnimalSpeciesEnum,
+	AnimalSpeciesNames
+} from '@pif/shared';
+import { JSX, useMemo } from 'react';
+import { AnimalCard, useAnimalsInfiniteQuery } from '../../../../entities/animal';
+import { animalsCatalogFaqItems } from '../../../../shared/config/faq';
+import { AccordionItem } from '../../../../shared/ui';
+import {
+	AGE_PRESETS,
+	AGE_PRESET_LABELS,
+	filtersStateToQuery,
+	isFilterActive
+} from '../../../../widgets/animal-filters/model/types';
+import { useAnimalFilters } from '../../../../widgets/animal-filters/model/use-animal-filters';
+import { FilterChipGroup } from '../../../../widgets/animal-filters/ui/FilterChipGroup';
+import { FilterToggle } from '../../../../widgets/animal-filters/ui/FilterToggle';
+
+const CARDS_PER_ROW = 4;
+const FAQ_ROW_INTERVAL = 2;
+
+const chunkBy = <T,>(items: T[], size: number): T[][] => {
+	const result: T[][] = [];
+	for (let i = 0; i < items.length; i += size) {
+		result.push(items.slice(i, i + size));
+	}
+	return result;
+};
+
+const speciesOptions = Object.values(AnimalSpeciesEnum).map((value) => ({
+	value,
+	label: AnimalSpeciesNames[value]
+}));
+
+const genderOptions = Object.values(AnimalGenderEnum).map((value) => ({
+	value,
+	label: AnimalGenderNames[value]
+}));
+
+const sizeOptions = [
+	{ value: AnimalSizeEnum.SMALL, label: 'Маленький' },
+	{ value: AnimalSizeEnum.MEDIUM, label: 'Средний' },
+	{ value: AnimalSizeEnum.LARGE, label: 'Большой' }
+];
+
+const coatOptions = Object.values(AnimalCoatEnum).map((value) => ({
+	value,
+	label: AnimalCoatNames[value]
+}));
+
+const ageOptions = AGE_PRESETS.map((value) => ({
+	value,
+	label: AGE_PRESET_LABELS[value]
+}));
 
 const AnimalsPage = (): JSX.Element => {
+	const { state, setSpecies, setFilter, reset } = useAnimalFilters();
+	const hasActiveFilters = isFilterActive(state);
+
+	const queryFilters = useMemo(() => filtersStateToQuery(state), [state]);
+	const animalsQuery = useAnimalsInfiniteQuery(queryFilters);
+
+	const animals = useMemo(() => animalsQuery.data?.pages.flatMap((page) => page.data) ?? [], [animalsQuery.data]);
+	const total = animalsQuery.data?.pages[0]?.meta.total ?? 0;
+	const rows = useMemo(() => chunkBy(animals, CARDS_PER_ROW), [animals]);
+
 	return (
-		<div>
-			<AnimalCard
-				animal={{
-					id: '57ab85ff-0d39-4359-a837-898bb4bd7e18',
-					name: 'Мурзик',
-					species: AnimalSpeciesEnum.CAT,
-					gender: AnimalGenderEnum.MALE,
-					birthDate: '2022-09-12',
-					size: AnimalSizeEnum.MEDIUM,
-					coat: AnimalCoatEnum.MEDIUM,
-					color: 'Дефолтный',
-					tags: [],
-					description:
-						'ФЫва\nыва\nыв\nаыв\nа\nыва\n авфываываываыв\nаыв\nаываываываываываыв\nаыв\nаыв\nа\nываролиывилроатрлоыфлор ФЫва\nыва\nыв\nаыв\nа\nыва\n авфываываываыв\nаыв\nаываываываываываыв\nаыв\nаыв\nа\nываролиывилроатрлоыфлор ФЫва\nыва\nыв\nаыв\nа\nыва\n авфываываываыв\nаыв\nаываываываываываыв\nаыв\nаыв\nа\nываролиывилроатрлоыфлор ФЫва\nыва\nыв\nаыв\nа\nыва\n авфываываываыв\nаыв\nаываываываываываыв\nаыв\nаыв\nа\nываролиывилроатрлоыфлор',
-					isSterilized: true,
-					isVaccinated: true,
-					isParasiteTreated: false,
-					avatarUrl: 'animals/a558b6e6-d4f8-4db1-ae8c-cb182e347740.jpg',
-					galleryUrls: [
-						'animals/58f4ef90-87d1-4fce-a295-808ab10ceb47.png',
-						'animals/65d15dd5-ecc3-4c20-a00f-e97d5290d6e9.png',
-						'animals/c9a9d9f7-820e-47a0-b307-a962138429ad.jpg',
-						'animals/2640e3fe-b455-4f20-89d0-7bf12dc4cf41.png',
-						'animals/74326617-5651-479c-91b1-8b3cc8dbad30.png'
-					],
-					status: AnimalStatusEnum.PUBLISHED,
-					costOfGuardianship: 1200,
-					curatorId: 'Ay0UB3Q4gLqs030IR90oxBgQDvfYkSLH',
-					createdAt: '2026-04-29T16:53:01.463Z',
-					updatedAt: '2026-04-29T16:54:55.149Z',
-					deletedAt: null,
-					labels: [
-						{
-							id: 'a37bcdd8-7d2e-48b7-9c06-46cba80c48a5',
-							name: 'Белый',
-							color: '#ffffff'
-						},
-						{
-							id: 'b1ef090c-9d8a-4938-9f41-d41840acb74b',
-							name: 'Темный',
-							color: '#474747'
-						},
-						{
-							id: 'e50675d3-08bf-4ca8-bbee-32b2754db6c0',
-							name: 'Красный',
-							color: '#f04242'
-						},
-						{
-							id: '232e82f1-7a45-407c-bc99-9e5c841fcf17',
-							name: 'Желтый',
-							color: '#c0c22e'
-						},
-						{
-							id: 'ecd72f70-4f43-4c82-97f8-5fc1ebe3f696',
-							name: 'Зеленый',
-							color: '#23e75d'
-						}
-					]
-				}}
-			/>
+		<div className="flex flex-col gap-8 pb-6 md:gap-10">
+			<section className="rounded-3xl border border-(--color-border-soft) bg-(--color-surface-primary) p-4 shadow-[0_10px_30px_rgba(79,61,56,0.08)] sm:p-5 md:p-6">
+				<div className="flex flex-wrap items-center justify-between gap-3">
+					<div>
+						<p className="eyebrow text-(--color-brand-accent)">Найди своего друга в приюте</p>
+						<h1 className="mt-2 text-[24px] font-black uppercase tracking-[0.02em] text-(--color-text-primary) sm:text-[30px]">
+							Животные
+						</h1>
+					</div>
+					<div className="rounded-full bg-(--color-brand-brown-soft) px-4 py-2 text-[13px] font-semibold text-(--color-text-secondary)">
+						Найдено: {total}
+					</div>
+				</div>
+
+				<div className="mt-5 flex flex-col gap-3 rounded-2xl bg-(--color-brand-brown-soft)/60 p-3 sm:p-4">
+					<FilterChipGroup label="Вид" options={speciesOptions} value={state.species} onChange={setSpecies} />
+					<FilterChipGroup
+						label="Пол"
+						options={genderOptions}
+						value={state.gender}
+						onChange={(value) => setFilter('gender', value)}
+					/>
+					<FilterChipGroup
+						label="Размер"
+						options={sizeOptions}
+						value={state.size}
+						onChange={(value) => setFilter('size', value)}
+					/>
+					<FilterChipGroup
+						label="Шерсть"
+						options={coatOptions}
+						value={state.coat}
+						onChange={(value) => setFilter('coat', value)}
+					/>
+					<FilterChipGroup
+						label="Возраст"
+						options={ageOptions}
+						value={state.age}
+						onChange={(value) => setFilter('age', value)}
+					/>
+					<div className="flex flex-wrap gap-2 pt-1">
+						<FilterToggle
+							label="Только стерилизованные"
+							checked={Boolean(state.isSterilized)}
+							onChange={(checked) => setFilter('isSterilized', checked)}
+						/>
+						<FilterToggle
+							label="Только привитые"
+							checked={Boolean(state.isVaccinated)}
+							onChange={(checked) => setFilter('isVaccinated', checked)}
+						/>
+						<FilterToggle
+							label="Только без паразитов"
+							checked={Boolean(state.isParasiteTreated)}
+							onChange={(checked) => setFilter('isParasiteTreated', checked)}
+						/>
+						{hasActiveFilters && (
+							<button
+								type="button"
+								onClick={reset}
+								className="inline-flex h-10 items-center justify-center rounded-full bg-(--color-surface-primary) px-4 text-[13px] font-semibold text-(--color-text-secondary) transition-colors hover:bg-white">
+								Сбросить фильтры
+							</button>
+						)}
+					</div>
+				</div>
+			</section>
+
+			{animalsQuery.isError && (
+				<section className="rounded-3xl border border-(--color-border-soft) bg-(--color-surface-primary) p-6 text-center">
+					<p className="text-(--color-text-primary)">Не удалось загрузить животных. Попробуйте еще раз.</p>
+					<button
+						type="button"
+						onClick={() => animalsQuery.refetch()}
+						className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-(--color-brand-brown) px-5 text-sm font-semibold text-(--color-text-on-dark)">
+						Обновить
+					</button>
+				</section>
+			)}
+
+			{animalsQuery.isPending && (
+				<section className="rounded-3xl border border-(--color-border-soft) bg-(--color-surface-primary) p-6 text-center text-(--color-text-secondary)">
+					Загружаем питомцев...
+				</section>
+			)}
+
+			{!animalsQuery.isPending && !animalsQuery.isError && animals.length === 0 && (
+				<section className="rounded-3xl border border-(--color-border-soft) bg-(--color-surface-primary) p-6 text-center text-(--color-text-secondary)">
+					По текущим фильтрам ничего не найдено. Попробуйте убрать часть ограничений.
+				</section>
+			)}
+
+			{rows.length > 0 && (
+				<section className="flex flex-col gap-6">
+					{rows.map((row, index) => {
+						const faqIndex = Math.floor((index + 1) / FAQ_ROW_INTERVAL) - 1;
+						const faqItem = animalsCatalogFaqItems[faqIndex];
+						const showFaq = (index + 1) % FAQ_ROW_INTERVAL === 0 && faqItem;
+
+						return (
+							<div key={`row-${index}`} className="flex flex-col gap-6">
+								<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+									{row.map((animal) => (
+										<div key={animal.id} className="mx-auto w-full max-w-[360px]">
+											<AnimalCard animal={animal} />
+										</div>
+									))}
+								</div>
+								{showFaq && (
+									<div className="rounded-3xl border border-(--color-border-soft) bg-(--color-surface-primary) p-4 shadow-[0_10px_30px_rgba(79,61,56,0.08)] sm:p-5">
+										<p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-(--color-brand-accent)">
+											Полезно знать
+										</p>
+										<AccordionItem title={faqItem.question}>
+											<p>{faqItem.answer}</p>
+										</AccordionItem>
+									</div>
+								)}
+							</div>
+						);
+					})}
+				</section>
+			)}
+
+			{animalsQuery.hasNextPage && !animalsQuery.isPending && !animalsQuery.isError && (
+				<div className="flex justify-center">
+					<button
+						type="button"
+						onClick={() => animalsQuery.fetchNextPage()}
+						disabled={animalsQuery.isFetchingNextPage}
+						className="inline-flex h-11 items-center justify-center rounded-full bg-(--color-brand-brown) px-6 text-[14px] font-semibold text-(--color-text-on-dark) transition-opacity disabled:cursor-not-allowed disabled:opacity-60">
+						{animalsQuery.isFetchingNextPage ? 'Загружаем...' : 'Показать ещё'}
+					</button>
+				</div>
+			)}
 		</div>
 	);
 };
