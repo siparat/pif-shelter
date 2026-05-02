@@ -107,6 +107,9 @@ jobs:
                         VITE_SHELTER_STAT_ADOPTED="${{ vars.STAT_ADOPTED }}"
                         VITE_SHELTER_STAT_STERILIZED="${{ vars.STAT_STERILIZED }}"
                         VITE_SHELTER_STAT_FOOD="${{ vars.STAT_FOOD }}"
+                        VITE_SOCIAL_VK_URL="${{ vars.SOCIAL_VK_URL }}"
+                        VITE_SOCIAL_INSTAGRAM_URL="${{ vars.SOCIAL_INSTAGRAM_URL }}"
+                        VITE_SOCIAL_TELEGRAM_URL="${{ vars.SOCIAL_TELEGRAM_URL }}"
                       EOF
 
             - name: Create .env on server

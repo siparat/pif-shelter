@@ -1,5 +1,5 @@
-import { ROUTES } from './routes';
 import { SITE_URL } from './api';
+import { ROUTES } from './routes';
 
 export type FooterSocialLink = {
 	key: 'telegram' | 'vk' | 'instagram';
@@ -27,28 +27,24 @@ const donationsShareUrl = (): string => {
 };
 
 const vkGroupHref = (): string => import.meta.env.VITE_SOCIAL_VK_URL?.trim() || '';
-
+const telegramHref = (): string => import.meta.env.VITE_SOCIAL_TELEGRAM_URL?.trim() || '';
 const instagramHref = (): string => import.meta.env.VITE_SOCIAL_INSTAGRAM_URL?.trim() || '';
 
 export const footerSocialLinks: FooterSocialLink[] = [
 	{
 		key: 'telegram',
 		label: 'Telegram приюта',
-		href: 'https://t.me/ulia_pif'
+		href: telegramHref() || ''
 	},
 	{
 		key: 'vk',
 		label: 'ВКонтакте',
-		href:
-			vkGroupHref() ||
-			`https://vk.com/share.php?url=${encodeURIComponent(donationsShareUrl())}&title=${encodeURIComponent('Приют ПИФ — как помочь')}&comment=${encodeURIComponent(SOCIAL_SHARE_HELP_TEXT)}`
+		href: vkGroupHref() || ''
 	},
 	{
 		key: 'instagram',
 		label: 'Instagram',
-		href:
-			instagramHref() ||
-			'https://www.instagram.com/explore/tags/%D0%BF%D1%80%D0%B8%D1%8E%D1%82%D0%B4%D0%BB%D1%8F%D0%B6%D0%B8%D0%B2%D0%BE%D1%82%D0%BD%D1%8B%D1%85/'
+		href: instagramHref() || ''
 	}
 ];
 

@@ -35,8 +35,7 @@
 		margin: 0;
 		min-width: 320px;
 		background:
-			radial-gradient(circle at top left, rgba(255, 255, 255, 0.75), transparent 25%),
-			var(--color-bg-primary);
+			radial-gradient(circle at top left, rgba(255, 255, 255, 0.75), transparent 25%), var(--color-bg-primary);
 		color: var(--color-text-primary);
 		font-family: 'Fustat', system-ui, sans-serif;
 		-webkit-font-smoothing: antialiased;
@@ -65,6 +64,37 @@
 }
 
 @layer utilities {
+	@keyframes fade-in-up {
+		0% {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes fade-in {
+		0% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+
+	@keyframes float {
+		0% {
+			transform: translateY(0px);
+		}
+		50% {
+			transform: translateY(-15px);
+		}
+		100% {
+			transform: translateY(0px);
+		}
+	}
 	.surface-card {
 		border: 1px solid var(--color-border-primary);
 		background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 248, 240, 0.9));
@@ -84,5 +114,36 @@
 		letter-spacing: 0.24em;
 		text-transform: uppercase;
 		color: var(--color-brand-brown);
+	}
+
+	.animate-fade-in-up {
+		animation: fade-in-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+	}
+
+	.animate-fade-in {
+		animation: fade-in 1.2s ease-out forwards;
+	}
+
+	.animate-float {
+		animation: float 6s ease-in-out infinite;
+	}
+
+	.delay-100 {
+		animation-delay: 100ms;
+	}
+	.delay-200 {
+		animation-delay: 200ms;
+	}
+	.delay-300 {
+		animation-delay: 300ms;
+	}
+	.delay-400 {
+		animation-delay: 400ms;
+	}
+	.delay-500 {
+		animation-delay: 500ms;
+	}
+	.delay-700 {
+		animation-delay: 700ms;
 	}
 }

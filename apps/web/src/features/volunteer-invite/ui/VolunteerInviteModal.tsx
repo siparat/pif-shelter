@@ -167,14 +167,14 @@ export const VolunteerInviteModal = ({ open, onClose, teamMembers }: VolunteerIn
 						<div className="flex flex-col items-center gap-4 rounded-2xl border border-dashed border-(--color-border-soft) bg-(--color-brand-brown-soft)/50 px-4 py-10 text-center">
 							<Heart className="h-10 w-10 text-(--color-brand-accent)" strokeWidth={1.75} aria-hidden />
 							<p className="max-w-xs text-sm font-semibold text-(--color-text-primary)">
-								Сейчас не удалось показать контакты администраторов. Загляните в раздел помощи — там
+								Сейчас не удалось показать контакты администраторов. Загляните в раздел контакты — там
 								тоже можно выйти на связь.
 							</p>
 							<Link
-								to={ROUTES.help}
+								to={ROUTES.contacts}
 								onClick={onClose}
 								className="inline-flex h-11 items-center justify-center rounded-full bg-(--color-brand-brown) px-6 text-sm font-bold text-(--color-text-on-dark)">
-								Раздел «Помощь»
+								Раздел Контакты
 							</Link>
 						</div>
 					)}

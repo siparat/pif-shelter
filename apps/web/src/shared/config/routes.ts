@@ -10,7 +10,6 @@ export type RouteKey =
 	| 'cancelSubscription'
 	| 'about'
 	| 'contacts'
-	| 'help'
 	| 'campaigns';
 
 export type WebRoute = {
@@ -95,15 +94,6 @@ export const webRoutes: WebRoute[] = [
 		Icon: Mail,
 		showInMenu: true,
 		preload: () => import('../../pages/contacts/ui/ContactsPage/ContactsPage')
-	},
-	{
-		key: 'help',
-		path: '/help',
-		name: 'Помочь делом',
-		shortName: 'Помощь',
-		Icon: PawPrint,
-		showInMenu: false,
-		preload: () => import('../../pages/help/ui/HelpPage/HelpPage')
 	},
 	{
 		key: 'donations',

@@ -28,7 +28,7 @@ export const VolunteerInviteProvider = ({ children }: { children: ReactNode }): 
 export const useVolunteerInvite = (): VolunteerInviteContextValue => {
 	const ctx = useContext(VolunteerInviteContext);
 	if (!ctx) {
-		throw new Error('useVolunteerInvite must be used within VolunteerInviteProvider');
+		return { open: () => null };
 	}
 	return ctx;
 };

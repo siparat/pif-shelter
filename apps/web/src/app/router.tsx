@@ -2,7 +2,7 @@ import { PawPrint } from 'lucide-react';
 import { JSX, lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { ROUTES } from '../shared/config/routes';
-import { Layout } from '../widgets/layout';
+import { HomeLayout, Layout } from '../widgets/layout';
 
 const HomePage = lazy(() => import('../pages/home/ui/HomePage/HomePage'));
 const AboutPage = lazy(() => import('../pages/about/ui/AboutPage/AboutPage'));
@@ -14,7 +14,6 @@ const CancelSubscriptionPage = lazy(
 	() => import('../pages/cancel-subscription/ui/CancelSubscriptionPage/CancelSubscriptionPage')
 );
 const ContactsPage = lazy(() => import('../pages/contacts/ui/ContactsPage/ContactsPage'));
-const HelpPage = lazy(() => import('../pages/help/ui/HelpPage/HelpPage'));
 const CampaignsPage = lazy(() => import('../pages/campaigns/ui/CampaignsPage/CampaignsPage'));
 
 const PageFallback = (): JSX.Element => (
@@ -36,7 +35,6 @@ const PageFallback = (): JSX.Element => (
 );
 
 const routeComponentByPath: Record<string, JSX.Element> = {
-	[ROUTES.home]: <HomePage />,
 	[ROUTES.about]: <AboutPage />,
 	[ROUTES.animals]: <AnimalsPage />,
 	[ROUTES.animalDetails]: <AnimalPage />,
@@ -44,16 +42,26 @@ const routeComponentByPath: Record<string, JSX.Element> = {
 	[ROUTES.donationsList]: <DonationsListPage />,
 	[ROUTES.cancelSubscription]: <CancelSubscriptionPage />,
 	[ROUTES.contacts]: <ContactsPage />,
-	[ROUTES.help]: <HelpPage />,
 	[ROUTES.campaigns]: <CampaignsPage />
 };
 
 export const router = createBrowserRouter([
 	{
 		element: <Layout />,
-		children: Object.values(ROUTES).map((path) => ({
-			path,
-			element: <Suspense fallback={<PageFallback />}>{routeComponentByPath[path]}</Suspense>
-		}))
+		children: Object.values(ROUTES)
+			.filter((path) => path !== ROUTES.home)
+			.map((path) => ({
+				path,
+				element: <Suspense fallback={<PageFallback />}>{routeComponentByPath[path]}</Suspense>
+			}))
+	},
+	{
+		element: <HomeLayout />,
+		children: [
+			{
+				path: ROUTES.home,
+				element: <HomePage />
+			}
+		]
 	}
 ]);
