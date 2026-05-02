@@ -1,6 +1,13 @@
 import { donationAmountKopecksSchema } from '@pif/contracts';
 import { LedgerEntryDirectionEnum, LedgerEntrySourceEnum } from '@pif/shared';
-import { useQueries, useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
+import {
+	useQueries,
+	useMutation,
+	useQuery,
+	useQueryClient,
+	type UseMutationResult,
+	type UseQueryResult
+} from '@tanstack/react-query';
 import { useMemo } from 'react';
 import type { z } from 'zod';
 import { createDonationSubscription, createOneTimeDonation, getPublicMonthlyLedger } from '../api/donation.api';
@@ -75,6 +82,22 @@ export const useDonationFeedQuery = (): {
 		}
 	};
 };
+
+export const useDonationLedgerQuery = (year: number, month: number): UseQueryResult<PublicLedgerReportRow[], Error> =>
+	useQuery({
+		queryKey: donationQueryKeys.publicLedger(year, month),
+		queryFn: () => getPublicMonthlyLedger({ year, month }),
+		select: (rows) =>
+			rows
+				.filter(
+					(e) =>
+						e.direction === LedgerEntryDirectionEnum.INCOME &&
+						(e.source === LedgerEntrySourceEnum.DONATION_ONE_OFF ||
+							e.source === LedgerEntrySourceEnum.DONATION_SUBSCRIPTION)
+				)
+				.sort((a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime()),
+		staleTime: 60 * 1000
+	});
 
 export const useCreateOneTimeDonationMutation = (): UseMutationResult<
 	{ paymentUrl: string; transactionId: string },
