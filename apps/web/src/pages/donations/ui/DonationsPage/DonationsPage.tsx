@@ -1,13 +1,12 @@
 import { JSX, useState } from 'react';
 import {
-	DonationFormSection,
-	DonationsFeedSection,
 	DonationsHeroSection,
 	DonationsHelpMode,
 	FaqSection,
 	MaterialHelpSection,
 	TrustAndShareSection
 } from './sections';
+import { DonationsFeedSection, DonationFormSection } from '../../../../widgets/donations';
 
 const DonationsPage = (): JSX.Element => {
 	const [helpMode, setHelpMode] = useState<DonationsHelpMode>('money');
@@ -21,7 +20,7 @@ const DonationsPage = (): JSX.Element => {
 					<div className="flex min-w-0 flex-col gap-6 min-[1400px]:col-span-5">
 						<DonationFormSection />
 					</div>
-					<div className="min-w-0 min-[1400px]:col-span-7">
+					<div className="min-w-0 min-[1400px]:col-span-7 h-full">
 						<DonationsFeedSection />
 					</div>
 				</div>

@@ -15,8 +15,8 @@ import {
 	parseDonationAmountKopecks,
 	useCreateDonationSubscriptionMutation,
 	useCreateOneTimeDonationMutation
-} from '../../../../../entities/donation';
-import { ChoiceChipGroup, LabeledSwitch, SegmentedControl, SoftField, SoftInput } from '../../../../../shared/ui';
+} from '../../../entities/donation';
+import { ChoiceChipGroup, LabeledSwitch, SegmentedControl, SoftField, SoftInput } from '../../../shared/ui';
 
 const MIN_RUB = DONATION_MIN_AMOUNT_KOPECKS / 100;
 const MAX_RUB = DONATION_MAX_AMOUNT_KOPECKS / 100;

@@ -10,8 +10,6 @@ export const HomeLayout = (): JSX.Element => {
 	const location = useLocation();
 	const isHome = location.pathname === ROUTES.home || location.pathname === '/';
 
-	console.log(isHome);
-
 	useEffect(() => {
 		const storageKey = 'web-disclaimer-disabled';
 		const isDisabled = window.localStorage.getItem(storageKey) === '1';

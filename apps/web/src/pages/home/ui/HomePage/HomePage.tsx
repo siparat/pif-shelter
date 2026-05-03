@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import { useVolunteerInvite } from '../../../../features/volunteer-invite';
 import { footerSocialLinks } from '../../../../shared/config/footer';
 import { ROUTES } from '../../../../shared/config/routes';
-import { AboutSection } from './About/AboutSection';
-import { UrgentCampaignsSection } from '../../../../widgets/urgent-campaigns';
 import { AnimalsPreviewSection } from '../../../../widgets/animals-preview';
+import { UrgentCampaignsSection } from '../../../../widgets/urgent-campaigns';
+import { AboutSection } from './About/AboutSection';
+import { DonationsSections } from './Donations/DonationsSection';
 
 const VkIcon = ({ size = 24 }: { size?: number }): JSX.Element => (
 	<svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -50,7 +51,7 @@ const HomePage = (): JSX.Element => {
 				</div>
 				<div className="relative z-40 mx-auto h-screen min-h-[800px] max-lg:min-h-0 px-6 max-lg:pb-7 md:px-12 xl:px-30 flex flex-col justify-end pb-24 max-[768px]:pb-16 max-[768px]:justify-end">
 					<div className="flex justify-between items-end w-full max-[768px]:flex-col-reverse max-[768px]:items-center max-[768px]:gap-5">
-						<div className="text-shadow-sm text-shadow-black max-w-[512px] max-[768px]:text-center opacity-0 animate-fade-in-up delay-400">
+						<div className="text-shadow-[0_1px_2px_var(--color-text-primary)] max-w-[512px] max-[768px]:text-center opacity-0 animate-fade-in-up delay-400">
 							<div>
 								<h2 className="text-(--color-bg-primary) text-[32px] max-[1024px]:text-[28px] max-[768px]:text-[24px] font-semibold tracking-[-1.20px] leading-tight mb-4">
 									Приют для бездомных животных
@@ -130,6 +131,7 @@ const HomePage = (): JSX.Element => {
 			<AboutSection />
 			<UrgentCampaignsSection />
 			<AnimalsPreviewSection />
+			<DonationsSections />
 		</>
 	);
 };

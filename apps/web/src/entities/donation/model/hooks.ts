@@ -117,5 +117,5 @@ export const useCreateDonationSubscriptionMutation = (): UseMutationResult<
 		mutationFn: createDonationSubscription
 	});
 
-export const parseDonationAmountKopecks = (value: unknown): z.SafeParseReturnType<number, number> =>
+export const parseDonationAmountKopecks = (value: unknown): z.ZodSafeParseResult<number> =>
 	donationAmountKopecksSchema.safeParse(value);

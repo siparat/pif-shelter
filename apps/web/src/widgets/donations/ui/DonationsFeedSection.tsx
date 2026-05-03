@@ -4,9 +4,9 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { AlertCircle, ExternalLink, ListChecks, RefreshCw } from 'lucide-react';
 import { JSX, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { useDonationFeedQuery } from '../../../../../entities/donation';
-import { ROUTES } from '../../../../../shared/config/routes';
-import { cn } from '../../../../../shared/lib/cn';
+import { useDonationFeedQuery } from '../../../entities/donation';
+import { ROUTES } from '../../../shared/config/routes';
+import { cn } from '../../../shared/lib/cn';
 
 dayjs.extend(relativeTime);
 dayjs.locale('ru');
@@ -120,7 +120,7 @@ export const DonationsFeedSection = (): JSX.Element => {
 						))}
 					</ul>
 
-					<div className="-mx-1 hidden overflow-x-auto pb-1 md:block">
+					<div className="-mx-1 grow h-full hidden overflow-x-auto pb-1 md:block">
 						<table className="min-w-[520px] w-full border-separate border-spacing-0 text-left text-sm">
 							<thead>
 								<tr className="text-xs font-bold uppercase tracking-wide text-(--color-text-secondary)">
@@ -132,7 +132,7 @@ export const DonationsFeedSection = (): JSX.Element => {
 							</thead>
 							<tbody className="text-(--color-text-primary)">
 								{isLoading && rowsWithMeta.length === 0
-									? Array.from({ length: 5 }).map((_, i) => (
+									? Array.from({ length: 10 }).map((_, i) => (
 											<tr
 												key={`skeleton-${i}`}
 												className="animate-pulse border-t border-(--color-border-soft)">
@@ -178,16 +178,18 @@ export const DonationsFeedSection = (): JSX.Element => {
 				</>
 			)}
 
-			<Link
-				to={ROUTES.donationsList}
-				className="inline-flex h-12 min-h-12 w-full items-center justify-center gap-2 rounded-full bg-(--color-brand-brown) px-4 text-center text-sm font-bold text-(--color-text-on-dark) transition-transform hover:scale-[1.01] active:scale-[0.99]">
-				<ListChecks className="h-5 w-5 shrink-0" aria-hidden />
-				<span className="min-w-0 leading-snug sm:whitespace-nowrap">Полный список пожертвований</span>
-				<ExternalLink className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
-			</Link>
-			<p className="text-center text-xs leading-relaxed text-(--color-text-secondary)">
-				Имена в отчёте совпадают с тем, что вы указали. Если отметили «анонимно», в таблице будет скрыто.
-			</p>
+			<div className="shrink-0">
+				<Link
+					to={ROUTES.donationsList}
+					className="inline-flex h-12 min-h-12 w-full items-center justify-center gap-2 rounded-full bg-(--color-brand-brown) px-4 text-center text-sm font-bold text-(--color-text-on-dark) transition-transform hover:scale-[1.01] active:scale-[0.99]">
+					<ListChecks className="h-5 w-5 shrink-0" aria-hidden />
+					<span className="min-w-0 leading-snug sm:whitespace-nowrap">Полный список пожертвований</span>
+					<ExternalLink className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
+				</Link>
+				<p className="mt-5 text-center text-xs leading-relaxed text-(--color-text-secondary)">
+					Имена в отчёте совпадают с тем, что вы указали. Если отметили «анонимно», в таблице будет скрыто.
+				</p>
+			</div>
 		</section>
 	);
 };
