@@ -21,7 +21,7 @@ const HomePage = (): JSX.Element => {
 	return (
 		<>
 			<div className="relative flex-1 w-full min-h-screen overflow-hidden bg-[linear-gradient(107deg,rgba(130,120,112,1)_0%,rgba(74,57,52,1)_100%)]">
-				<div className="absolute inset-0 mix-blend-overlay bg-[url('/transparent-grid.png')] bg-repeat opacity-20" />
+				<div className="absolute inset-0 mix-blend-overlay bg-[url('/transparent-grid.png')] bg-repeat opacity-20 animate-[grid-fade-in_3.3s_ease-out_infinite_alternate]" />
 				<div className="absolute inset-0 bg-[linear-gradient(0deg,rgba(0,0,0,1)_-71%,rgba(255,255,255,0)_50%)] z-30" />
 				<div className="absolute right-0 top-[27%] h-[75%] opacity-0 animate-fade-in delay-500 pointer-events-none z-0">
 					<img
