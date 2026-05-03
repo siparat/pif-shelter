@@ -1,15 +1,9 @@
-import { AtSign, HeartHandshake, Mail, MapPin, Phone, PawPrint, Send, ShieldCheck } from 'lucide-react';
+import { AtSign, HeartHandshake, Mail, MapPin, PawPrint, Phone, Send, ShieldCheck } from 'lucide-react';
 import { JSX } from 'react';
 import { Link } from 'react-router-dom';
-import LogoLight from '../../../../shared/icons/logo-light.svg?react';
-import {
-	footerAuthor,
-	footerBrand,
-	footerContacts,
-	footerContactsTitle,
-	footerSocialLinks
-} from '../../../../shared/config/footer';
+import { footerAuthor, footerContacts, footerContactsTitle, footerSocialLinks } from '../../../../shared/config/footer';
 import { ROUTES } from '../../../../shared/config/routes';
+import LogoLight from '../../../../shared/icons/logo-light.svg?react';
 
 const contactIconByKey = {
 	address: MapPin,
@@ -38,8 +32,8 @@ export const Footer = (): JSX.Element => {
 						<Link to={ROUTES.home} className="flex items-center gap-3">
 							<LogoLight className="h-[52px] w-[44px] text-(--color-text-on-dark)" />
 							<div className="leading-[1.05]">
-								<p className="text-[16px] font-semibold">{footerBrand.title}</p>
-								<p className="text-[12px] font-semibold uppercase opacity-85">{footerBrand.subtitle}</p>
+								<p className="text-[16px] font-semibold">Приют для бездомных животных</p>
+								<p className="text-[12px] font-semibold uppercase opacity-85">Город Донецк</p>
 							</div>
 						</Link>
 

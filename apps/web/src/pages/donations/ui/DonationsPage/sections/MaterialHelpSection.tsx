@@ -1,8 +1,9 @@
 import { WISHLIST_ITEM_STATUS_LABEL, WishlistItemStatusEnum } from '@pif/shared';
+import { shelter } from '../../../../../shared/config/shelter';
 import { AlertCircle, ArrowRight, Gift, MapPin, Package } from 'lucide-react';
 import { JSX } from 'react';
-import { useVolunteerInvite } from '../../../../../features/volunteer-invite';
 import { usePublicWishlistQuery } from '../../../../../entities/wishlist';
+import { useVolunteerInvite } from '../../../../../features/volunteer-invite';
 import { cn } from '../../../../../shared/lib/cn';
 
 const wishlistRowClassName: Record<WishlistItemStatusEnum, string> = {
@@ -21,13 +22,11 @@ const wishlistBadgeClassName: Record<WishlistItemStatusEnum, string> = {
 
 const MATERIAL_HELP_POST_HEADING = 'Отправка почтой';
 
-const MATERIAL_HELP_POST_BODY =
-	'Можно отправить посылку через Почту России на адрес: 283020, г. Донецк, ул. Бехтерева, 16Д. Обязательно укажите пометку: «для приюта ПИФ», чтобы мы точно получили вашу посылку.';
+const MATERIAL_HELP_POST_BODY = `Можно отправить посылку через Почту России на адрес: ${shelter.addressIndex}, ${shelter.address}. Обязательно укажите пометку: «для приюта ПИФ», чтобы мы точно получили вашу посылку.`;
 
 const MATERIAL_HELP_IN_PERSON_HEADING = 'Привезти лично';
 
-const MATERIAL_HELP_IN_PERSON_BODY =
-	'Доставить помощь можно по адресу: улица Бехтерева, 16Д, Донецк. Приём ведётся ежедневно с 10:00 до 18:00, вас встретят волонтёры и помогут разгрузить вещи.';
+const MATERIAL_HELP_IN_PERSON_BODY = `Доставить помощь можно по адресу: ${shelter.address}. Приём ведётся ежедневно с 10:00 до 18:00, вас встретят волонтёры и помогут разгрузить вещи.`;
 
 export const MaterialHelpSection = (): JSX.Element => {
 	const { open: openVolunteerInvite } = useVolunteerInvite();

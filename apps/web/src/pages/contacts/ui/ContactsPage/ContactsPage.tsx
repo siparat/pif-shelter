@@ -64,7 +64,13 @@ const ContactsPage = (): JSX.Element => {
 								<span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] bg-white text-[#3a2c27] shadow-sm transition-transform hover:scale-105">
 									<MapPin className="h-6 w-6" strokeWidth={2.5} />
 								</span>
-								<span className="text-[17px] font-semibold text-white">{address.label}</span>
+								<a
+									href={address.href}
+									target="_blank"
+									rel="noreferrer"
+									className="text-[17px] font-semibold text-white">
+									{address.label}
+								</a>
 							</li>
 						)}
 					</ul>

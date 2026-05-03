@@ -65,8 +65,8 @@ jobs:
                       TELEGRAM_BOT_USERNAME="${{ vars.TELEGRAM_BOT_USERNAME }}"
                       TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}"
 
-                      BOT_HELP_CONTACTS="${{ vars.HELP_CONTACT }}"
-                      BOT_HELP_ADDRESS="${{ vars.HELP_ADDRESS }}"
+                      BOT_HELP_CONTACTS="${{ vars.SUPPORT_PHONE }}"
+                      BOT_HELP_ADDRESS="${{ vars.ADDRESS_URL }}"
                       BOT_HELP_VISITING_RULES="${{ vars.HELP_RULES_URL }}"
                       BOT_HELP_SITE_URL="https://${{ secrets.DOMAIN }}"
                       EOF
@@ -110,6 +110,13 @@ jobs:
                         VITE_SOCIAL_VK_URL="${{ vars.SOCIAL_VK_URL }}"
                         VITE_SOCIAL_INSTAGRAM_URL="${{ vars.SOCIAL_INSTAGRAM_URL }}"
                         VITE_SOCIAL_TELEGRAM_URL="${{ vars.SOCIAL_TELEGRAM_URL }}"
+
+                        VITE_SHELTER_ADDRESS="${{ vars.ADDRESS }}"
+                        VITE_SHELTER_ADDRESS_INDEX="${{ vars.ADDRESS_INDEX }}"
+                        VITE_SHELTER_ADDRESS_URL="${{ vars.ADDRESS_URL }}"
+                        VITE_SHELTER_PHONE="${{ vars.SUPPORT_PHONE }}"
+                        VITE_SHELTER_EMAIL="${{ vars.SUPPORT_EMAIL }}"
+                        VITE_SHELTER_TELEGRAM_CONTACT="${{ vars.SUPPORT_TELEGRAM }}"
                       EOF
 
             - name: Create .env on server

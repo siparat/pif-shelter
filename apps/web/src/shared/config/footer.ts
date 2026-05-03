@@ -14,11 +14,6 @@ export type FooterContactItem = {
 	href: string;
 };
 
-export const footerBrand = {
-	title: shelter.name,
-	subtitle: shelter.city
-};
-
 export const SOCIAL_SHARE_HELP_TEXT =
 	'Приют ПИФ в Донецке кормит, лечит и ищет дом для бездомных животных. Поделитесь страницей пожертвований — это бесплатно, зато помогает найти новых друзей приюту и доноров. Каждый репост даёт шанс, что кто-то рядом решит помочь.';
 
@@ -76,10 +71,9 @@ export const getDonationShareSocialLinks = (): FooterSocialLink[] => {
 export const footerContactsTitle = 'Контакты';
 
 export const footerContacts: FooterContactItem[] = [
-	{ key: 'address', label: shelter.address, href: '#' },
+	{ key: 'address', label: shelter.address, href: shelter.addressUrl },
 	{ key: 'phone', label: shelter.phone, href: `tel:${shelter.phone.replace(/\D/g, '')}` },
-	{ key: 'telegram', label: shelter.telegramContact, href: shelter.telegramContactUrl },
-	{ key: 'handle', label: shelter.handle, href: '#' },
+	{ key: 'telegram', label: shelter.telegramContact, href: `https://t.me/${shelter.telegramContact.slice(1)}` },
 	{ key: 'email', label: shelter.email, href: `mailto:${shelter.email}` }
 ];
 
