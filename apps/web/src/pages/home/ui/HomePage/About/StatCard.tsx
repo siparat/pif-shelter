@@ -1,6 +1,6 @@
 import { CSSProperties, JSX, ReactNode } from 'react';
-import { cn } from '../../../../shared/lib/cn';
-import { useCountUp } from '../../../../shared/lib/use-count-up';
+import { cn } from '../../../../../shared/lib/cn';
+import { useCountUp } from '../../../../../shared/lib/use-count-up';
 
 interface StatCardProps {
 	value: string;

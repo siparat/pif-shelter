@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { useVolunteerInvite } from '../../../../features/volunteer-invite';
 import { footerSocialLinks } from '../../../../shared/config/footer';
 import { ROUTES } from '../../../../shared/config/routes';
-import { AboutSection } from './AboutSection';
+import { AboutSection } from './About/AboutSection';
+import { UrgentCampaignsSection } from '../../../../widgets/urgent-campaigns';
 
 const VkIcon = ({ size = 24 }: { size?: number }): JSX.Element => (
 	<svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -126,6 +127,7 @@ const HomePage = (): JSX.Element => {
 				</div>
 			</div>
 			<AboutSection />
+			<UrgentCampaignsSection />
 		</>
 	);
 };

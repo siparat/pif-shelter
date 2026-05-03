@@ -1,5 +1,5 @@
 import { JSX } from 'react';
-import { useInView } from '../../../../shared/lib/use-in-view';
+import { useInView } from '../../../../../shared/lib/use-in-view';
 import { FeatureCard } from './FeatureCard';
 import { StatCard } from './StatCard';
 

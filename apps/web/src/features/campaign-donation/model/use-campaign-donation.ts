@@ -5,6 +5,7 @@ export const useCampaignDonation = (): {
 	isOpen: boolean;
 	selectedCampaign: Campaign | null;
 	amountRub: number;
+	setAmountRub: (value: number) => void;
 	openForCampaign: (campaign: Campaign) => void;
 	close: () => void;
 } => {
