@@ -15,6 +15,10 @@ const CancelSubscriptionPage = lazy(
 );
 const ContactsPage = lazy(() => import('../pages/contacts/ui/ContactsPage/ContactsPage'));
 const CampaignsPage = lazy(() => import('../pages/campaigns/ui/CampaignsPage/CampaignsPage'));
+const GuardianshipPage = lazy(() => import('../pages/guardianship/ui/GuardianshipPage/GuardianshipPage'));
+const PrivacyPage = lazy(() => import('../pages/privacy/ui/PrivacyPage/PrivacyPage'));
+const TermsPage = lazy(() => import('../pages/terms/ui/TermsPage/TermsPage'));
+const CookiesPage = lazy(() => import('../pages/cookies/ui/CookiesPage/CookiesPage'));
 
 const PageFallback = (): JSX.Element => (
 	<div className="flex min-h-[60vh] items-center justify-center">
@@ -42,7 +46,11 @@ const routeComponentByPath: Record<string, JSX.Element> = {
 	[ROUTES.donationsList]: <DonationsListPage />,
 	[ROUTES.cancelSubscription]: <CancelSubscriptionPage />,
 	[ROUTES.contacts]: <ContactsPage />,
-	[ROUTES.campaigns]: <CampaignsPage />
+	[ROUTES.campaigns]: <CampaignsPage />,
+	[ROUTES.guardianship]: <GuardianshipPage />,
+	[ROUTES.privacy]: <PrivacyPage />,
+	[ROUTES.terms]: <TermsPage />,
+	[ROUTES.cookies]: <CookiesPage />
 };
 
 export const router = createBrowserRouter([

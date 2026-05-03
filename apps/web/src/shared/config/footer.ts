@@ -1,5 +1,6 @@
 import { SITE_URL } from './api';
 import { ROUTES } from './routes';
+import { shelter } from './shelter';
 
 export type FooterSocialLink = {
 	key: 'telegram' | 'vk' | 'instagram';
@@ -14,8 +15,8 @@ export type FooterContactItem = {
 };
 
 export const footerBrand = {
-	title: 'Приют для бездомных животных',
-	subtitle: 'город донецк'
+	title: shelter.name,
+	subtitle: shelter.city
 };
 
 export const SOCIAL_SHARE_HELP_TEXT =
@@ -75,11 +76,11 @@ export const getDonationShareSocialLinks = (): FooterSocialLink[] => {
 export const footerContactsTitle = 'Контакты';
 
 export const footerContacts: FooterContactItem[] = [
-	{ key: 'address', label: 'улица Бехтерева, 16Д, Донецк', href: '#' },
-	{ key: 'phone', label: '+7 (949) 494-94-94', href: '#' },
-	{ key: 'telegram', label: '@ulia_pif', href: 'https://t.me/ulia_pif' },
-	{ key: 'handle', label: '@pif', href: '#' },
-	{ key: 'email', label: 'pif.donetsk@yandex.ru', href: 'mailto:pif.donetsk@yandex.ru' }
+	{ key: 'address', label: shelter.address, href: '#' },
+	{ key: 'phone', label: shelter.phone, href: `tel:${shelter.phone.replace(/\D/g, '')}` },
+	{ key: 'telegram', label: shelter.telegramContact, href: shelter.telegramContactUrl },
+	{ key: 'handle', label: shelter.handle, href: '#' },
+	{ key: 'email', label: shelter.email, href: `mailto:${shelter.email}` }
 ];
 
 export const footerAuthor = {

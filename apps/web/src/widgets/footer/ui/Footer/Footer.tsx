@@ -1,4 +1,4 @@
-import { AtSign, Mail, MapPin, Phone, Send } from 'lucide-react';
+import { AtSign, HeartHandshake, Mail, MapPin, Phone, PawPrint, Send, ShieldCheck } from 'lucide-react';
 import { JSX } from 'react';
 import { Link } from 'react-router-dom';
 import LogoLight from '../../../../shared/icons/logo-light.svg?react';
@@ -79,6 +79,65 @@ export const Footer = (): JSX.Element => {
 									</a>
 								);
 							})}
+						</div>
+					</div>
+
+					<div className="flex flex-col gap-5">
+						<div>
+							<h3 className="mb-3 text-[16px] font-semibold">Программы приюта</h3>
+							<ul className="space-y-2">
+								<li>
+									<Link
+										to={ROUTES.guardianship}
+										className="inline-flex items-center gap-2 text-[14px] font-semibold opacity-90 transition-opacity hover:opacity-100"
+										onClick={() => window.scrollTo(0, 0)}>
+										<HeartHandshake size={14} className="shrink-0" />
+										<span>Опекунство над животным</span>
+									</Link>
+								</li>
+								<li>
+									<Link
+										to={ROUTES.animals}
+										className="inline-flex items-center gap-2 text-[14px] font-semibold opacity-90 transition-opacity hover:opacity-100"
+										onClick={() => window.scrollTo(0, 0)}>
+										<PawPrint size={14} className="shrink-0" />
+										<span>Взять питомца из приюта</span>
+									</Link>
+								</li>
+							</ul>
+						</div>
+
+						<div>
+							<h3 className="mb-3 text-[16px] font-semibold">Документы</h3>
+							<ul className="space-y-2">
+								<li>
+									<Link
+										to={ROUTES.privacy}
+										className="inline-flex items-center gap-2 text-[14px] font-semibold opacity-90 transition-opacity hover:opacity-100"
+										onClick={() => window.scrollTo(0, 0)}>
+										<ShieldCheck size={14} className="shrink-0" />
+										<span>Политика конфиденциальности</span>
+									</Link>
+								</li>
+								<li>
+									<Link
+										to={ROUTES.terms}
+										className="inline-flex items-center gap-2 text-[14px] font-semibold opacity-90 transition-opacity hover:opacity-100"
+										onClick={() => window.scrollTo(0, 0)}>
+										<ShieldCheck size={14} className="shrink-0" />
+										<span>Пользовательское соглашение</span>
+									</Link>
+								</li>
+								<li>
+									<Link
+										to={ROUTES.cookies}
+										className="inline-flex items-center gap-2 text-[14px] font-semibold opacity-90 transition-opacity hover:opacity-100"
+										onClick={() => window.scrollTo(0, 0)}>
+										<ShieldCheck size={14} className="shrink-0" />
+										<span>Политика cookies</span>
+									</Link>
+								</li>
+							</ul>
 						</div>
 					</div>
 

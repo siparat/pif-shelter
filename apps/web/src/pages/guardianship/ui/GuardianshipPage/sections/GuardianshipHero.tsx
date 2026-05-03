@@ -81,7 +81,7 @@ export const GuardianshipHero = (): JSX.Element => {
 
 					<div
 						className="animate-float absolute left-0 top-6 flex items-center gap-3 rounded-2xl border border-(--color-border-soft) bg-(--color-surface-secondary)/90 px-4 py-3 shadow-[0_18px_36px_rgba(79,61,56,0.12)] backdrop-blur"
-						style={{ transform: 'rotate(-6deg)', animationDelay: '0s' }}>
+						style={{ animationDelay: '0s' }}>
 						<span className="flex h-10 w-10 items-center justify-center rounded-full bg-(--color-brand-accent)/15 text-(--color-brand-accent)">
 							<ShieldCheck className="h-5 w-5" />
 						</span>
@@ -90,7 +90,7 @@ export const GuardianshipHero = (): JSX.Element => {
 
 					<div
 						className="animate-float absolute right-0 top-32 flex items-center gap-3 rounded-2xl border border-(--color-border-soft) bg-(--color-surface-secondary)/90 px-4 py-3 shadow-[0_18px_36px_rgba(79,61,56,0.12)] backdrop-blur"
-						style={{ transform: 'rotate(4deg)', animationDelay: '1.5s' }}>
+						style={{ animationDelay: '1.5s' }}>
 						<span className="flex h-10 w-10 items-center justify-center rounded-full bg-(--color-brand-accent)/15 text-(--color-brand-accent)">
 							<MessageCircle className="h-5 w-5" />
 						</span>
@@ -99,7 +99,7 @@ export const GuardianshipHero = (): JSX.Element => {
 
 					<div
 						className="animate-float absolute bottom-6 left-8 flex items-center gap-3 rounded-2xl border border-(--color-border-soft) bg-(--color-surface-secondary)/90 px-4 py-3 shadow-[0_18px_36px_rgba(79,61,56,0.12)] backdrop-blur"
-						style={{ transform: 'rotate(-3deg)', animationDelay: '0.8s' }}>
+						style={{ animationDelay: '0.8s' }}>
 						<span className="flex h-10 w-10 items-center justify-center rounded-full bg-(--color-brand-accent)/15 text-(--color-brand-accent)">
 							<LinkIcon className="h-5 w-5" />
 						</span>

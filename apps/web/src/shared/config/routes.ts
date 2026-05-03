@@ -11,7 +11,10 @@ export type RouteKey =
 	| 'about'
 	| 'contacts'
 	| 'campaigns'
-	| 'guardianship';
+	| 'guardianship'
+	| 'privacy'
+	| 'terms'
+	| 'cookies';
 
 export type WebRoute = {
 	key: RouteKey;
@@ -113,6 +116,33 @@ export const webRoutes: WebRoute[] = [
 		Icon: HeartHandshake,
 		showInMenu: false,
 		preload: () => import('../../pages/donations/ui/DonationsPage/DonationsPage')
+	},
+	{
+		key: 'privacy',
+		path: '/privacy',
+		name: 'Политика конфиденциальности',
+		shortName: 'Конфиденциальность',
+		Icon: Ban,
+		showInMenu: false,
+		preload: () => import('../../pages/privacy/ui/PrivacyPage/PrivacyPage')
+	},
+	{
+		key: 'terms',
+		path: '/terms',
+		name: 'Пользовательское соглашение',
+		shortName: 'Соглашение',
+		Icon: Ban,
+		showInMenu: false,
+		preload: () => import('../../pages/terms/ui/TermsPage/TermsPage')
+	},
+	{
+		key: 'cookies',
+		path: '/cookies',
+		name: 'Политика cookies',
+		shortName: 'Cookies',
+		Icon: Ban,
+		showInMenu: false,
+		preload: () => import('../../pages/cookies/ui/CookiesPage/CookiesPage')
 	}
 ];
 
