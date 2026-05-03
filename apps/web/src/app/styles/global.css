@@ -146,4 +146,14 @@
 	.delay-700 {
 		animation-delay: 700ms;
 	}
+
+	@keyframes marquee {
+		0% { transform: translateX(0); }
+		100% { transform: translateX(-50%); }
+	}
+
+	@keyframes marquee-reverse {
+		0% { transform: translateX(-50%); }
+		100% { transform: translateX(0); }
+	}
 }

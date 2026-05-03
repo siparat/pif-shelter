@@ -7,7 +7,8 @@ import {
 	useQuery,
 	UseQueryResult
 } from '@tanstack/react-query';
-import { ListAnimalsParams, listAnimals } from '../api/animal.api';
+import { listAnimals, ListAnimalsParams } from '../api/animal.api';
+import { AnimalSummary } from './types';
 
 const ANIMALS_PER_PAGE = 24;
 
@@ -47,5 +48,20 @@ export const useAnimalsCountQuery = (species?: AnimalSpeciesEnum): UseQueryResul
 				perPage: 1
 			}),
 		select: (data) => data.meta.total,
+		staleTime: 5 * 60 * 1000
+	});
+
+export const useAnimalsPreviewQuery = (): UseQueryResult<AnimalSummary[], Error> =>
+	useQuery({
+		queryKey: [...animalQueryKeys.root, 'preview'],
+		queryFn: async () => {
+			const result = await listAnimals({
+				status: AnimalStatusEnum.PUBLISHED,
+				page: 1,
+				perPage: 24,
+				sort: 'createdAt:asc'
+			});
+			return [...result.data].reverse();
+		},
 		staleTime: 5 * 60 * 1000
 	});
