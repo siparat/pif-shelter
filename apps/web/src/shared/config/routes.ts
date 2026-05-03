@@ -10,7 +10,8 @@ export type RouteKey =
 	| 'cancelSubscription'
 	| 'about'
 	| 'contacts'
-	| 'campaigns';
+	| 'campaigns'
+	| 'guardianship';
 
 export type WebRoute = {
 	key: RouteKey;
@@ -67,6 +68,15 @@ export const webRoutes: WebRoute[] = [
 		Icon: WalletCards,
 		showInMenu: true,
 		preload: () => import('../../pages/campaigns/ui/CampaignsPage/CampaignsPage')
+	},
+	{
+		key: 'guardianship',
+		path: '/guardianship',
+		name: 'Опекунство',
+		shortName: 'Опекунство',
+		Icon: HeartHandshake,
+		showInMenu: false,
+		preload: () => import('../../pages/guardianship/ui/GuardianshipPage/GuardianshipPage')
 	},
 	{
 		key: 'donationsList',

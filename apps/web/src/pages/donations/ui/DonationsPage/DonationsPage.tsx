@@ -1,15 +1,19 @@
 import { JSX, useState } from 'react';
+import { DonationFormSection, DonationsFeedSection } from '../../../../widgets/donations';
 import {
-	DonationsHeroSection,
 	DonationsHelpMode,
+	DonationsHeroSection,
 	FaqSection,
 	MaterialHelpSection,
 	TrustAndShareSection
 } from './sections';
-import { DonationsFeedSection, DonationFormSection } from '../../../../widgets/donations';
+
+const itemsSection: Extract<DonationsHelpMode, 'items'> = 'items';
 
 const DonationsPage = (): JSX.Element => {
-	const [helpMode, setHelpMode] = useState<DonationsHelpMode>('money');
+	const [helpMode, setHelpMode] = useState<DonationsHelpMode>(
+		new URLSearchParams(location.search).get('section') == itemsSection ? 'items' : 'money'
+	);
 
 	return (
 		<div className="flex flex-col gap-10 sm:gap-12 md:gap-16 lg:gap-20">

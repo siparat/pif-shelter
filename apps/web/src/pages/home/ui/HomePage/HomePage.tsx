@@ -4,6 +4,7 @@ import { useVolunteerInvite } from '../../../../features/volunteer-invite';
 import { footerSocialLinks } from '../../../../shared/config/footer';
 import { ROUTES } from '../../../../shared/config/routes';
 import { AnimalsPreviewSection } from '../../../../widgets/animals-preview';
+import { HelpCtaSection } from '../../../../widgets/help-cta';
 import { UrgentCampaignsSection } from '../../../../widgets/urgent-campaigns';
 import { AboutSection } from './About/AboutSection';
 import { DonationsSections } from './Donations/DonationsSection';
@@ -132,6 +133,7 @@ const HomePage = (): JSX.Element => {
 			<UrgentCampaignsSection />
 			<AnimalsPreviewSection />
 			<DonationsSections />
+			<HelpCtaSection />
 		</>
 	);
 };
