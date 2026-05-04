@@ -65,6 +65,8 @@ jobs:
                       TELEGRAM_ADMIN_USERNAME="${{ vars.TELEGRAM_ADMIN_USERNAME }}"
                       TELEGRAM_BOT_USERNAME="${{ vars.TELEGRAM_BOT_USERNAME }}"
                       TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}"
+                      TELEGRAM_CHAT_ID="${{ secrets.TELEGRAM_CHAT_ID }}"
+                      TELEGRAM_CHAT_REPORT_TOPIC="${{ secrets.TELEGRAM_CHAT_REPORT_TOPIC }}"
 
                       BOT_HELP_CONTACTS="${{ vars.SUPPORT_PHONE }}"
                       BOT_HELP_ADDRESS="${{ vars.ADDRESS_URL }}"
