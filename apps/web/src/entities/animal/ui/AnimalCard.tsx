@@ -62,7 +62,7 @@ export const AnimalCard = ({ animal }: AnimalCardProps): JSX.Element => {
 						))}
 					</div>
 					{animal.status === AnimalStatusEnum.PUBLISHED && (
-						<span className="rounded-full bg-(--color-brand-accent) px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+						<span className="rounded-full bg-(--color-brand-accent) px-2.5 py-1 text-[11px] font-bold text-white shadow-sm shrink-0">
 							Готов к переезду
 						</span>
 					)}

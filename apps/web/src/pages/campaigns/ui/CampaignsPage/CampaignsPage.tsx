@@ -1,12 +1,19 @@
 import { JSX } from 'react';
-import { useCampaignsQuery } from '../../../../entities/campaign';
+import { useCampaignsQuery, useCompletedCampaignsQuery } from '../../../../entities/campaign';
 import { CampaignDonationModal, useCampaignDonation } from '../../../../features/campaign-donation';
-import { CampaignsGridSection, CampaignsHeroSection, CampaignTrustSection } from './sections';
+import {
+	CampaignsGridSection,
+	CampaignsHeroSection,
+	CampaignTrustSection,
+	CompletedCampaignsSection
+} from './sections';
 
 export const CampaignsPage = (): JSX.Element => {
 	const donation = useCampaignDonation();
 	const campaignsQuery = useCampaignsQuery();
+	const completedCampaignsQuery = useCompletedCampaignsQuery();
 	const campaigns = campaignsQuery.data ?? [];
+	const completedCampaigns = completedCampaignsQuery.data ?? [];
 
 	return (
 		<>
@@ -34,6 +41,7 @@ export const CampaignsPage = (): JSX.Element => {
 					<CampaignsGridSection campaigns={campaigns} onDonateClick={donation.openForCampaign} />
 				) : null}
 				<CampaignTrustSection />
+				{completedCampaigns.length > 0 ? <CompletedCampaignsSection campaigns={completedCampaigns} /> : null}
 			</div>
 			<CampaignDonationModal
 				open={donation.isOpen}
