@@ -2,7 +2,7 @@ import { AnimalStatusEnum, CampaignStatus } from '@pif/shared';
 import { getMediaUrl } from '../../../../shared/lib';
 
 export const KOPECKS_IN_RUBLE = 100;
-export const TITLE_MAX_LENGTH = 36;
+export const TITLE_MAX_LENGTH = 64;
 export const DESCRIPTION_MIN_LENGTH = 250;
 export const ANIMALS_PER_PAGE = 100;
 export const ANIMAL_SEARCH_DEBOUNCE_MS = 300;

@@ -81,13 +81,7 @@ const SORT_OPTIONS = [
 ];
 
 export const AnimalsFilters = ({ initialValues, volunteers, isLoading, onApply, onReset }: Props): JSX.Element => {
-	const {
-		handleSubmit,
-		reset,
-		control,
-		watch,
-		formState: { errors }
-	} = useForm<AnimalsFiltersFormValues>({
+	const { handleSubmit, reset, control, watch } = useForm<AnimalsFiltersFormValues>({
 		resolver: zodResolver(animalsFiltersSchema),
 		defaultValues: initialValues
 	});
@@ -107,8 +101,6 @@ export const AnimalsFilters = ({ initialValues, volunteers, isLoading, onApply, 
 	const maxAgeValue = watch('maxAge', 0) || null;
 	const isInvalidAgeRange =
 		typeof minAgeValue == 'number' && typeof maxAgeValue == 'number' && minAgeValue > maxAgeValue;
-
-	console.log(errors);
 
 	return (
 		<form

@@ -7,7 +7,7 @@ export const createCampaignRequestSchema = z.object({
 		.string('Укажите заголовок сбора')
 		.trim()
 		.min(1, { error: ({ minimum }) => `Минимальная длина заголовка – ${minimum}` })
-		.max(36, { error: ({ maximum }) => `Максимальная длина заголовка – ${maximum}` })
+		.max(64, { error: ({ maximum }) => `Максимальная длина заголовка – ${maximum}` })
 		.describe('Заголовок сбора'),
 	description: z
 		.string('Описание обязательно')
