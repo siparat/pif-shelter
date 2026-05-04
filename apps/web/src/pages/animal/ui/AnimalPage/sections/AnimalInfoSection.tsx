@@ -1,15 +1,24 @@
-import { AnimalCoatNames, AnimalGenderEnum, AnimalSizeNames, AnimalStatusEnum, formatAnimalAge } from '@pif/shared';
+import {
+	AnimalCoatNames,
+	AnimalGenderEnum,
+	AnimalSizeNames,
+	AnimalStatusEnum,
+	AnimalStatusNames,
+	formatAnimalAge
+} from '@pif/shared';
 import {
 	Cake,
 	Calendar,
 	ChevronLeft,
 	ChevronRight,
+	Heart,
 	HeartHandshake,
 	MapPin,
 	PawPrint,
 	Scissors,
 	ShieldCheck,
 	Sparkles,
+	Stethoscope,
 	Syringe,
 	X,
 	ZoomIn
@@ -25,11 +34,135 @@ type AnimalInfoSectionProps = {
 const formatBirthDate = (iso: string): string =>
 	new Date(iso).toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' });
 
+const CONFETTI_ITEMS = ['🎉', '🎊', '🥳', '✨', '🎈', '🎁', '⭐', '💫', '🌟', '🎀'];
+
+const RainbowBanner = ({ name, isFemale }: { name: string; isFemale: boolean }): JSX.Element => (
+	<div className="relative overflow-hidden rounded-3xl p-6 text-center">
+		<div
+			className="pointer-events-none absolute inset-0 opacity-15"
+			style={{
+				background:
+					'linear-gradient(135deg, #ff6b6b 0%, #feca57 20%, #48dbfb 40%, #ff9ff3 60%, #54a0ff 80%, #5f27cd 100%)'
+			}}
+		/>
+		<div className="relative flex flex-col items-center gap-3">
+			<span className="text-4xl">🌈</span>
+			<div>
+				<p className="text-lg font-black text-(--color-text-primary)">
+					{name} {isFemale ? 'ушла на радугу' : 'ушёл на радугу'}
+				</p>
+				<p className="mt-1 text-sm leading-relaxed text-(--color-text-secondary)">
+					{isFemale ? 'Она' : 'Он'} был{isFemale ? 'а' : ''} частью нашей семьи и навсегда останется в наших
+					сердцах. Спи спокойно.
+				</p>
+			</div>
+		</div>
+	</div>
+);
+
+const AdoptedBanner = ({ name, isFemale }: { name: string; isFemale: boolean }): JSX.Element => {
+	const confettiRef = useRef<HTMLDivElement>(null);
+
+	return (
+		<div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-emerald-50 to-teal-50 p-6 text-center ring-2 ring-emerald-200">
+			<div ref={confettiRef} aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+				{CONFETTI_ITEMS.map((emoji, i) => (
+					<span
+						key={i}
+						className="absolute text-xl"
+						style={{
+							left: `${(i * 10 + 5) % 100}%`,
+							top: `${(i * 17 + 10) % 80}%`,
+							animation: `float ${2 + (i % 3) * 0.7}s ease-in-out ${(i * 0.3) % 1.5}s infinite alternate`,
+							opacity: 0.6
+						}}>
+						{emoji}
+					</span>
+				))}
+			</div>
+			<div className="relative flex flex-col items-center gap-3">
+				<span className="text-4xl">🎉</span>
+				<div>
+					<p className="text-lg font-black text-emerald-800">
+						{name} {isFemale ? 'нашла' : 'нашёл'} дом!
+					</p>
+					<p className="mt-1 text-sm leading-relaxed text-emerald-700">
+						{isFemale ? 'Её' : 'Его'} взяли в семью — теперь у {isFemale ? 'неё' : 'него'} есть свой дом,
+						любовь и тепло. Спасибо всем, кто помогал!
+					</p>
+				</div>
+				<span className="rounded-full bg-emerald-100 px-4 py-1.5 text-xs font-bold text-emerald-700">
+					Счастливо живёт в семье 🏠
+				</span>
+			</div>
+		</div>
+	);
+};
+
+const StatusBadge = ({ status }: { status: AnimalStatusEnum }): JSX.Element | null => {
+	if (status === AnimalStatusEnum.ON_TREATMENT) {
+		return (
+			<div className="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+				<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100">
+					<Stethoscope className="h-4 w-4 text-amber-600" />
+				</span>
+				<div>
+					<p className="text-sm font-bold text-amber-800">Сейчас на лечении</p>
+					<p className="text-xs text-amber-700">
+						Временно недоступен для знакомства — проходит лечение. Следите за обновлениями.
+					</p>
+				</div>
+			</div>
+		);
+	}
+	if (status === AnimalStatusEnum.ON_PROBATION) {
+		return (
+			<div className="flex items-center gap-3 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3">
+				<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100">
+					<Heart className="h-4 w-4 text-blue-600" />
+				</span>
+				<div>
+					<p className="text-sm font-bold text-blue-800">На испытательном сроке</p>
+					<p className="text-xs text-blue-700">
+						Живёт в семье пробный период. Если всё пройдёт хорошо — скоро официально обретёт дом.
+					</p>
+				</div>
+			</div>
+		);
+	}
+	if (status === AnimalStatusEnum.DRAFT) {
+		return (
+			<div className="flex items-center gap-3 rounded-2xl border border-(--color-border-soft) bg-(--color-surface-secondary) px-4 py-3">
+				<span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-(--color-surface-primary)">
+					<PawPrint className="h-4 w-4 text-(--color-text-secondary)" />
+				</span>
+				<div>
+					<p className="text-sm font-bold text-(--color-text-primary)">Карточка в разработке</p>
+					<p className="text-xs text-(--color-text-secondary)">
+						Информация ещё уточняется и скоро будет доступна.
+					</p>
+				</div>
+			</div>
+		);
+	}
+	return null;
+};
+
 export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Element => {
 	const gallery = [animal.avatarUrl, ...(animal.galleryUrls ?? [])].filter((url): url is string => !!url);
 	const [activeImage, setActiveImage] = useState<string>(gallery[0] ?? '');
 	const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 	const dialogRef = useRef<HTMLDialogElement>(null);
+
+	const status = animal.status;
+	const isPublished = status === AnimalStatusEnum.PUBLISHED;
+	const isAdopted = status === AnimalStatusEnum.ADOPTED;
+	const isRainbow = status === AnimalStatusEnum.RAINBOW;
+	const isOnTreatment = status === AnimalStatusEnum.ON_TREATMENT;
+	const isOnProbation = status === AnimalStatusEnum.ON_PROBATION;
+	const isUnavailable = isAdopted || isRainbow || isOnTreatment || isOnProbation;
+	const canMeet = isPublished;
+	const canGuard = isPublished;
 
 	const openLightbox = useCallback(
 		(url: string): void => {
@@ -72,7 +205,6 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 	const isFemale = animal.gender === AnimalGenderEnum.FEMALE;
 	const sizeLabel = AnimalSizeNames[animal.size][animal.gender];
 	const coatLabel = AnimalCoatNames[animal.coat];
-	const isPublished = animal.status === AnimalStatusEnum.PUBLISHED;
 
 	const characteristics = [
 		{ icon: PawPrint, label: 'Пол', value: isFemale ? 'Девочка' : 'Мальчик' },
@@ -98,7 +230,8 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 		<section className="flex flex-col gap-6">
 			<div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start">
 				<div className="flex flex-col gap-3">
-					<div className="group relative aspect-4/3 overflow-hidden rounded-3xl bg-(--color-brand-brown-soft) shadow-[0_18px_42px_rgba(79,61,56,0.14)]">
+					<div
+						className={`group relative aspect-4/3 overflow-hidden rounded-3xl bg-(--color-brand-brown-soft) shadow-[0_18px_42px_rgba(79,61,56,0.14)] ${isRainbow ? 'grayscale' : ''}`}>
 						{activeImage ? (
 							<>
 								<img
@@ -131,10 +264,19 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 								</span>
 							))}
 						</div>
-						{isPublished && (
+						{!isUnavailable && (
 							<span className="absolute right-4 top-4 rounded-full bg-(--color-brand-accent) px-3 py-1 text-[11px] font-bold text-white shadow-sm">
-								Готов(а) к переезду
+								{AnimalStatusNames[status]}
 							</span>
+						)}
+						{isRainbow && (
+							<div
+								className="pointer-events-none absolute inset-0 opacity-30"
+								style={{
+									background:
+										'linear-gradient(135deg, rgba(255,107,107,0.6) 0%, rgba(254,202,87,0.6) 25%, rgba(72,219,251,0.6) 50%, rgba(255,159,243,0.6) 75%, rgba(84,160,255,0.6) 100%)'
+								}}
+							/>
 						)}
 					</div>
 
@@ -151,7 +293,7 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 											isActive
 												? 'border-(--color-brand-accent) opacity-100'
 												: 'border-transparent opacity-70 hover:opacity-100'
-										}`}>
+										} ${isRainbow ? 'grayscale' : ''}`}>
 										<img
 											src={getMediaUrl(url)}
 											alt=""
@@ -171,10 +313,15 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 							{animal.name}
 						</h1>
 						<p className="mt-2 inline-flex items-center gap-2 text-sm text-(--color-text-secondary)">
-							<MapPin className="h-4 w-4 text-(--color-brand-accent)" />В приюте ·{' '}
+							<MapPin className="h-4 w-4 text-(--color-brand-accent)" />
+							{isAdopted || isOnProbation ? 'В семье' : isRainbow ? 'На радуге 🌈' : 'В приюте'} ·{' '}
 							{sizeLabel.toLowerCase()} · {formatAnimalAge(animal.birthDate)}
 						</p>
 					</div>
+
+					{isRainbow && <RainbowBanner name={animal.name} isFemale={isFemale} />}
+					{isAdopted && <AdoptedBanner name={animal.name} isFemale={isFemale} />}
+					{!isRainbow && !isAdopted && <StatusBadge status={status} />}
 
 					{animal.description && (
 						<p className="whitespace-pre-line text-sm leading-relaxed text-(--color-text-secondary) md:text-base">
@@ -224,7 +371,7 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 						)}
 					</div>
 
-					{cost && (
+					{cost && canGuard && (
 						<div className="rounded-3xl bg-linear-to-br from-(--color-brand-accent) to-[#ff6f3a] p-5 text-white shadow-[0_18px_36px_rgba(254,134,81,0.32)]">
 							<div className="flex items-baseline justify-between gap-3">
 								<span className="text-sm font-semibold opacity-90">Сумма опекунства</span>
@@ -239,19 +386,25 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 						</div>
 					)}
 
-					<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-						<button
-							type="button"
-							className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-(--color-border-soft) bg-(--color-surface-primary) px-5 text-sm font-bold text-(--color-text-primary) transition-all hover:bg-(--color-surface-secondary) active:scale-[0.985]">
-							Хочу его {isFemale ? 'забрать' : 'забрать'}
-						</button>
-						<button
-							type="button"
-							className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-(--color-brand-accent) px-5 text-sm font-bold text-white shadow-[0_12px_24px_rgba(254,134,81,0.3)] transition-[transform,filter] hover:brightness-105 active:scale-[0.985]">
-							<HeartHandshake className="h-4 w-4" />
-							Стать опекуном
-						</button>
-					</div>
+					{(canMeet || canGuard) && (
+						<div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+							{canMeet && (
+								<button
+									type="button"
+									className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-(--color-border-soft) bg-(--color-surface-primary) px-5 text-sm font-bold text-(--color-text-primary) transition-all hover:bg-(--color-surface-secondary) active:scale-[0.985]">
+									Хочу {isFemale ? 'её' : 'его'} забрать
+								</button>
+							)}
+							{canGuard && (
+								<button
+									type="button"
+									className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-(--color-brand-accent) px-5 text-sm font-bold text-white shadow-[0_12px_24px_rgba(254,134,81,0.3)] transition-[transform,filter] hover:brightness-105 active:scale-[0.985]">
+									<HeartHandshake className="h-4 w-4" />
+									Стать опекуном
+								</button>
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 
