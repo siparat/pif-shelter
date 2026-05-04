@@ -1,15 +1,20 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { CommandBus, CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { PaymentWebhookEvent } from '@pif/shared';
-import { CampaignStatus, DonationOneTimeIntentStatusEnum, LedgerEntrySourceEnum } from '@pif/shared';
+import { PaymentWebhookResponse } from '@pif/contracts';
+import {
+	CampaignStatus,
+	DonationOneTimeIntentStatusEnum,
+	LedgerEntrySourceEnum,
+	PaymentWebhookEvent
+} from '@pif/shared';
 import { Logger } from 'nestjs-pino';
 import { CampaignsService } from '../../../campaigns/campaigns.service';
+import { CampaignDonationAppliedEvent } from '../../../campaigns/events/campaign-donations-applied/campaign-donations-applied.event';
 import { RecordLedgerIncomeCommand } from '../../../finance/commands/record-ledger-income/record-ledger-income.command';
 import { DonationPaymentSucceededEvent } from '../../events/donation-payment-succeeded/donation-payment-succeeded.event';
 import { DonationIntentNotFoundException } from '../../exceptions/donation-intent-not-found.exception';
 import { DonationIntentsRepository } from '../../repositories/donation-intents.repository';
 import { ProcessDonationWebhookOneTimeCommand } from './process-donation-webhook-one-time.command';
-import { PaymentWebhookResponse } from '@pif/contracts';
 
 @CommandHandler(ProcessDonationWebhookOneTimeCommand)
 export class ProcessDonationWebhookOneTimeHandler implements ICommandHandler<ProcessDonationWebhookOneTimeCommand> {
@@ -81,6 +86,7 @@ export class ProcessDonationWebhookOneTimeHandler implements ICommandHandler<Pro
 			const campaign = await this.campaignsService.findById(intent.campaignId);
 			if (campaign && campaign.endsAt.getTime() > Date.now()) {
 				const updatedCampaign = await this.campaignsService.applyDonation(campaign.id, payload.netAmount);
+				this.eventBus.publish(new CampaignDonationAppliedEvent(campaign));
 				if (updatedCampaign?.status === CampaignStatus.SUCCESS) {
 					this.logger.log('Сбор закрыт как SUCCESS после пополнения', {
 						campaignId: updatedCampaign.id,

@@ -19,6 +19,7 @@ import { GetCampaignByIdHandler } from './queries/get-campaign-by-id/get-campaig
 import { CampaignCreatedHandler } from './events/campaign-created/campaign-created.handler';
 import { CampaignUpdatedHandler } from './events/campaign-updated/campaign-updated.handler';
 import { SearchCampaignsHandler } from './queries/search-campaigns/search-campaigns.handler';
+import { CampaignDonationAppliedHandler } from './events/campaign-donations-applied/campaign-donations-applied.handler';
 
 @Module({
 	imports: [BullModule.registerQueue({ name: CAMPAIGNS_QUEUE_NAME }), CqrsModule, AnimalsModule],
@@ -31,6 +32,7 @@ import { SearchCampaignsHandler } from './queries/search-campaigns/search-campai
 		CanCreateCampaignPolicy,
 		CreateCampaignHandler,
 		ChangeCampaignStatusHandler,
+		CampaignDonationAppliedHandler,
 		UpdateCampaignHandler,
 		DeleteCampaignHandler,
 		GetCampaignByIdHandler,
