@@ -2,17 +2,17 @@ import { parsePhoneNumberWithError } from 'libphonenumber-js';
 import { z } from 'zod';
 
 export const phoneSchema = z
-	.string()
+	.string('Некорректно указан номер телефона')
 	.trim()
-	.min(6)
-	.max(40)
+	.min(6, 'Некорректно указан номер телефона')
+	.max(40, 'Некорректно указан номер телефона')
 	.transform((rawValue: string, ctx) => {
 		try {
 			const phoneNumber = parsePhoneNumberWithError(rawValue, 'RU');
 			if (!phoneNumber.isValid()) {
 				ctx.addIssue({
 					code: 'custom',
-					message: 'Invalid phone number'
+					message: 'Некорректно указан номер телефона'
 				});
 				return z.NEVER;
 			}
@@ -21,7 +21,7 @@ export const phoneSchema = z
 		} catch {
 			ctx.addIssue({
 				code: 'custom',
-				message: 'Invalid phone number format'
+				message: 'Некорректно указан номер телефона'
 			});
 			return z.NEVER;
 		}

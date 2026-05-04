@@ -24,7 +24,9 @@ import {
 	ZoomIn
 } from 'lucide-react';
 import { JSX, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 import { AnimalDetails } from '../../../../../entities/animal';
+import { MeetingRequestModal, useMeetingRequest } from '../../../../../features/meeting-request';
 import { getMediaUrl } from '../../../../../shared/lib/get-media-url';
 
 type AnimalInfoSectionProps = {
@@ -153,6 +155,7 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 	const [activeImage, setActiveImage] = useState<string>(gallery[0] ?? '');
 	const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 	const dialogRef = useRef<HTMLDialogElement>(null);
+	const meetingRequest = useMeetingRequest(animal.id);
 
 	const status = animal.status;
 	const isPublished = status === AnimalStatusEnum.PUBLISHED;
@@ -225,6 +228,16 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 		animal.costOfGuardianship !== null && animal.costOfGuardianship > 0
 			? animal.costOfGuardianship.toLocaleString('ru-RU')
 			: null;
+
+	const openMeetingModal = (): void => {
+		if (animal.curatorId == null) {
+			toast.error(
+				`У ${animal.name} пока нет куратора, вы не сможете встретиться с ${animal.gender == AnimalGenderEnum.FEMALE ? 'ней' : 'ним'} лично`
+			);
+			return;
+		}
+		meetingRequest.open();
+	};
 
 	return (
 		<section className="flex flex-col gap-6">
@@ -391,6 +404,7 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 							{canMeet && (
 								<button
 									type="button"
+									onClick={openMeetingModal}
 									className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-(--color-border-soft) bg-(--color-surface-primary) px-5 text-sm font-bold text-(--color-text-primary) transition-all hover:bg-(--color-surface-secondary) active:scale-[0.985]">
 									Хочу {isFemale ? 'её' : 'его'} забрать
 								</button>
@@ -466,6 +480,16 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 					</div>
 				)}
 			</dialog>
+
+			<MeetingRequestModal
+				open={meetingRequest.isOpen}
+				onClose={meetingRequest.close}
+				animalName={animal.name}
+				form={meetingRequest.form}
+				mutation={meetingRequest.mutation}
+				step={meetingRequest.step}
+				onSubmit={meetingRequest.form.handleSubmit((values) => meetingRequest.mutation.mutate(values))}
+			/>
 		</section>
 	);
 };

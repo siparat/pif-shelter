@@ -4,9 +4,9 @@ import { createApiSuccessResponseSchema } from '../../common/base.responses';
 
 export const createMeetingRequestSchema = z.object({
 	animalId: z.uuid('Некорректный идентификатор животного'),
-	name: z.string().trim().min(2).max(120),
+	name: z.string().trim().min(2, 'Укажите ваше имя').max(120),
 	phone: phoneSchema,
-	email: z.email().trim().optional(),
+	email: z.email('Неверный почтовый адрес').trim().optional(),
 	comment: z.string().trim().max(1000).optional(),
 	meetingAt: z.iso.datetime('Некорректная дата встречи')
 });
