@@ -1,7 +1,14 @@
 import { JSX } from 'react';
 import { useTeamQuery } from '../../../../entities/team';
 import { shelterFinanceYears } from '../../../../shared/config/about';
-import { FinanceReportsSection, HistorySection, TeamSection, TimelineSection } from './sections';
+import {
+	FinanceReportsSection,
+	HistorySection,
+	MissionSection,
+	ShelterMapSection,
+	TeamSection,
+	TimelineSection
+} from './sections';
 
 const AboutPage = (): JSX.Element => {
 	const { data: teamMembers } = useTeamQuery();
@@ -9,6 +16,8 @@ const AboutPage = (): JSX.Element => {
 	return (
 		<div className="flex flex-col gap-16 md:gap-24">
 			<HistorySection />
+			<MissionSection />
+			<ShelterMapSection />
 			<TimelineSection />
 			<TeamSection teamMembers={teamMembers ?? []} />
 			<FinanceReportsSection years={shelterFinanceYears} />
