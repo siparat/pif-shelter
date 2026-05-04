@@ -1,4 +1,4 @@
-import { AtSign, HeartHandshake, Mail, MapPin, PawPrint, Phone, Send, ShieldCheck } from 'lucide-react';
+import { AtSign, HeartHandshake, HelpCircle, Mail, MapPin, PawPrint, Phone, Send, ShieldCheck } from 'lucide-react';
 import { JSX } from 'react';
 import { Link } from 'react-router-dom';
 import { footerAuthor, footerContacts, footerContactsTitle, footerSocialLinks } from '../../../../shared/config/footer';
@@ -104,6 +104,15 @@ export const Footer = (): JSX.Element => {
 						<div>
 							<h3 className="mb-3 text-[16px] font-semibold">Документы</h3>
 							<ul className="space-y-2">
+								<li>
+									<Link
+										to={ROUTES.faq}
+										className="inline-flex items-center gap-2 text-[14px] font-semibold opacity-90 transition-opacity hover:opacity-100"
+										onClick={() => window.scrollTo(0, 0)}>
+										<HelpCircle size={14} className="shrink-0" />
+										<span>Частые вопросы</span>
+									</Link>
+								</li>
 								<li>
 									<Link
 										to={ROUTES.privacy}

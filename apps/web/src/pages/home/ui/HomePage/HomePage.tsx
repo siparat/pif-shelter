@@ -8,6 +8,7 @@ import { HelpCtaSection } from '../../../../widgets/help-cta';
 import { UrgentCampaignsSection } from '../../../../widgets/urgent-campaigns';
 import { AboutSection } from './About/AboutSection';
 import { DonationsSections } from './Donations/DonationsSection';
+import { HomeFaqSection } from './Faq/HomeFaqSection';
 
 const VkIcon = ({ size = 24 }: { size?: number }): JSX.Element => (
 	<svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -134,6 +135,7 @@ const HomePage = (): JSX.Element => {
 			<AnimalsPreviewSection />
 			<DonationsSections />
 			<HelpCtaSection />
+			<HomeFaqSection />
 		</>
 	);
 };

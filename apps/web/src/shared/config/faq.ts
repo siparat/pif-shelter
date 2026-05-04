@@ -17,7 +17,7 @@ export const faqTopicLabels: Record<FaqTopic, string> = {
 	shelter: 'О приюте'
 };
 
-export const faqItems: FaqItem[] = [
+export const faqItems = [
 	{
 		id: 'money-flow',
 		question: 'Куда уходят деньги?',
@@ -132,7 +132,7 @@ export const faqItems: FaqItem[] = [
 		answer: 'Обычно это связано с изменением статуса, временной паузой в пристройстве или переносом карточки в другой раздел. Если животное важно именно для вас, лучше уточнить актуальный статус у команды приюта.',
 		topics: ['technical', 'shelter']
 	}
-];
+] satisfies FaqItem[];
 
 export const guardianshipFaqItems: FaqItem[] = [
 	{

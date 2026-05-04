@@ -14,7 +14,8 @@ export type RouteKey =
 	| 'guardianship'
 	| 'privacy'
 	| 'terms'
-	| 'cookies';
+	| 'cookies'
+	| 'faq';
 
 export type WebRoute = {
 	key: RouteKey;
@@ -143,6 +144,15 @@ export const webRoutes: WebRoute[] = [
 		Icon: Ban,
 		showInMenu: false,
 		preload: () => import('../../pages/cookies/ui/CookiesPage/CookiesPage')
+	},
+	{
+		key: 'faq',
+		path: '/faq',
+		name: 'Частые вопросы',
+		shortName: 'FAQ',
+		Icon: Ban,
+		showInMenu: false,
+		preload: () => import('../../pages/faq/ui/FaqPage/FaqPage')
 	}
 ];
 

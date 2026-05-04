@@ -19,6 +19,7 @@ const GuardianshipPage = lazy(() => import('../pages/guardianship/ui/Guardianshi
 const PrivacyPage = lazy(() => import('../pages/privacy/ui/PrivacyPage/PrivacyPage'));
 const TermsPage = lazy(() => import('../pages/terms/ui/TermsPage/TermsPage'));
 const CookiesPage = lazy(() => import('../pages/cookies/ui/CookiesPage/CookiesPage'));
+const FaqPage = lazy(() => import('../pages/faq/ui/FaqPage/FaqPage'));
 
 const PageFallback = (): JSX.Element => (
 	<div className="flex min-h-[60vh] items-center justify-center">
@@ -50,7 +51,8 @@ const routeComponentByPath: Record<string, JSX.Element> = {
 	[ROUTES.guardianship]: <GuardianshipPage />,
 	[ROUTES.privacy]: <PrivacyPage />,
 	[ROUTES.terms]: <TermsPage />,
-	[ROUTES.cookies]: <CookiesPage />
+	[ROUTES.cookies]: <CookiesPage />,
+	[ROUTES.faq]: <FaqPage />
 };
 
 export const router = createBrowserRouter([

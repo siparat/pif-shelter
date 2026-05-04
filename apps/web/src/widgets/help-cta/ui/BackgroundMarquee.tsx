@@ -9,8 +9,9 @@ const outlineStyle = {
 
 export const BackgroundMarquee = (): JSX.Element => (
 	<div className="font-[Arial] absolute inset-0 overflow-hidden pointer-events-none select-none flex flex-col justify-around py-8 pt-[10%]">
-		{helpOptions.map(({ title }, i) => (
+		{helpOptions.map(({ title, id }, i) => (
 			<div
+				key={id}
 				className={cn(
 					'flex w-max',
 					i % 2 ? 'animate-[marquee-reverse_60s_linear_infinite]' : 'animate-[marquee_60s_linear_infinite]'

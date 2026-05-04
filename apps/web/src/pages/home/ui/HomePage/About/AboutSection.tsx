@@ -8,7 +8,7 @@ export const AboutSection = (): JSX.Element => {
 	const { ref: statsRef, inView: statsInView } = useInView();
 
 	return (
-		<section className="w-full px-4 md:px-12 xl:px-12 py-24 mx-auto max-w-[1920px]">
+		<section className="w-full px-4 md:px-12 xl:px-12 py-24 mx-auto max-w-[1920px] overflow-hidden">
 			<div
 				ref={cardsRef as React.RefObject<HTMLDivElement>}
 				className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
