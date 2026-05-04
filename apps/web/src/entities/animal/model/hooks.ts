@@ -7,8 +7,8 @@ import {
 	useQuery,
 	UseQueryResult
 } from '@tanstack/react-query';
-import { listAnimals, ListAnimalsParams } from '../api/animal.api';
-import { AnimalSummary } from './types';
+import { getAnimalById, listAnimals, ListAnimalsParams } from '../api/animal.api';
+import { AnimalDetails, AnimalSummary } from './types';
 
 const ANIMALS_PER_PAGE = 24;
 
@@ -17,8 +17,17 @@ export type PublicAnimalsFilters = Omit<Partial<ListAnimalsParams>, 'page' | 'pe
 export const animalQueryKeys = {
 	root: ['animals'] as const,
 	list: (filters: PublicAnimalsFilters) => [...animalQueryKeys.root, 'list', filters] as const,
-	count: (species: AnimalSpeciesEnum | 'all') => [...animalQueryKeys.root, 'count', species] as const
+	count: (species: AnimalSpeciesEnum | 'all') => [...animalQueryKeys.root, 'count', species] as const,
+	detail: (id: string) => [...animalQueryKeys.root, 'detail', id] as const
 };
+
+export const useAnimalQuery = (id: string | undefined): UseQueryResult<AnimalDetails, Error> =>
+	useQuery({
+		queryKey: animalQueryKeys.detail(id ?? ''),
+		queryFn: () => getAnimalById(id as string),
+		enabled: !!id,
+		staleTime: 60 * 1000
+	});
 
 export const useAnimalsInfiniteQuery = (
 	filters: PublicAnimalsFilters

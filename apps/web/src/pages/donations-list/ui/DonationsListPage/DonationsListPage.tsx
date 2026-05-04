@@ -114,7 +114,6 @@ const DonationsListPage = (): JSX.Element => {
 
 	return (
 		<div className="flex flex-col gap-5 pb-10 md:gap-6">
-			{/* Hero */}
 			<section className="flex flex-col gap-1 pt-2">
 				<p className="eyebrow text-(--color-brand-accent)">Публичная отчётность</p>
 				<h1 className="text-3xl font-black tracking-tight text-(--color-text-primary) md:text-4xl">
@@ -126,7 +125,6 @@ const DonationsListPage = (): JSX.Element => {
 				</p>
 			</section>
 
-			{/* Stats */}
 			<section className="grid grid-cols-2 divide-x divide-y divide-(--color-border-soft) overflow-hidden rounded-2xl border border-(--color-border-soft) bg-(--color-surface-primary) md:grid-cols-4 md:divide-y-0">
 				{[
 					{ value: summary.totalCount.toLocaleString('ru-RU'), label: 'Пожертвований', sub: 'за период' },
@@ -148,7 +146,6 @@ const DonationsListPage = (): JSX.Element => {
 				))}
 			</section>
 
-			{/* Top donation */}
 			{topDonation && (
 				<section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3">
 					<div className="flex items-center gap-2">
@@ -170,7 +167,6 @@ const DonationsListPage = (): JSX.Element => {
 				</section>
 			)}
 
-			{/* Filters */}
 			<section className="rounded-2xl border border-(--color-border-soft) bg-(--color-surface-primary) p-4">
 				<div className="grid grid-cols-2 gap-3 md:grid-cols-4">
 					<SelectField label="Месяц" icon={CalendarDays} value={month} onChange={(v) => setMonth(Number(v))}>
@@ -213,7 +209,6 @@ const DonationsListPage = (): JSX.Element => {
 				</div>
 			</section>
 
-			{/* States */}
 			{ledgerQuery.isLoading && (
 				<p className="py-10 text-center text-sm text-(--color-text-secondary)">Загружаем пожертвования…</p>
 			)}
@@ -236,10 +231,8 @@ const DonationsListPage = (): JSX.Element => {
 				</p>
 			)}
 
-			{/* List */}
 			{filteredRows.length > 0 && (
 				<section className="flex flex-col gap-2">
-					{/* Desktop header */}
 					<div className="hidden grid-cols-[1.4fr_1fr_0.7fr_0.9fr_1.6fr] gap-4 px-4 text-[11px] font-bold uppercase tracking-widest text-(--color-text-secondary) md:grid">
 						<span>Дата</span>
 						<span>Имя</span>
@@ -255,7 +248,6 @@ const DonationsListPage = (): JSX.Element => {
 							<div
 								key={row.id}
 								className="grid grid-cols-1 gap-2 rounded-2xl border border-(--color-border-soft) bg-(--color-surface-primary) p-4 transition-colors hover:bg-(--color-surface-secondary) md:grid-cols-[1.4fr_1fr_0.7fr_0.9fr_1.6fr] md:items-center md:gap-4">
-								{/* Date */}
 								<div className="flex items-center justify-between md:block">
 									<span className="text-[11px] font-bold uppercase tracking-widest text-(--color-text-secondary) md:hidden">
 										Дата
@@ -268,7 +260,6 @@ const DonationsListPage = (): JSX.Element => {
 									</span>
 								</div>
 
-								{/* Name */}
 								<div className="flex items-center justify-between md:block">
 									<span className="text-[11px] font-bold uppercase tracking-widest text-(--color-text-secondary) md:hidden">
 										Имя
@@ -276,7 +267,6 @@ const DonationsListPage = (): JSX.Element => {
 									<span className="text-sm font-semibold text-(--color-text-primary)">{name}</span>
 								</div>
 
-								{/* Type */}
 								<div className="flex items-center justify-between md:block">
 									<span className="text-[11px] font-bold uppercase tracking-widest text-(--color-text-secondary) md:hidden">
 										Тип
@@ -287,7 +277,6 @@ const DonationsListPage = (): JSX.Element => {
 									</span>
 								</div>
 
-								{/* Amount */}
 								<div className="flex items-center justify-between md:block">
 									<span className="text-[11px] font-bold uppercase tracking-widest text-(--color-text-secondary) md:hidden">
 										Сумма
@@ -297,7 +286,6 @@ const DonationsListPage = (): JSX.Element => {
 									</span>
 								</div>
 
-								{/* Campaign */}
 								<div className="flex items-center justify-between md:block">
 									<span className="text-[11px] font-bold uppercase tracking-widest text-(--color-text-secondary) md:hidden">
 										Сбор

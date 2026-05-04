@@ -18,6 +18,8 @@ export class GetAnimalByIdHandler implements IQueryHandler<GetAnimalByIdQuery> {
 			throw new AnimalNotFoundException(query.id);
 		}
 
-		return animal;
+		const guardianshipCost = Number(animal.costOfGuardianship);
+
+		return { ...animal, costOfGuardianship: Number.isNaN(guardianshipCost) ? null : guardianshipCost };
 	}
 }
