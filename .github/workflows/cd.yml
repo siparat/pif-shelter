@@ -37,6 +37,7 @@ jobs:
                       BASE_URL="https://${{ secrets.DOMAIN }}"
                       APP_BASE_URL="https://${{ secrets.DOMAIN }}"
                       ADMIN_BASE_URL="https://${{ secrets.ADMIN_DOMAIN }}"
+                      API_PUBLIC_PREFIX="${{ vars.API_PUBLIC_PREFIX }}"
 
                       SMTP_PASSWORD="${{ secrets.SMTP_PASS }}"
                       SMTP_HOST="${{ vars.SMTP_HOST }}"
@@ -83,7 +84,7 @@ jobs:
                       mkdir -p envs
 
                       cat > envs/.admin.env <<EOF
-                        VITE_API_URL="https://${{ secrets.DOMAIN }}/v1"
+                        VITE_API_URL="https://${{ secrets.DOMAIN }}${{ vars.API_PUBLIC_PREFIX }}"
                         VITE_BUCKET_HOST="${{ vars.S3_PUBLIC_ENDPOINT }}"
                       EOF
 
@@ -99,7 +100,7 @@ jobs:
                       mkdir -p envs
 
                       cat > envs/.web.env <<EOF
-                        VITE_API_URL="https://${{ secrets.DOMAIN }}/v1"
+                        VITE_API_URL="https://${{ secrets.DOMAIN }}${{ vars.API_PUBLIC_PREFIX }}"
                         VITE_BUCKET_HOST="${{ vars.S3_PUBLIC_ENDPOINT }}"
                         VITE_SITE_URL="https://${{ secrets.DOMAIN }}"
                         VITE_SHELTER_FINANCE_START_YEAR="${{ vars.FINANCE_START_YEAR }}"
@@ -189,7 +190,7 @@ jobs:
                                         proxy_set_header X-Forwarded-Proto \$scheme;
                                     }
 
-                                    location /v1/ {
+                                    location ${{ vars.API_PUBLIC_PREFIX }}/ {
                                         proxy_pass http://api:3000/;
                                         proxy_set_header Host \$host;
                                         proxy_set_header X-Real-IP \$remote_addr;

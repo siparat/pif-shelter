@@ -55,7 +55,12 @@ async function bootstrap(): Promise<void> {
 			handleBetterAuthRequest(auth, req as unknown as FastifyRequest, rep as unknown as FastifyReply)
 	});
 
-	const config = new DocumentBuilder().setTitle('ПИФ API').setVersion('0.1').build();
+	const swaggerBuilder = new DocumentBuilder().setTitle('ПИФ API').setVersion('0.1');
+
+	const publicPrefix = app.get(ConfigService).get<string>('API_PUBLIC_PREFIX');
+	if (publicPrefix && process.env.NODE_ENV == 'production') swaggerBuilder.addServer(publicPrefix);
+
+	const config = swaggerBuilder.build();
 	const document = SwaggerModule.createDocument(app, config, {
 		extraModels: [createZodDto(apiErrorSchema)]
 	});

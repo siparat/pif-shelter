@@ -38,7 +38,8 @@ export const envSchema = z.object({
 	BOT_HELP_CONTACTS: z.string().optional(),
 	BOT_HELP_ADDRESS: z.string().optional(),
 	BOT_HELP_VISITING_RULES: z.string().optional(),
-	BOT_HELP_SITE_URL: z.string().optional()
+	BOT_HELP_SITE_URL: z.string().optional(),
+	API_PUBLIC_PREFIX: z.string().optional()
 });
 
 export type Env = z.infer<typeof envSchema>;
