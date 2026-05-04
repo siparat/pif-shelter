@@ -2,15 +2,19 @@ import { AnimalCoatNames, AnimalGenderEnum, AnimalSizeNames, AnimalStatusEnum, f
 import {
 	Cake,
 	Calendar,
+	ChevronLeft,
+	ChevronRight,
 	HeartHandshake,
 	MapPin,
 	PawPrint,
 	Scissors,
 	ShieldCheck,
 	Sparkles,
-	Syringe
+	Syringe,
+	X,
+	ZoomIn
 } from 'lucide-react';
-import { JSX, useState } from 'react';
+import { JSX, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { AnimalDetails } from '../../../../../entities/animal';
 import { getMediaUrl } from '../../../../../shared/lib/get-media-url';
 
@@ -24,6 +28,46 @@ const formatBirthDate = (iso: string): string =>
 export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Element => {
 	const gallery = [animal.avatarUrl, ...(animal.galleryUrls ?? [])].filter((url): url is string => !!url);
 	const [activeImage, setActiveImage] = useState<string>(gallery[0] ?? '');
+	const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+	const dialogRef = useRef<HTMLDialogElement>(null);
+
+	const openLightbox = useCallback(
+		(url: string): void => {
+			const idx = gallery.indexOf(url);
+			setLightboxIndex(idx >= 0 ? idx : 0);
+			dialogRef.current?.showModal();
+		},
+		[gallery]
+	);
+
+	const closeLightbox = useCallback((): void => {
+		dialogRef.current?.close();
+		setLightboxIndex(null);
+	}, []);
+
+	const goPrev = useCallback((): void => {
+		setLightboxIndex((i) => (i === null ? 0 : (i - 1 + gallery.length) % gallery.length));
+	}, [gallery.length]);
+
+	const goNext = useCallback((): void => {
+		setLightboxIndex((i) => (i === null ? 0 : (i + 1) % gallery.length));
+	}, [gallery.length]);
+
+	const handleDialogKeyDown = useCallback(
+		(e: KeyboardEvent<HTMLDialogElement>): void => {
+			if (e.key === 'ArrowLeft') goPrev();
+			if (e.key === 'ArrowRight') goNext();
+		},
+		[goPrev, goNext]
+	);
+
+	useEffect(() => {
+		const dialog = dialogRef.current;
+		if (!dialog) return;
+		const onClose = (): void => setLightboxIndex(null);
+		dialog.addEventListener('close', onClose);
+		return () => dialog.removeEventListener('close', onClose);
+	}, []);
 
 	const isFemale = animal.gender === AnimalGenderEnum.FEMALE;
 	const sizeLabel = AnimalSizeNames[animal.size][animal.gender];
@@ -54,13 +98,24 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 		<section className="flex flex-col gap-6">
 			<div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start">
 				<div className="flex flex-col gap-3">
-					<div className="relative aspect-4/3 overflow-hidden rounded-3xl bg-(--color-brand-brown-soft) shadow-[0_18px_42px_rgba(79,61,56,0.14)]">
+					<div className="group relative aspect-4/3 overflow-hidden rounded-3xl bg-(--color-brand-brown-soft) shadow-[0_18px_42px_rgba(79,61,56,0.14)]">
 						{activeImage ? (
-							<img
-								src={getMediaUrl(activeImage)}
-								alt={animal.name}
-								className="h-full w-full object-cover"
-							/>
+							<>
+								<img
+									src={getMediaUrl(activeImage)}
+									alt={animal.name}
+									className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+								/>
+								<button
+									type="button"
+									onClick={() => openLightbox(activeImage)}
+									aria-label="Открыть фото"
+									className="absolute inset-0 flex cursor-zoom-in items-center justify-center bg-black/0 transition-colors duration-200 group-hover:bg-black/10">
+									<span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40 opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
+										<ZoomIn className="h-5 w-5 text-white" />
+									</span>
+								</button>
+							</>
 						) : (
 							<div className="flex h-full w-full items-center justify-center text-(--color-text-secondary)">
 								<PawPrint size={64} strokeWidth={1.4} />
@@ -199,6 +254,65 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 					</div>
 				</div>
 			</div>
+
+			<dialog
+				ref={dialogRef}
+				onKeyDown={handleDialogKeyDown}
+				className="fixed inset-0 z-200 m-0 h-full max-h-none w-full max-w-none overflow-hidden bg-transparent p-0 backdrop:bg-black/85 backdrop:backdrop-blur-md">
+				{lightboxIndex !== null && gallery[lightboxIndex] && (
+					<div
+						className="flex h-full w-full items-center justify-center px-4 py-16 sm:px-20"
+						onClick={(e) => e.target === e.currentTarget && closeLightbox()}>
+						<img
+							src={getMediaUrl(gallery[lightboxIndex])}
+							alt={`${animal.name} — фото ${lightboxIndex + 1}`}
+							className="max-h-full max-w-full rounded-2xl object-contain shadow-[0_32px_64px_rgba(0,0,0,0.6)]"
+						/>
+
+						<button
+							type="button"
+							onClick={closeLightbox}
+							aria-label="Закрыть"
+							className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20 sm:right-6 sm:top-6">
+							<X className="h-5 w-5" />
+						</button>
+
+						{gallery.length > 1 && (
+							<>
+								<button
+									type="button"
+									onClick={goPrev}
+									aria-label="Предыдущее фото"
+									className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20 sm:left-6">
+									<ChevronLeft className="h-6 w-6" />
+								</button>
+								<button
+									type="button"
+									onClick={goNext}
+									aria-label="Следующее фото"
+									className="absolute right-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20 sm:right-6">
+									<ChevronRight className="h-6 w-6" />
+								</button>
+								<div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-1.5">
+									{gallery.map((_, i) => (
+										<button
+											key={i}
+											type="button"
+											onClick={() => setLightboxIndex(i)}
+											aria-label={`Фото ${i + 1}`}
+											className={`h-1.5 rounded-full transition-all duration-200 ${
+												i === lightboxIndex
+													? 'w-5 bg-white'
+													: 'w-1.5 bg-white/40 hover:bg-white/70'
+											}`}
+										/>
+									))}
+								</div>
+							</>
+						)}
+					</div>
+				)}
+			</dialog>
 		</section>
 	);
 };
