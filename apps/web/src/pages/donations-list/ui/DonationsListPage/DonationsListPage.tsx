@@ -291,7 +291,9 @@ const DonationsListPage = (): JSX.Element => {
 										Сбор
 									</span>
 									<span className="text-sm text-(--color-text-secondary) md:truncate">
-										{row.campaignTitle ?? '—'}
+										{row.campaignTitle ??
+											(row.source == LedgerEntrySourceEnum.GUARDIANSHIP && row.title) ??
+											'—'}
 									</span>
 								</div>
 							</div>
