@@ -15,8 +15,8 @@ const formSchema = startGuardianshipRequestSchema.omit({ animalId: true });
 type FormValues = z.infer<typeof formSchema>;
 
 const authFormSchema = z.object({
-	email: z.string().email('Неверный почтовый адрес').trim(),
-	password: z.string().min(1, 'Введите пароль')
+	email: z.email('Неверный почтовый адрес').trim(),
+	password: z.string().min(4, 'Введите пароль')
 });
 type AuthFormValues = z.infer<typeof authFormSchema>;
 
@@ -93,7 +93,9 @@ export const useGuardianshipRequest = (
 		mutationFn: async (values) => {
 			await signInEmail({ email: values.email, password: values.password });
 			const response = await startAuthenticatedGuardianshipRequest(animalId);
-			await confirmPayment(response.guardianshipId);
+			const subscriptionId =
+				new URLSearchParams(response.paymentUrl.split('?').pop()).get('transaction-id') || '';
+			await confirmPayment(subscriptionId);
 			setPaymentUrl(response.paymentUrl);
 		},
 		onSuccess: () => {

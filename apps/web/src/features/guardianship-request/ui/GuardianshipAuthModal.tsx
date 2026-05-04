@@ -94,7 +94,7 @@ export const GuardianshipAuthModal = ({
 				<div className="relative px-5 py-5 sm:px-6">
 					<form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
 						<p className="text-sm leading-relaxed text-(--color-text-secondary)">
-							Введите данные своего аккаунта, чтобы оформить опекунство.
+							Введите данные своего аккаунта из ранее отправленного письма, чтобы оформить опекунство.
 						</p>
 
 						<div>

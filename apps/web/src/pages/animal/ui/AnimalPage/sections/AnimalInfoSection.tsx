@@ -6,6 +6,7 @@ import {
 	AnimalStatusNames,
 	formatAnimalAge
 } from '@pif/shared';
+import { useGuardianshipByAnimalQuery } from '../../../../../entities/guardianship';
 import {
 	Cake,
 	Calendar,
@@ -162,6 +163,7 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 	const dialogRef = useRef<HTMLDialogElement>(null);
 	const meetingRequest = useMeetingRequest(animal.id);
 	const guardianshipRequest = useGuardianshipRequest(animal.id, animal.costOfGuardianship);
+	const { data: guardianship } = useGuardianshipByAnimalQuery(animal.id);
 
 	const status = animal.status;
 	const isPublished = status === AnimalStatusEnum.PUBLISHED;
@@ -246,6 +248,14 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 	};
 
 	const openGuardianshipModal = (): void => {
+		if (guardianship) {
+			toast.error(`У ${animal.name} уже есть опекун ${guardianship.guardian.name}`);
+			return;
+		}
+		if (!animal.costOfGuardianship) {
+			toast.error(`Для ${animal.name} функционал опекунства отключён`);
+			return;
+		}
 		guardianshipRequest.open();
 	};
 
@@ -500,10 +510,7 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 				onSubmit={meetingRequest.form.handleSubmit((values) => meetingRequest.mutation.mutate(values))}
 			/>
 
-			<GuardianshipAuthModal authForm={guardianshipRequest} />
-
 			<GuardianshipRequestModal
-				onAuthOpen={() => console.log(123123)}
 				open={guardianshipRequest.isOpen}
 				onClose={guardianshipRequest.close}
 				animalName={animal.name}
@@ -512,8 +519,20 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 				mutation={guardianshipRequest.mutation}
 				step={guardianshipRequest.step}
 				paymentUrl={guardianshipRequest.paymentUrl}
+				onAuthOpen={guardianshipRequest.openAuthModal}
 				onSubmit={guardianshipRequest.form.handleSubmit((values) =>
 					guardianshipRequest.mutation.mutate(values)
+				)}
+			/>
+
+			<GuardianshipAuthModal
+				open={guardianshipRequest.isAuthModalOpen}
+				onClose={guardianshipRequest.closeAuthModal}
+				animalName={animal.name}
+				authForm={guardianshipRequest.authForm}
+				authMutation={guardianshipRequest.authMutation}
+				onSubmit={guardianshipRequest.authForm.handleSubmit((values) =>
+					guardianshipRequest.authMutation.mutate(values)
 				)}
 			/>
 		</section>

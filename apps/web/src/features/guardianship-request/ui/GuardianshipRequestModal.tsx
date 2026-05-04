@@ -122,6 +122,12 @@ export const GuardianshipRequestModal = ({
 								<HeartHandshake className="h-5 w-5" aria-hidden />
 								Войти в аккаунт
 							</button>
+							<button
+								type="button"
+								onClick={onClose}
+								className="inline-flex h-10 items-center justify-center rounded-full border border-(--color-border-soft) bg-(--color-surface-secondary) px-6 font-semibold text-(--color-text-primary) transition-colors hover:bg-(--color-surface-primary)">
+								Закрыть
+							</button>
 						</div>
 					) : step === 'success' ? (
 						<div className="flex flex-col items-center gap-4 py-8 text-center">
@@ -136,7 +142,7 @@ export const GuardianshipRequestModal = ({
 							<button
 								type="button"
 								onClick={onClose}
-								className="h-10 w-full items-center justify-center rounded-full border border-(--color-border-soft) bg-(--color-surface-secondary) px-6 font-semibold text-(--color-text-primary) transition-colors hover:bg-(--color-surface-primary)">
+								className="inline-flex h-10 w-full items-center justify-center rounded-full border border-(--color-border-soft) bg-(--color-surface-secondary) px-6 font-semibold text-(--color-text-primary) transition-colors hover:bg-(--color-surface-primary)">
 								Закрыть
 							</button>
 						</div>
@@ -172,7 +178,7 @@ export const GuardianshipRequestModal = ({
 
 							<div>
 								<label htmlFor="gr-telegram" className={labelClass}>
-									Telegram
+									Telegram (необязательно)
 								</label>
 								<input
 									id="gr-telegram"

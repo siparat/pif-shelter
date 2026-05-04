@@ -15,7 +15,6 @@ export const createAuth = (config: ConfigService, db: NodePgDatabase<typeof sche
 		basePath: AUTH_PREFIX,
 		database: drizzleAdapter(db, { provider: 'pg', usePlural: true }),
 		advanced: { cookiePrefix: 'auth', crossSubDomainCookies: { enabled: true } },
-		baseURL: config.getOrThrow('BASE_URL'),
 		trustedOrigins: config.getOrThrow<string>('ALLOWED_ORIGINS').split(','),
 		logger: { disabled: true },
 		emailAndPassword: {

@@ -1,8 +1,8 @@
 import { donationAmountKopecksSchema } from '@pif/contracts';
 import { LedgerEntryDirectionEnum, LedgerEntrySourceEnum } from '@pif/shared';
 import {
-	useQueries,
 	useMutation,
+	useQueries,
 	useQuery,
 	useQueryClient,
 	type UseMutationResult,
@@ -89,12 +89,7 @@ export const useDonationLedgerQuery = (year: number, month: number): UseQueryRes
 		queryFn: () => getPublicMonthlyLedger({ year, month }),
 		select: (rows) =>
 			rows
-				.filter(
-					(e) =>
-						e.direction === LedgerEntryDirectionEnum.INCOME &&
-						(e.source === LedgerEntrySourceEnum.DONATION_ONE_OFF ||
-							e.source === LedgerEntrySourceEnum.DONATION_SUBSCRIPTION)
-				)
+				.filter((e) => e.direction === LedgerEntryDirectionEnum.INCOME)
 				.sort((a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime()),
 		staleTime: 60 * 1000
 	});
