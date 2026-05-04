@@ -26,9 +26,11 @@ const PersonRow = ({
 	telegram?: string | null;
 }): JSX.Element => (
 	<div className="flex items-center gap-4">
-		<div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-(--color-border-soft) bg-(--color-brand-brown-soft)">
+		<div className="relative h-14 w-14 shrink-0 border-2 rounded-full border-(--color-border-soft) bg-(--color-brand-brown-soft)">
 			{avatarUrl ? (
-				<img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+				<div className="overflow-hidden w-full h-full rounded-full">
+					<img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+				</div>
 			) : (
 				<div className="flex h-full w-full items-center justify-center">
 					<User className="h-6 w-6 text-(--color-text-secondary)" />

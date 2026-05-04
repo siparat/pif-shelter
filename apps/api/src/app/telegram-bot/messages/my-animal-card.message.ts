@@ -65,7 +65,7 @@ export const sendMyAnimalCardMessage = async (ctx: Context, props: IMyAnimalCard
 	];
 	if (props.curator?.telegram) {
 		buttons.push([
-			Markup.button.url('💬 Связаться с волонтером', TelegramUrlMapper.getUserUrl(props.curator.telegram))
+			Markup.button.url('💬 Связаться с куратором', TelegramUrlMapper.getUserUrl(props.curator.telegram))
 		]);
 	}
 	const replyMarkup = buttons.length > 0 ? Markup.inlineKeyboard(buttons) : undefined;

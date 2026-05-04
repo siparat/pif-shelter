@@ -6,12 +6,11 @@ import { useForm, type UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { createMeetingRequest } from '../api/meeting-request.api';
 
-// Form schema for collecting separate date and time inputs
 const formSchema = z.object({
 	animalId: z.uuid('Некорректный идентификатор животного'),
 	name: z.string().trim().min(2, 'Укажите ваше имя').max(120),
 	phone: phoneSchema,
-	email: z.string().email('Неверный почтовый адрес').trim().optional().or(z.literal('')),
+	email: z.email('Неверный почтовый адрес').trim().optional().or(z.literal('')),
 	comment: z.string().trim().max(1000).optional().or(z.literal('')),
 	meetingDate: z.string().min(1, 'Выберите дату встречи'),
 	meetingTime: z.string().min(1, 'Выберите время встречи')
@@ -47,9 +46,6 @@ export const useMeetingRequest = (animalId: string): UseMeetingRequestReturn => 
 
 	const mutation = useMutation<{ id: string }, Error, FormValues>({
 		mutationFn: async (values) => {
-			// Combine date and time into ISO datetime
-			// The date/time inputs are in local timezone, so we create a Date object
-			// and convert it to UTC using toISOString()
 			const [year, month, day] = values.meetingDate.split('-').map(Number);
 			const [hours, minutes] = values.meetingTime.split(':').map(Number);
 			const localDate = new Date(year, month - 1, day, hours, minutes, 0);

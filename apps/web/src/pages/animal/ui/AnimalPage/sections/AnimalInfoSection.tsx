@@ -26,6 +26,11 @@ import {
 import { JSX, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { AnimalDetails } from '../../../../../entities/animal';
+import {
+	GuardianshipAuthModal,
+	GuardianshipRequestModal,
+	useGuardianshipRequest
+} from '../../../../../features/guardianship-request';
 import { MeetingRequestModal, useMeetingRequest } from '../../../../../features/meeting-request';
 import { getMediaUrl } from '../../../../../shared/lib/get-media-url';
 
@@ -156,6 +161,7 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 	const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 	const dialogRef = useRef<HTMLDialogElement>(null);
 	const meetingRequest = useMeetingRequest(animal.id);
+	const guardianshipRequest = useGuardianshipRequest(animal.id, animal.costOfGuardianship);
 
 	const status = animal.status;
 	const isPublished = status === AnimalStatusEnum.PUBLISHED;
@@ -239,6 +245,10 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 		meetingRequest.open();
 	};
 
+	const openGuardianshipModal = (): void => {
+		guardianshipRequest.open();
+	};
+
 	return (
 		<section className="flex flex-col gap-6">
 			<div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start">
@@ -267,7 +277,7 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 								<PawPrint size={64} strokeWidth={1.4} />
 							</div>
 						)}
-						<div className="absolute left-4 top-4 flex flex-wrap gap-1.5">
+						<div className="absolute left-4 top-4 flex flex-wrap gap-1.5 mr-36">
 							{(animal.labels ?? []).map((label) => (
 								<span
 									key={label.id}
@@ -412,6 +422,7 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 							{canGuard && (
 								<button
 									type="button"
+									onClick={openGuardianshipModal}
 									className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-(--color-brand-accent) px-5 text-sm font-bold text-white shadow-[0_12px_24px_rgba(254,134,81,0.3)] transition-[transform,filter] hover:brightness-105 active:scale-[0.985]">
 									<HeartHandshake className="h-4 w-4" />
 									Стать опекуном
@@ -421,7 +432,6 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 					)}
 				</div>
 			</div>
-
 			<dialog
 				ref={dialogRef}
 				onKeyDown={handleDialogKeyDown}
@@ -480,7 +490,6 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 					</div>
 				)}
 			</dialog>
-
 			<MeetingRequestModal
 				open={meetingRequest.isOpen}
 				onClose={meetingRequest.close}
@@ -489,6 +498,23 @@ export const AnimalInfoSection = ({ animal }: AnimalInfoSectionProps): JSX.Eleme
 				mutation={meetingRequest.mutation}
 				step={meetingRequest.step}
 				onSubmit={meetingRequest.form.handleSubmit((values) => meetingRequest.mutation.mutate(values))}
+			/>
+
+			<GuardianshipAuthModal authForm={guardianshipRequest} />
+
+			<GuardianshipRequestModal
+				onAuthOpen={() => console.log(123123)}
+				open={guardianshipRequest.isOpen}
+				onClose={guardianshipRequest.close}
+				animalName={animal.name}
+				costOfGuardianship={animal.costOfGuardianship}
+				form={guardianshipRequest.form}
+				mutation={guardianshipRequest.mutation}
+				step={guardianshipRequest.step}
+				paymentUrl={guardianshipRequest.paymentUrl}
+				onSubmit={guardianshipRequest.form.handleSubmit((values) =>
+					guardianshipRequest.mutation.mutate(values)
+				)}
 			/>
 		</section>
 	);
