@@ -51,14 +51,14 @@ export const useAnimalsCountQuery = (species?: AnimalSpeciesEnum): UseQueryResul
 		staleTime: 5 * 60 * 1000
 	});
 
-export const useAnimalsPreviewQuery = (): UseQueryResult<AnimalSummary[], Error> =>
+export const useAnimalsPreviewQuery = (perRow: number): UseQueryResult<AnimalSummary[], Error> =>
 	useQuery({
 		queryKey: [...animalQueryKeys.root, 'preview'],
 		queryFn: async () => {
 			const result = await listAnimals({
 				status: AnimalStatusEnum.PUBLISHED,
 				page: 1,
-				perPage: 24,
+				perPage: perRow,
 				sort: 'createdAt:asc'
 			});
 			return [...result.data].reverse();

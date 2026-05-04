@@ -5,7 +5,7 @@ import { AnimalMarqueeCard, useAnimalsPreviewQuery } from '../../../entities/ani
 import { ROUTES } from '../../../shared/config/routes';
 import { useInView } from '../../../shared/lib/use-in-view';
 
-const ROW_LENGTH = 12;
+const ROW_LENGTH = 24;
 
 const SkeletonRow = (): JSX.Element => (
 	<div className="flex gap-4 w-max">
@@ -20,7 +20,7 @@ const SkeletonRow = (): JSX.Element => (
 
 export const AnimalsPreviewSection = (): JSX.Element => {
 	const { ref: headerRef, inView: headerInView } = useInView();
-	const animalsQuery = useAnimalsPreviewQuery();
+	const animalsQuery = useAnimalsPreviewQuery(ROW_LENGTH);
 	const animals = animalsQuery.data ?? [];
 
 	const [row1, row2] = useMemo(() => {
