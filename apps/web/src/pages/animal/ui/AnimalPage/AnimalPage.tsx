@@ -1,7 +1,7 @@
 import { JSX } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAnimalQuery } from '../../../../entities/animal';
-import { AnimalInfoSection, PeopleSection } from './sections';
+import { AnimalInfoSection, PeopleSection, PostsTimelineSection } from './sections';
 
 const AnimalPage = (): JSX.Element => {
 	const { slug } = useParams<{ slug: string }>();
@@ -33,6 +33,11 @@ const AnimalPage = (): JSX.Element => {
 		<div className="flex flex-col gap-8 pb-10 md:gap-12">
 			<AnimalInfoSection animal={animalQuery.data} />
 			<PeopleSection animalId={animalQuery.data.id} curatorId={animalQuery.data.curatorId} />
+			<PostsTimelineSection
+				animalId={animalQuery.data.id}
+				animalName={animalQuery.data.name}
+				birthDate={animalQuery.data.birthDate}
+			/>
 		</div>
 	);
 };

@@ -105,7 +105,7 @@ export class PostsController {
 			'Устанавливает реакцию от анонимного посетителя. Повторный запрос с тем же emoji снимает реакцию (toggle). Один посетитель — одна реакция на пост. Без авторизации.'
 	})
 	@ApiOkResponse({ description: 'Реакция обновлена' })
-	@Throttle({ short: { ttl: 1000, limit: 3 } })
+	@Throttle({ react: { ttl: 1000, limit: 5 } })
 	@Patch(':id/reaction')
 	async setReaction(
 		@Param('id', ParseUUIDPipe) id: string,

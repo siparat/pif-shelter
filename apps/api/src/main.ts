@@ -34,7 +34,7 @@ async function bootstrap(): Promise<void> {
 		origin: app.get(ConfigService).getOrThrow<string>('ALLOWED_ORIGINS').split(','),
 		credentials: true,
 		methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-		allowedHeaders: ['Content-Type', 'Authorization']
+		allowedHeaders: ['Content-Type', 'Authorization', 'X-Anonymous-Visitor-Id']
 	});
 
 	await app.register(require('@fastify/helmet'));
