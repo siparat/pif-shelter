@@ -5,6 +5,7 @@ export type RouteKey =
 	| 'home'
 	| 'animals'
 	| 'animalDetails'
+	| 'postDetails'
 	| 'donations'
 	| 'donationsList'
 	| 'cancelSubscription'
@@ -153,6 +154,15 @@ export const webRoutes: WebRoute[] = [
 		Icon: Ban,
 		showInMenu: false,
 		preload: () => import('../../pages/faq/ui/FaqPage/FaqPage')
+	},
+	{
+		key: 'postDetails',
+		path: '/posts/:id',
+		name: 'Запись дневника',
+		shortName: 'Запись',
+		Icon: Ban,
+		showInMenu: false,
+		preload: () => import('../../pages/post/ui/PostPage/PostPage')
 	}
 ];
 

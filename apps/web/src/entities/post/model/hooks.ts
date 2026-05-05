@@ -82,7 +82,7 @@ const applyReactionLocally = (post: PostListItem, emoji: AllowedPostReactionEmoj
 	return { ...post, reactions: updated };
 };
 
-type ReactionContext = { previous: Array<[readonly unknown[], unknown]> };
+type ReactionContext = { previous: Array<[readonly unknown[], unknown]>; previousDetail?: PostDetails };
 
 export const useSetPostReactionMutation = (
 	animalId: string,
@@ -94,8 +94,10 @@ export const useSetPostReactionMutation = (
 		mutationFn: ({ postId, emoji }) => setPostReaction(postId, emoji),
 		onMutate: async ({ postId, emoji }) => {
 			await qc.cancelQueries({ queryKey: postsKeys.animalInfinite(animalId, year) });
+			await qc.cancelQueries({ queryKey: postsKeys.detail(postId) });
 
 			const previous = qc.getQueriesData({ queryKey: postsKeys.animalInfinite(animalId, year) });
+			const previousDetail = qc.getQueryData<PostDetails>(postsKeys.detail(postId));
 
 			qc.setQueriesData<InfiniteData<PostsListResult>>(
 				{ queryKey: postsKeys.animalInfinite(animalId, year) },
@@ -113,9 +115,17 @@ export const useSetPostReactionMutation = (
 				}
 			);
 
-			return { previous };
+			if (previousDetail) {
+				const updated = applyReactionLocally(previousDetail as unknown as PostListItem, emoji);
+				qc.setQueryData<PostDetails>(postsKeys.detail(postId), () => ({
+					...previousDetail,
+					reactions: updated.reactions
+				}));
+			}
+
+			return { previous, previousDetail };
 		},
-		onError: (err, _vars, ctx) => {
+		onError: (err, vars, ctx) => {
 			if (err instanceof HTTPError && err.response.status == 429) {
 				toast.error('Слишком много запросов');
 			}
@@ -123,9 +133,13 @@ export const useSetPostReactionMutation = (
 			for (const [key, data] of ctx.previous) {
 				qc.setQueryData(key, data);
 			}
+			if (ctx.previousDetail) {
+				qc.setQueryData(postsKeys.detail(vars.postId), ctx.previousDetail);
+			}
 		},
-		onSettled: () => {
+		onSettled: (_data, _err, vars) => {
 			qc.invalidateQueries({ queryKey: postsKeys.animalInfinite(animalId, year) });
+			qc.invalidateQueries({ queryKey: postsKeys.detail(vars.postId) });
 		}
 	});
 };

@@ -20,6 +20,7 @@ const PrivacyPage = lazy(() => import('../pages/privacy/ui/PrivacyPage/PrivacyPa
 const TermsPage = lazy(() => import('../pages/terms/ui/TermsPage/TermsPage'));
 const CookiesPage = lazy(() => import('../pages/cookies/ui/CookiesPage/CookiesPage'));
 const FaqPage = lazy(() => import('../pages/faq/ui/FaqPage/FaqPage'));
+const PostPage = lazy(() => import('../pages/post/ui/PostPage/PostPage'));
 
 const PageFallback = (): JSX.Element => (
 	<div className="flex min-h-[60vh] items-center justify-center">
@@ -59,7 +60,7 @@ export const router = createBrowserRouter([
 	{
 		element: <Layout />,
 		children: Object.values(ROUTES)
-			.filter((path) => path !== ROUTES.home)
+			.filter((path) => path !== ROUTES.home && path !== ROUTES.postDetails)
 			.map((path) => ({
 				path,
 				element: <Suspense fallback={<PageFallback />}>{routeComponentByPath[path]}</Suspense>
@@ -73,5 +74,13 @@ export const router = createBrowserRouter([
 				element: <HomePage />
 			}
 		]
+	},
+	{
+		path: ROUTES.postDetails,
+		element: (
+			<Suspense fallback={<PageFallback />}>
+				<PostPage />
+			</Suspense>
+		)
 	}
 ]);
