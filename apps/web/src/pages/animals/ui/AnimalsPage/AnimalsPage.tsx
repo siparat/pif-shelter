@@ -9,6 +9,7 @@ import {
 } from '@pif/shared';
 import { JSX, useEffect, useMemo, useRef } from 'react';
 import { AnimalCard, useAnimalsInfiniteQuery } from '../../../../entities/animal';
+import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
 import { animalsCatalogFaqItems } from '../../../../shared/config/faq';
 import { AccordionItem } from '../../../../shared/ui';
 import {
@@ -96,6 +97,10 @@ const AnimalsPage = (): JSX.Element => {
 
 	return (
 		<div className="flex flex-col gap-8 pb-6 md:gap-10">
+			<PageMeta
+				title="Животные"
+				description="Каталог животных приюта ПИФ. Кошки, собаки и другие питомцы в поисках любящего дома — выберите своего друга."
+			/>
 			<section className="rounded-3xl border border-(--color-border-soft) bg-(--color-surface-primary) p-4 shadow-[0_10px_30px_rgba(79,61,56,0.08)] sm:p-5 md:p-6">
 				<div className="flex flex-wrap items-center justify-between gap-3">
 					<div>

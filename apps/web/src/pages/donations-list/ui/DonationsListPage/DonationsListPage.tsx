@@ -2,6 +2,7 @@ import { LedgerEntrySourceEnum } from '@pif/shared';
 import { CalendarDays, Gem, Search, Wallet } from 'lucide-react';
 import { JSX, useMemo, useState } from 'react';
 import { useDonationLedgerQuery } from '../../../../entities/donation';
+import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
 
 const MONTH_OPTIONS = [
 	{ value: 1, label: 'Январь' },
@@ -114,6 +115,10 @@ const DonationsListPage = (): JSX.Element => {
 
 	return (
 		<div className="flex flex-col gap-5 pb-10 md:gap-6">
+			<PageMeta
+				title="Список пожертвований"
+				description="Публичная отчётность приюта ПИФ — все поступившие пожертвования с разбивкой по месяцам и источникам."
+			/>
 			<section className="flex flex-col gap-1 pt-2">
 				<p className="eyebrow text-(--color-brand-accent)">Публичная отчётность</p>
 				<h1 className="text-3xl font-black tracking-tight text-(--color-text-primary) md:text-4xl">

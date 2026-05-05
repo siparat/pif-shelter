@@ -1,6 +1,6 @@
 import { JSX, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { Outlet } from 'react-router-dom';
+import { Outlet, ScrollRestoration } from 'react-router-dom';
 import { VolunteerInviteProvider } from '../../../../features/volunteer-invite';
 import { Footer } from '../../../footer';
 import { Header } from '../Header/Header';
@@ -42,6 +42,7 @@ export const Layout = (): JSX.Element => {
 
 	return (
 		<VolunteerInviteProvider>
+			<ScrollRestoration />
 			<div className="flex min-h-screen flex-col bg-(--color-bg-soft) text-(--color-text-primary)">
 				<Header />
 				<main className="mx-auto min-h-screen w-full max-w-[1680px] flex-1 px-4 py-6 sm:px-6 sm:py-8">

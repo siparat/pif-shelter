@@ -1,6 +1,10 @@
+import { AnimalGenderNames, AnimalSpeciesNames } from '@pif/shared';
 import { JSX } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAnimalQuery } from '../../../../entities/animal';
+import { SITE_URL } from '../../../../shared/config/api';
+import { getMediaUrl } from '../../../../shared/lib/get-media-url';
+import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
 import { AnimalInfoSection, PeopleSection, PostsTimelineSection } from './sections';
 
 const AnimalPage = (): JSX.Element => {
@@ -29,8 +33,23 @@ const AnimalPage = (): JSX.Element => {
 		);
 	}
 
+	const animal = animalQuery.data;
+	const speciesName = AnimalSpeciesNames[animal.species];
+	const genderName = AnimalGenderNames[animal.gender];
+	const description = animal.description
+		? animal.description.slice(0, 155)
+		: `${speciesName} · ${genderName} · ищет дом в приюте ПИФ.`;
+	const image = animal.avatarUrl ? getMediaUrl(animal.avatarUrl) : undefined;
+
 	return (
 		<div className="flex flex-col gap-8 pb-10 md:gap-12">
+			<PageMeta
+				title={animal.name}
+				description={description}
+				image={image}
+				url={`${SITE_URL}/animals/${slug}`}
+				type="article"
+			/>
 			<AnimalInfoSection animal={animalQuery.data} />
 			<PeopleSection animalId={animalQuery.data.id} curatorId={animalQuery.data.curatorId} />
 			<PostsTimelineSection

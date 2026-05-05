@@ -1,5 +1,6 @@
 import { JSX } from 'react';
 import { useCampaignsQuery, useCompletedCampaignsQuery } from '../../../../entities/campaign';
+import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
 import { CampaignDonationModal, useCampaignDonation } from '../../../../features/campaign-donation';
 import {
 	CampaignsGridSection,
@@ -17,6 +18,10 @@ export const CampaignsPage = (): JSX.Element => {
 
 	return (
 		<>
+			<PageMeta
+				title="Срочные сборы"
+				description="Актуальные сборы приюта ПИФ — помогите оплатить лечение, операции и уход за животными, которые не могут ждать."
+			/>
 			<div className="flex flex-col gap-8 pb-8 md:gap-10">
 				<CampaignsHeroSection
 					onDonateNow={() => campaigns[0] && donation.openForCampaign(campaigns[0])}

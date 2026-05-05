@@ -2,10 +2,16 @@ import { JSX } from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../../../../shared/config/routes';
 import { shelter } from '../../../../shared/config/shelter';
+import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
 
 export const CookiesPage = (): JSX.Element => {
 	return (
 		<main className="mx-auto max-w-[860px] px-6 py-16 text-(--color-text-primary)">
+			<PageMeta
+				title="Политика cookies"
+				description="Политика использования файлов cookies на сайте приюта ПИФ."
+				noindex
+			/>
 			<h1 className="mb-2 text-3xl font-black tracking-tight">Политика cookies</h1>
 			<p className="mb-12 text-sm text-(--color-text-secondary)">Последнее обновление: 1 мая 2025 г.</p>
 

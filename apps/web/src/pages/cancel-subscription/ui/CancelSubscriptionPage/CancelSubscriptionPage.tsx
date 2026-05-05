@@ -5,6 +5,9 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { cancelDonationSubscriptionByToken } from '../../../../entities/donation';
 import { ROUTES } from '../../../../shared/config/routes';
+import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
+
+const META = <PageMeta title="Отмена подписки" description="Отмена ежемесячного пожертвования в приюте ПИФ." noindex />;
 
 const CancelSubscriptionPage = (): JSX.Element => {
 	const [searchParams] = useSearchParams();
@@ -37,6 +40,7 @@ const CancelSubscriptionPage = (): JSX.Element => {
 	if (!token) {
 		return (
 			<div className="mx-auto flex w-full max-w-lg flex-col gap-6">
+				{META}
 				<div className="rounded-3xl border border-(--color-border-soft) bg-(--color-surface-primary) p-6 shadow-[0_12px_36px_rgba(79,61,56,0.1)] sm:p-8">
 					<div className="flex flex-col items-center gap-4 text-center">
 						<span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-(--color-brand-brown-soft) text-(--color-brand-brown)">
@@ -69,6 +73,7 @@ const CancelSubscriptionPage = (): JSX.Element => {
 
 	return (
 		<div className="mx-auto flex w-full max-w-lg flex-col gap-6">
+			{META}
 			<div className="rounded-3xl border border-(--color-border-soft) bg-(--color-surface-primary) p-6 shadow-[0_12px_36px_rgba(79,61,56,0.1)] sm:p-8">
 				<div className="flex flex-col gap-6">
 					<div className="flex flex-col items-center gap-3 text-center sm:items-start sm:text-left">

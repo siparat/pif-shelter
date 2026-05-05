@@ -1,9 +1,12 @@
-import { AllowedPostReactionEmoji } from '@pif/shared';
+import { AllowedPostReactionEmoji, PostMediaTypeEnum } from '@pif/shared';
 import { BookOpen, Loader2, PawPrint } from 'lucide-react';
 import { JSX } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { usePostDetailsQuery, useSetPostReactionMutation } from '../../../../entities/post';
+import { SITE_URL } from '../../../../shared/config/api';
 import { ROUTES } from '../../../../shared/config/routes';
+import { getMediaUrl } from '../../../../shared/lib/get-media-url';
+import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
 import { PostMediaGallery } from '../../../animal/ui/AnimalPage/sections/PostsTimelineSection/PostMediaGallery';
 import { ReactionsBar } from '../../../animal/ui/AnimalPage/sections/PostsTimelineSection/ReactionsBar';
 import {
@@ -25,8 +28,24 @@ const PostPage = (): JSX.Element => {
 	const dateInfo = post ? formatTimelineDate(post.createdAt) : null;
 	const ageLabel = post ? formatAgeAtPost(post.animalAgeYears, post.animalAgeMonths) : null;
 
+	const ogImage = post?.media.find((m) => m.type === PostMediaTypeEnum.IMAGE)?.storageKey;
+	const ogDescription = post
+		? post.body
+				.replace(/<[^>]+>/g, '')
+				.slice(0, 155)
+				.trim()
+		: 'Запись из дневника животного в приюте ПИФ.';
+
 	return (
 		<div className="min-h-screen bg-(--color-bg-soft) text-(--color-text-primary)">
+			<PageMeta
+				title={post ? post.title : 'Запись дневника'}
+				description={ogDescription}
+				image={ogImage ? getMediaUrl(ogImage) : undefined}
+				url={id ? `${SITE_URL}/posts/${id}` : undefined}
+				type="article"
+				noindex
+			/>
 			<div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
 				<div className="mb-6 flex items-center gap-2 text-sm text-(--color-text-secondary)">
 					<Link

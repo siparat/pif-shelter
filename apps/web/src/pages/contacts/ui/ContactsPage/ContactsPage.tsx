@@ -1,6 +1,7 @@
 import { Mail, MapPin, Phone, Send } from 'lucide-react';
 import { JSX } from 'react';
 import { footerContacts } from '../../../../shared/config/footer';
+import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
 
 const ContactsPage = (): JSX.Element => {
 	const email = footerContacts.find((c) => c.key === 'email');
@@ -10,6 +11,10 @@ const ContactsPage = (): JSX.Element => {
 
 	return (
 		<div className="rounded-4xl bg-[#201915] p-6 shadow-2xl sm:p-8 md:p-12 lg:p-16">
+			<PageMeta
+				title="Контакты"
+				description="Свяжитесь с приютом ПИФ по телефону, email или Telegram. Мы всегда рады ответить на ваши вопросы."
+			/>
 			<div className="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
 				<div className="flex flex-col rounded-[32px] bg-[#3a2c27] p-8 shadow-xl sm:p-10 md:p-12">
 					<h1 className="mb-4 text-3xl font-black uppercase tracking-tight text-white sm:text-4xl md:text-5xl">

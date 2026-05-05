@@ -1,9 +1,15 @@
 import { JSX } from 'react';
 import { shelter } from '../../../../shared/config/shelter';
+import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
 
 export const PrivacyPage = (): JSX.Element => {
 	return (
 		<main className="mx-auto max-w-[860px] px-6 py-16 text-(--color-text-primary)">
+			<PageMeta
+				title="Политика конфиденциальности"
+				description="Политика конфиденциальности приюта ПИФ — как мы собираем, храним и используем ваши данные."
+				noindex
+			/>
 			<h1 className="mb-2 text-3xl font-black tracking-tight">Политика конфиденциальности</h1>
 			<p className="mb-12 text-sm text-(--color-text-secondary)">Последнее обновление: 1 мая 2025 г.</p>
 

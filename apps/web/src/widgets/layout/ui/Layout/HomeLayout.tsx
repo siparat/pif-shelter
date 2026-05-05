@@ -1,6 +1,6 @@
 import { JSX, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, ScrollRestoration, useLocation } from 'react-router-dom';
 import { VolunteerInviteProvider } from '../../../../features/volunteer-invite';
 import { ROUTES } from '../../../../shared/config/routes';
 import { Footer } from '../../../footer';
@@ -46,6 +46,7 @@ export const HomeLayout = (): JSX.Element => {
 
 	return (
 		<VolunteerInviteProvider>
+			<ScrollRestoration />
 			<div
 				className={`flex min-h-screen flex-col text-(--color-text-primary) ${isHome ? '' : 'bg-(--color-bg-soft)'}`}>
 				<Header />

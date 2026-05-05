@@ -1,5 +1,6 @@
 import { JSX, useState } from 'react';
 import { faqItems, faqTopicLabels, FAQ_TOPICS, FaqTopic } from '../../../../shared/config/faq';
+import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
 import { AccordionItem } from '../../../../shared/ui';
 import { ChoiceChipGroup } from '../../../../shared/ui/choice-chip-group/ChoiceChipGroup';
 
@@ -18,6 +19,10 @@ export const FaqPage = (): JSX.Element => {
 
 	return (
 		<main className="mx-auto max-w-[860px] px-6 py-12 md:py-16">
+			<PageMeta
+				title="Частые вопросы"
+				description="Ответы на вопросы об уходе, пожертвованиях, опекунстве и работе приюта ПИФ."
+			/>
 			<div className="mb-8 md:mb-10">
 				<p className="eyebrow inline-block text-(--color-brand-accent)">Помощь</p>
 				<h1 className="mt-2 text-3xl font-black tracking-tight text-(--color-text-primary) md:text-4xl">

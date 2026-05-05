@@ -1,5 +1,6 @@
 import { JSX, useState } from 'react';
 import { DonationFormSection, DonationsFeedSection } from '../../../../widgets/donations';
+import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
 import {
 	DonationsHelpMode,
 	DonationsHeroSection,
@@ -17,6 +18,10 @@ const DonationsPage = (): JSX.Element => {
 
 	return (
 		<div className="flex flex-col gap-10 sm:gap-12 md:gap-16 lg:gap-20">
+			<PageMeta
+				title="Пожертвования"
+				description="Помогите приюту ПИФ разово или оформите ежемесячную подписку. Каждый рубль идёт на корм, лечение и содержание животных."
+			/>
 			<DonationsHeroSection mode={helpMode} onModeChange={setHelpMode} />
 
 			{helpMode === 'money' ? (

@@ -1,5 +1,6 @@
 import { JSX } from 'react';
 import { useTeamQuery } from '../../../../entities/team';
+import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
 import { shelterFinanceYears } from '../../../../shared/config/about';
 import {
 	FinanceReportsSection,
@@ -15,6 +16,10 @@ const AboutPage = (): JSX.Element => {
 
 	return (
 		<div className="flex flex-col gap-16 md:gap-24">
+			<PageMeta
+				title="О приюте"
+				description="История, миссия и команда приюта ПИФ. Узнайте, как мы помогаем бездомным животным найти любящий дом."
+			/>
 			<HistorySection />
 			<MissionSection />
 			<ShelterMapSection />
