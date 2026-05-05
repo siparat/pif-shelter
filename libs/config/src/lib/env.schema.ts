@@ -39,7 +39,10 @@ export const envSchema = z.object({
 	BOT_HELP_ADDRESS: z.string().optional(),
 	BOT_HELP_VISITING_RULES: z.string().optional(),
 	BOT_HELP_SITE_URL: z.string().optional(),
-	API_PUBLIC_PREFIX: z.string().optional()
+	API_PUBLIC_PREFIX: z.string().optional(),
+	AI_MODEL: z.string(),
+	AI_API_KEY: z.string(),
+	AI_SYSTEM_ROLE: z.string()
 });
 
 export type Env = z.infer<typeof envSchema>;

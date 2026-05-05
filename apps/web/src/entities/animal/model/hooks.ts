@@ -46,6 +46,14 @@ export const useAnimalsInfiniteQuery = (
 		staleTime: 60 * 1000
 	});
 
+export const useAnimalsByIdsQuery = (ids: string[]): UseQueryResult<AnimalDetails[], Error> =>
+	useQuery({
+		queryKey: [...animalQueryKeys.root, 'by-ids', ids],
+		queryFn: () => Promise.all(ids.map((id) => getAnimalById(id))),
+		enabled: ids.length > 0,
+		staleTime: 5 * 60 * 1000
+	});
+
 export const useAnimalsCountQuery = (species?: AnimalSpeciesEnum): UseQueryResult<number, Error> =>
 	useQuery({
 		queryKey: animalQueryKeys.count(species ?? 'all'),

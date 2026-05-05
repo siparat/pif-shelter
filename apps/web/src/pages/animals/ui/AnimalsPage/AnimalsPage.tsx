@@ -7,11 +7,13 @@ import {
 	AnimalSpeciesEnum,
 	AnimalSpeciesNames
 } from '@pif/shared';
-import { JSX, useEffect, useMemo, useRef } from 'react';
-import { AnimalCard, useAnimalsInfiniteQuery } from '../../../../entities/animal';
-import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
+import { JSX, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimalCard, AnimalDetails, useAnimalsByIdsQuery, useAnimalsInfiniteQuery } from '../../../../entities/animal';
+import { AnimalAiSearch } from '../../../../features/animal-ai-search';
+import { AiSearchSuggestion } from '../../../../features/animal-ai-search/model/use-ai-search';
 import { animalsCatalogFaqItems } from '../../../../shared/config/faq';
 import { AccordionItem } from '../../../../shared/ui';
+import { PageMeta } from '../../../../shared/ui/page-meta/PageMeta';
 import {
 	AGE_PRESETS,
 	AGE_PRESET_LABELS,
@@ -59,7 +61,11 @@ const ageOptions = AGE_PRESETS.map((value) => ({
 	label: AGE_PRESET_LABELS[value]
 }));
 
+type AiResult = { matchedIds: string[]; suggestions: AiSearchSuggestion[] };
+
 const AnimalsPage = (): JSX.Element => {
+	const [aiOpen, setAiOpen] = useState(true);
+	const [aiResult, setAiResult] = useState<AiResult | null>(null);
 	const { state, setSpecies, setFilter, reset } = useAnimalFilters();
 	const hasActiveFilters = isFilterActive(state);
 
@@ -68,6 +74,28 @@ const AnimalsPage = (): JSX.Element => {
 
 	const animals = useMemo(() => animalsQuery.data?.pages.flatMap((page) => page.data) ?? [], [animalsQuery.data]);
 	const total = animalsQuery.data?.pages[0]?.meta.total ?? 0;
+
+	const allAiIds = useMemo(
+		() => (aiResult ? [...aiResult.matchedIds, ...aiResult.suggestions.map((s) => s.id)] : []),
+		[aiResult]
+	);
+	const aiAnimalsQuery = useAnimalsByIdsQuery(allAiIds);
+
+	const aiAnimals = useMemo((): {
+		matched: AnimalDetails[];
+		suggestions: Array<{ animal: AnimalDetails; note: string }>;
+	} | null => {
+		if (!aiResult || !aiAnimalsQuery.data) return null;
+		const all = aiAnimalsQuery.data;
+		const matched = aiResult.matchedIds
+			.map((id) => all.find((a) => a.id === id))
+			.filter(Boolean) as AnimalDetails[];
+		const suggestions = aiResult.suggestions
+			.map((s) => ({ animal: all.find((a) => a.id === s.id), note: s.note }))
+			.filter((s): s is { animal: AnimalDetails; note: string } => Boolean(s.animal));
+		return { matched, suggestions };
+	}, [aiResult, aiAnimalsQuery.data]);
+
 	const rows = useMemo(() => chunkBy(animals, CARDS_PER_ROW), [animals]);
 	const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
@@ -95,6 +123,19 @@ const AnimalsPage = (): JSX.Element => {
 		return () => observer.disconnect();
 	}, [animalsQuery.fetchNextPage, animalsQuery.hasNextPage, animalsQuery.isError, animalsQuery.isFetchingNextPage]);
 
+	const handleAiResult = (result: AiResult): void => {
+		setAiResult(result);
+	};
+
+	const handleAiReset = (): void => {
+		setAiResult(null);
+	};
+
+	const handleAiClose = (): void => {
+		setAiOpen(false);
+		setAiResult(null);
+	};
+
 	return (
 		<div className="flex flex-col gap-8 pb-6 md:gap-10">
 			<PageMeta
@@ -109,66 +150,127 @@ const AnimalsPage = (): JSX.Element => {
 							Животные
 						</h1>
 					</div>
-					<div className="rounded-full bg-(--color-brand-brown-soft) px-4 py-2 text-[13px] font-semibold text-(--color-text-secondary)">
-						Найдено: {total}
-					</div>
-				</div>
-
-				<div className="mt-5 flex flex-col gap-3 rounded-2xl bg-(--color-brand-brown-soft)/60 p-3 sm:p-4">
-					<FilterChipGroup label="Вид" options={speciesOptions} value={state.species} onChange={setSpecies} />
-					<FilterChipGroup
-						label="Пол"
-						options={genderOptions}
-						value={state.gender}
-						onChange={(value) => setFilter('gender', value)}
-					/>
-					<FilterChipGroup
-						label="Размер"
-						options={sizeOptions}
-						value={state.size}
-						onChange={(value) => setFilter('size', value)}
-					/>
-					<FilterChipGroup
-						label="Шерсть"
-						options={coatOptions}
-						value={state.coat}
-						onChange={(value) => setFilter('coat', value)}
-					/>
-					<FilterChipGroup
-						label="Возраст"
-						options={ageOptions}
-						value={state.age}
-						onChange={(value) => setFilter('age', value)}
-					/>
-					<div className="flex flex-wrap gap-2 pt-1">
-						<FilterToggle
-							label="Только стерилизованные"
-							checked={Boolean(state.isSterilized)}
-							onChange={(checked) => setFilter('isSterilized', checked)}
-						/>
-						<FilterToggle
-							label="Только привитые"
-							checked={Boolean(state.isVaccinated)}
-							onChange={(checked) => setFilter('isVaccinated', checked)}
-						/>
-						<FilterToggle
-							label="Только без паразитов"
-							checked={Boolean(state.isParasiteTreated)}
-							onChange={(checked) => setFilter('isParasiteTreated', checked)}
-						/>
-						{hasActiveFilters && (
-							<button
-								type="button"
-								onClick={reset}
-								className="inline-flex h-10 items-center justify-center rounded-full bg-(--color-surface-primary) px-4 text-[13px] font-semibold text-(--color-text-secondary) transition-colors hover:bg-white">
-								Сбросить фильтры
-							</button>
+					<div className="flex items-center gap-2">
+						<button
+							type="button"
+							onClick={() => setAiOpen((v) => !v)}
+							className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-semibold transition-colors ${
+								aiOpen
+									? 'border-(--color-brand-accent) bg-(--color-brand-accent)/10 text-(--color-brand-accent)'
+									: 'border-(--color-border-soft) bg-(--color-brand-brown-soft) text-(--color-text-secondary) hover:border-(--color-brand-accent) hover:text-(--color-brand-accent)'
+							}`}>
+							<svg
+								width="14"
+								height="14"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								aria-hidden>
+								<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+								<path d="M19 3v4" />
+								<path d="M21 5h-4" />
+							</svg>
+							ИИ-подбор
+						</button>
+						{aiResult ? (
+							<div className="rounded-full bg-(--color-brand-accent)/10 px-4 py-2 text-[13px] font-semibold text-(--color-brand-accent)">
+								Подобрано: {aiAnimals ? aiAnimals.matched.length + aiAnimals.suggestions.length : 0}
+							</div>
+						) : (
+							<div className="rounded-full bg-(--color-brand-brown-soft) px-4 py-2 text-[13px] font-semibold text-(--color-text-secondary)">
+								Найдено: {total}
+							</div>
 						)}
 					</div>
 				</div>
+
+				{aiOpen && (
+					<div className="mt-4 rounded-2xl border border-(--color-brand-accent)/20 bg-(--color-brand-accent)/5 p-4 sm:p-5">
+						<AnimalAiSearch onClose={handleAiClose} onResult={handleAiResult} onReset={handleAiReset} />
+					</div>
+				)}
+
+				{!aiResult && (
+					<div className="mt-5 flex flex-col gap-3 rounded-2xl bg-(--color-brand-brown-soft)/60 p-3 sm:p-4">
+						<FilterChipGroup
+							label="Вид"
+							options={speciesOptions}
+							value={state.species}
+							onChange={setSpecies}
+						/>
+						<FilterChipGroup
+							label="Пол"
+							options={genderOptions}
+							value={state.gender}
+							onChange={(value) => setFilter('gender', value)}
+						/>
+						<FilterChipGroup
+							label="Размер"
+							options={sizeOptions}
+							value={state.size}
+							onChange={(value) => setFilter('size', value)}
+						/>
+						<FilterChipGroup
+							label="Шерсть"
+							options={coatOptions}
+							value={state.coat}
+							onChange={(value) => setFilter('coat', value)}
+						/>
+						<FilterChipGroup
+							label="Возраст"
+							options={ageOptions}
+							value={state.age}
+							onChange={(value) => setFilter('age', value)}
+						/>
+						<div className="flex flex-wrap gap-2 pt-1">
+							<FilterToggle
+								label="Только стерилизованные"
+								checked={Boolean(state.isSterilized)}
+								onChange={(checked) => setFilter('isSterilized', checked)}
+							/>
+							<FilterToggle
+								label="Только привитые"
+								checked={Boolean(state.isVaccinated)}
+								onChange={(checked) => setFilter('isVaccinated', checked)}
+							/>
+							<FilterToggle
+								label="Только без паразитов"
+								checked={Boolean(state.isParasiteTreated)}
+								onChange={(checked) => setFilter('isParasiteTreated', checked)}
+							/>
+							{hasActiveFilters && (
+								<button
+									type="button"
+									onClick={reset}
+									className="inline-flex h-10 items-center justify-center rounded-full bg-(--color-surface-primary) px-4 text-[13px] font-semibold text-(--color-text-secondary) transition-colors hover:bg-white">
+									Сбросить фильтры
+								</button>
+							)}
+						</div>
+					</div>
+				)}
+
+				{aiResult && (
+					<div className="mt-4 flex items-center gap-3">
+						{aiAnimals && aiAnimals.suggestions.length > 0 && (
+							<p className="text-xs text-(--color-text-secondary)">
+								Точных совпадений: {aiAnimals.matched.length}, похожих: {aiAnimals.suggestions.length}
+							</p>
+						)}
+						<button
+							type="button"
+							onClick={handleAiReset}
+							className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-(--color-border-soft) bg-(--color-surface-secondary) px-4 py-2 text-[13px] font-semibold text-(--color-text-secondary) transition-colors hover:border-(--color-brand-accent) hover:text-(--color-brand-accent)">
+							Сбросить — показать всех
+						</button>
+					</div>
+				)}
 			</section>
 
-			{animalsQuery.isError && (
+			{!aiResult && animalsQuery.isError && (
 				<section className="rounded-3xl border border-(--color-border-soft) bg-(--color-surface-primary) p-6 text-center">
 					<p className="text-(--color-text-primary)">Не удалось загрузить животных. Попробуйте еще раз.</p>
 					<button
@@ -180,19 +282,59 @@ const AnimalsPage = (): JSX.Element => {
 				</section>
 			)}
 
-			{animalsQuery.isPending && (
+			{!aiResult && animalsQuery.isPending && (
 				<section className="rounded-3xl border border-(--color-border-soft) bg-(--color-surface-primary) p-6 text-center text-(--color-text-secondary)">
 					Загружаем питомцев...
 				</section>
 			)}
 
-			{!animalsQuery.isPending && !animalsQuery.isError && animals.length === 0 && (
+			{!aiResult && !animalsQuery.isPending && !animalsQuery.isError && animals.length === 0 && (
 				<section className="rounded-3xl border border-(--color-border-soft) bg-(--color-surface-primary) p-6 text-center text-(--color-text-secondary)">
 					По текущим фильтрам ничего не найдено. Попробуйте убрать часть ограничений.
 				</section>
 			)}
 
-			{rows.length > 0 && (
+			{aiResult && aiAnimals && aiAnimals.matched.length === 0 && aiAnimals.suggestions.length === 0 && (
+				<section className="rounded-3xl border border-(--color-border-soft) bg-(--color-surface-primary) p-6 text-center text-(--color-text-secondary)">
+					ИИ не нашёл подходящих животных. Попробуйте изменить описание.
+				</section>
+			)}
+
+			{aiResult && aiAnimals && (aiAnimals.matched.length > 0 || aiAnimals.suggestions.length > 0) && (
+				<section className="flex flex-col gap-6">
+					{aiAnimals.matched.length > 0 && (
+						<div className="flex flex-col gap-3">
+							<p className="text-xs font-bold uppercase tracking-[0.14em] text-(--color-brand-accent)">
+								Подходят
+							</p>
+							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+								{aiAnimals.matched.map((animal) => (
+									<div key={animal.id} className="mx-auto w-full max-w-[360px]">
+										<AnimalCard animal={animal} />
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+					{aiAnimals.suggestions.length > 0 && (
+						<div className="flex flex-col gap-3">
+							<p className="text-xs font-bold uppercase tracking-[0.14em] text-(--color-text-secondary)">
+								Могут подойти
+							</p>
+							<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+								{aiAnimals.suggestions.map(({ animal, note }) => (
+									<div key={animal.id} className="mx-auto w-full max-w-[360px]">
+										<AnimalCard animal={animal} />
+										<p className="mt-2 px-1 text-xs text-(--color-text-secondary)">{note}</p>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+				</section>
+			)}
+
+			{!aiResult && rows.length > 0 && (
 				<section className="flex flex-col gap-6">
 					{rows.map((row, index) => {
 						const faqIndex = Math.floor((index + 1) / FAQ_ROW_INTERVAL) - 1;
@@ -224,11 +366,11 @@ const AnimalsPage = (): JSX.Element => {
 				</section>
 			)}
 
-			{!animalsQuery.isPending && !animalsQuery.isError && animals.length > 0 && (
+			{!aiResult && !animalsQuery.isPending && !animalsQuery.isError && animals.length > 0 && (
 				<div ref={loadMoreRef} aria-hidden className="h-px w-full" />
 			)}
 
-			{animalsQuery.isFetchingNextPage && (
+			{!aiResult && animalsQuery.isFetchingNextPage && (
 				<div className="flex justify-center text-sm text-(--color-text-secondary)">Загружаем...</div>
 			)}
 		</div>

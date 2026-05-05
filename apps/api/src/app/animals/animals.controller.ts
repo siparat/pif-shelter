@@ -1,10 +1,26 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import {
+	BadRequestException,
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Header,
+	MessageEvent,
+	Param,
+	ParseUUIDPipe,
+	Patch,
+	Post,
+	Query,
+	Sse,
+	UseGuards
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ListAnimalsResult } from '@pif/contracts';
 import { UserRole } from '@pif/shared';
 import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { Observable, from, map } from 'rxjs';
 import { ISession } from '../configs/auth.config';
 import { Roles } from '../core/decorators/roles.decorator';
 import {
@@ -41,6 +57,8 @@ import { UnassignAnimalLabelCommand } from './commands/unassign-animal-label/una
 import { UpdateAnimalCommand } from './commands/update-animal/update-animal.command';
 import { GetAnimalByIdQuery } from './queries/get-animal-by-id/get-animal-by-id.query';
 import { ListAnimalsQuery } from './queries/list-animals/list-animals.query';
+import { AiSearchStreamEvent } from './queries/ai-search/ai-search-animals.handler';
+import { AiSearchAnimalsQuery } from './queries/ai-search/ai-search-animals.query';
 
 @ApiTags('Animals | Питомцы')
 @Controller('animals')
@@ -92,6 +110,29 @@ export class AnimalsController {
 	@Get(':id')
 	async getById(@Param('id', ParseUUIDPipe) id: string): Promise<AnimalDto> {
 		return this.queryBus.execute(new GetAnimalByIdQuery(id));
+	}
+
+	@ApiOperation({
+		summary: 'ИИ-поиск питомца',
+		description: 'SSE-стрим: delta-чанки текста + финальный результат с ID.'
+	})
+	@Sse('ai-search')
+	@Header('Content-Type', 'text/event-stream; charset=utf-8')
+	async aiSearch(@Query('q') q: string): Promise<Observable<MessageEvent>> {
+		const maxLength = 300;
+		if (q.length > maxLength) {
+			throw new BadRequestException(`Слишком длинный запрос, максимальная длина сообщения – ${maxLength}`);
+		}
+		const gen: AsyncGenerator<AiSearchStreamEvent> = await this.queryBus.execute(new AiSearchAnimalsQuery(q ?? ''));
+
+		return from(gen).pipe(
+			map((event): MessageEvent => {
+				if (event.type === 'delta') return { type: 'delta', data: { text: event.text } };
+				if (event.type === 'result')
+					return { type: 'result', data: { matchedIds: event.matchedIds, suggestions: event.suggestions } };
+				return { type: 'error', data: { message: event.message } };
+			})
+		);
 	}
 
 	@ApiOperation({ summary: 'Удалить животное', description: 'Удаляет карточку животного по ID.' })

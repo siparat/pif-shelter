@@ -14,6 +14,7 @@ import { UpdateAnimalLabelHandler } from './commands/update-animal-label/update-
 import { UpdateAnimalHandler } from './commands/update-animal/update-animal.handler';
 import { SendEmailAboutCostGuardianshipHandler } from './events/animal-cost-of-guardianship-set/send-email-about-cost-guardianship.handler';
 import { OnAnimalStatusAdoptedOrRainbowHandler } from './events/animal-status-changed/on-animal-status-adopted-or-rainbow.handler';
+import { AiSearchAnimalsHandler } from './queries/ai-search/ai-search-animals.handler';
 import { GetAnimalByIdHandler } from './queries/get-animal-by-id/get-animal-by-id.handler';
 import { ListAnimalLabelsHandler } from './queries/list-animal-labels/list-animal-labels.handler';
 import { ListAnimalsHandler } from './queries/list-animals/list-animals.handler';
@@ -56,6 +57,7 @@ import { UsersModule } from '../users/users.module';
 		AnimalLabelCreatedHandler,
 		InvalidateAnimalsCacheHandler,
 
+		AiSearchAnimalsHandler,
 		GetAnimalByIdHandler,
 		ListAnimalsHandler,
 		ListAnimalLabelsHandler,
