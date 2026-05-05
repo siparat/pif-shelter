@@ -2,15 +2,15 @@
 
 Документ описывает архитектуру аутентификации и авторизации.
 
-## 1. Архитектура библиотек
+## 1. Архитектура
 
 Мы разделяем ответственность для избежания циклических зависимостей:
 
-1.  **`libs/database`**: Хранит схемы таблиц (`user`, `session`, `account`, `verification`) и подключение к БД.
-2.  **`libs/auth`**: Конфигурация `better-auth`. Зависит от `database`. Экспортирует инстанс `auth` для использования в API.
-3.  **`libs/email-templates`**: React-компоненты писем (Invite, Reset Password). Не зависит от бэкенда.
-4.  **`libs/mail`**: Сервис отправки писем (Nodemailer/Resend). Использует шаблоны из `email-templates`.
-5.  **`apps/api`**: Основной потребитель. Использует `auth` для Guards и `mail` для отправки приглашений.
+1.  **`libs/database`**: Хранит схемы таблиц (`user`, `session`, `account`, `verification`, `invitation`) и подключение к БД через Drizzle ORM.
+2.  **`libs/email-templates`**: React-компоненты писем (Invite, Guardianship и т.п.) на `@react-email/components`. Не зависят от бэкенда.
+3.  **`apps/api`**: Конфигурация `better-auth` и `@thallesp/nestjs-better-auth` живёт в `apps/api/src/app/configs/auth.config.ts`. Письма отправляются через `@nestjs-modules/mailer` + `nodemailer`, рендеринг шаблонов — `@react-email/render`.
+
+Запросы `better-auth` маршрутизируются вручную через адаптер Fastify (см. `core/auth/better-auth-fastify.handler.ts`), потому что API работает на `@nestjs/platform-fastify`, а не на Express.
 
 ## 2. Схема данных (User Schema)
 

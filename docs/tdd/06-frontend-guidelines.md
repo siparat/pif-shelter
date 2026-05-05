@@ -1,66 +1,60 @@
-# 06. Frontend Guidelines (Next.js + Refine)
+# 06. Frontend Guidelines (Vite + React + FSD)
 
 Документ описывает стандарты разработки клиентских приложений.
-У нас два приложения:
+У нас два приложения, оба построены на одном стеке:
 
-1. apps/app — Публичный сайт (Next.js App Router). Фокус на SEO, SSR и Performance.
-2. apps/admin — Админка (Vite + React + Refine). Фокус на SPA, PWA и скорости разработки форм.
+1. apps/web — Публичный сайт (Vite + React 19 + react-router-dom v6).
+2. apps/admin — Админка (Vite + React 19 + react-router-dom v6 + PWA через `vite-plugin-pwa`).
+
+Архитектурный стандарт обоих приложений — **Feature-Sliced Design (FSD)** (см. ADR-014).
 
 ## 1. Структура и Стек
 
 ### 1.1. Общий стек (Shared)
 
-- Styling: Tailwind CSS.
-- UI Kit: shadcn/ui.
+- Bundler: Vite 7.
+- Routing: react-router-dom v6 (`createBrowserRouter` + `lazy()` для разделения бандла).
+- Styling: Tailwind CSS v4 (через `@tailwindcss/vite`).
 - Icons: Lucide React.
 - State Server: TanStack Query v5.
-- Forms: React Hook Form + Zod Resolver.
-- Utils: clsx + tailwind-merge (функция cn()).
+- HTTP-клиент: `ky`.
+- Forms: React Hook Form + Zod Resolver (`@hookform/resolvers`).
+- Rich text: TipTap 3 (для постов в админке).
+- Drag-and-drop: `@dnd-kit/*`.
+- Утилиты: `clsx` + `tailwind-merge` (функция `cn()`), `dompurify`, `dayjs`.
 
-### 1.2. apps/app (Next.js)
+### 1.2. Структура (FSD)
 
-Используем App Router.
-
-- Server Components (RSC) — по умолчанию. Используем для фетчинга данных, которые нужны для SEO (карточка животного).
-- Client Components ('use client') — только для интерактивности (кнопки, формы, слайдеры).
-
-```text
-Структура:
-apps/app/app/
-  (routes)/
-    animals/
-      [slug]/
-        page.tsx
-        loading.tsx
-    layout.tsx
-  components/
-```
-
-### 1.3. apps/admin (Refine)
-
-SPA приложение.
-
-- Используем Refine для генерации CRUD.
-- Ресурсы (Resources) определяются в App.tsx.
+Каждое приложение имеет одинаковые слои:
 
 ```text
-Структура:
-apps/admin/src/
-  pages/
-    animals/
-      list.tsx
-      edit.tsx
-      create.tsx
-  providers/
+apps/<app>/src/
+├── app/          # Инициализация, провайдеры, роутер
+├── pages/        # Страницы (ленивые чанки)
+├── widgets/      # Композиции из features/entities (Layout, Header)
+├── features/     # Функциональность (формы, действия)
+├── entities/     # Бизнес-сущности (типы, queries, мелкие UI-блоки)
+├── shared/       # api, config, ui, lib (переиспользуемое)
+└── main.tsx
 ```
 
-## 2. Работа с данными (TanStack Query)
+Внутри слайса (например `pages/animal`) принят шаблон `ui/<ComponentName>/<ComponentName>.tsx` плюс публичный API через `index.ts`. Импорты строго сверху вниз: `app → pages → widgets → features → entities → shared`.
 
-Мы НЕ вызываем fetch/axios напрямую в компонентах. Мы используем кастомные хуки.
+### 1.3. Именование (PascalCase для UI)
+
+См. ADR-014:
+
+- Папки и файлы UI-компонентов (с JSX): **PascalCase** (`AnimalsPage.tsx`).
+- Хуки, утилиты, конфиги, стили: **kebab-case**.
+- Компоненты объявляются только через **arrow function**: `const Component = (): JSX.Element => ...`.
+
+## 2. Работа с данными (TanStack Query + ky)
+
+Мы НЕ вызываем `fetch` напрямую в компонентах. HTTP-клиент `ky` инкапсулирован в `shared/api/`, а сами запросы — в `entities/<name>/api` или `features/<name>/api` через хуки.
 
 ### 2.1. Query Keys Factory
 
-Чтобы не запутаться в ключах кэша, храним их в одном объекте (в libs/frontend/api-client).
+Чтобы не запутаться в ключах кэша, храним их рядом с хуками:
 
 ```ts
 export const animalKeys = {
@@ -74,31 +68,27 @@ export const animalKeys = {
 
 ### 2.2. Custom Hooks (Data Access Layer)
 
-Вся логика запросов инкапсулируется в хуках.
+Вся логика запросов инкапсулируется в хуках:
 
 ```ts
-export const useAnimal = (id: string) => {
-	return useQuery({
+export const useAnimal = (id: string) =>
+	useQuery({
 		queryKey: animalKeys.detail(id),
-		queryFn: async () => {
-			const { data } = await apiClient.get(`/animals/${id}`);
-			return data;
-		},
-		enabled: !!id
+		queryFn: () => apiClient.get(`animals/${id}`).json<AnimalDto>(),
+		enabled: Boolean(id)
 	});
-};
 ```
 
 ### 2.3. Mutations
 
-Для изменений данных используем useMutation. Обязательно делаем инвалидацию кэша после успеха.
+Для изменений используем `useMutation`. Обязательна инвалидация кэша после успеха:
 
 ```ts
 export const useCreateAnimal = () => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (newAnimal: CreateAnimalDto) => apiClient.post('/animals', newAnimal),
+		mutationFn: (dto: CreateAnimalDto) => apiClient.post('animals', { json: dto }).json(),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: animalKeys.lists() });
 			toast.success('Животное добавлено!');
@@ -109,62 +99,45 @@ export const useCreateAnimal = () => {
 
 ## 3. Формы и Валидация
 
-Мы используем единые схемы валидации с бэкендом (Shared DTO).
-
-Паттерн создания формы:
-
-1. Импортируем схему из `libs/contracts`.
-2. Подключаем zodResolver.
+Мы используем единые Zod-схемы из `libs/contracts` и на бэкенде, и на фронте.
 
 ```ts
 const form = useForm<CreateAnimalDto>({
 	resolver: zodResolver(createAnimalSchema),
-	defaultValues: {
-		name: '',
-		age: 0
-	}
+	defaultValues: { name: '', age: 0 }
 });
 
-const onSubmit = (data: CreateAnimalDto) => {
-	mutate(data);
-};
+const onSubmit = (data: CreateAnimalDto): void => mutate(data);
 ```
 
-## 4. UI Kit (shadcn/ui)
+## 4. UI
 
-Компоненты лежат в libs/shared/ui-kit.
-Мы не импортируем их из @/components/ui, мы импортируем их из библиотеки:
+Собственный набор компонентов лежит в `apps/<app>/src/shared/ui`. Глобального UI-кита в `libs` нет — UI-компоненты не переиспользуются между web и admin (у них разные дизайн-системы).
 
-```ts
-import { Button } from '@pif/ui-kit';
+### 4.1. Кастомизация классов
+
+Используем утилиту `cn` (комбинация `clsx` + `tailwind-merge`):
+
+```tsx
+<button className={cn('bg-red-500', className)}>Delete</button>
 ```
 
-### 4.1. Кастомизация
+Запрещено конкатенировать классы строкой или использовать `@apply` — только `cn` (см. ADR-014).
 
-Если нужно изменить стиль кнопки глобально — правим в libs/shared/ui-kit/src/button.tsx.
-Если нужно изменить стиль кнопки локально — используем className и утилиту cn().
-
-```ts
-<Button className={cn("bg-red-500", className)}>Delete</Button>
-```
-
-## 5. Оптимизация (Web Vitals)
+## 5. Оптимизация
 
 ### 5.1. Изображения
 
-Для apps/app (Next.js) ОБЯЗАТЕЛЬНО использовать компонент <Image />.
+Перед отправкой на сервер изображения сжимаются и конвертируются в WebP **на клиенте** (см. ADR-005). Для отображения используем относительные ключи из S3, преобразуя их в URL только в presentation-слое.
 
-- Задавать width/height (для избежания Layout Shift - CLS).
-- Использовать placeholder="blur" для LCP.
+### 5.2. Code splitting
 
-### 5.2. Шрифты
-
-Используем next/font. Шрифты должны быть локальными (self-hosted), Google Fonts не грузим с CDN.
+Страницы подключаются через `React.lazy` + `Suspense` в `app/router.tsx`, чтобы не раздувать начальный бандл.
 
 ## 6. PWA (Только Admin)
 
-Для админки настроен vite-plugin-pwa.
+Для админки настроен `vite-plugin-pwa`.
 
-- manifest.json должен содержать корректные иконки.
-- Service Worker кэширует статику (JS, CSS), чтобы админка открывалась офлайн (но данные грузятся только с сетью).
-- При обновлении версии приложения пользователю показывается тост: "Доступна новая версия. Обновить?".
+- `manifest.json` должен содержать корректные иконки.
+- Service Worker кэширует статику; данные грузятся только с сетью.
+- При обновлении версии приложения пользователю показывается тост: «Доступна новая версия. Обновить?» (через `workbox-window`).

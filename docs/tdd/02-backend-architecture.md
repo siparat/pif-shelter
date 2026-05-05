@@ -100,7 +100,10 @@ export class CreateAnimalHandler implements ICommandHandler<CreateAnimalCommand>
 	async execute(command: CreateAnimalCommand): Promise<{ id: string }> {
 		const { name, age, breed } = command;
 
-		const [newAnimal] = await this.db.insert(animals).values({ name, age, breed }).returning({ id: animals.id });
+		const [newAnimal] = await this.db.client
+			.insert(animals)
+			.values({ name, age, breed })
+			.returning({ id: animals.id });
 
 		this.eventBus.publish(new AnimalCreatedEvent(newAnimal.id));
 
@@ -123,7 +126,7 @@ export class GetAnimalByIdHandler implements IQueryHandler<GetAnimalByIdQuery> {
 	constructor(private readonly db: DatabaseService) {}
 
 	async execute(query: GetAnimalByIdQuery): Promise<AnimalDto | null> {
-		const result = await this.db.select().from(animals).where(eq(animals.id, query.id)).limit(1);
+		const result = await this.db.client.select().from(animals).where(eq(animals.id, query.id)).limit(1);
 
 		return result[0] || null;
 	}
