@@ -17,7 +17,7 @@ export const UrgentCampaignsSection = (): JSX.Element => {
 	const { ref: headerRef, inView: headerInView } = useInView();
 
 	const campaignsQuery = useCampaignsQuery();
-	const campaigns = (campaignsQuery.data ?? []).slice(0, 4);
+	const campaigns = (campaignsQuery.data ?? []).slice(0, 6);
 
 	const detail = useCampaignDetail();
 	const donation = useCampaignDonation();
