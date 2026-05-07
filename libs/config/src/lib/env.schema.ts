@@ -42,7 +42,8 @@ export const envSchema = z.object({
 	API_PUBLIC_PREFIX: z.string().optional(),
 	AI_MODEL: z.string(),
 	AI_API_KEY: z.string(),
-	AI_SYSTEM_ROLE: z.string()
+	AI_SYSTEM_ROLE: z.string(),
+	PROXY: z.string().optional()
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -55,6 +55,7 @@
 		"express": "^5.2.1",
 		"fastify": "^5.8.2",
 		"helmet": "^8.1.0",
+		"https-proxy-agent": "^9.0.0",
 		"ky": "^2.0.0",
 		"libphonenumber-js": "^1.12.41",
 		"lucide-react": "^1.8.0",
