@@ -1,6 +1,6 @@
 FROM node:24-alpine
 WORKDIR /opt/app
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 COPY package.json pnpm-lock.yaml ./
 COPY nx.json tsconfig.base.json ./
 COPY migrations ./migrations

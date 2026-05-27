@@ -1,5 +1,5 @@
 FROM node:24-alpine AS builder
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /opt/app
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
@@ -10,7 +10,7 @@ RUN pnpm nx build api --prod
 
 FROM node:24-alpine
 RUN apk add --no-cache curl
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /opt/app
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod
